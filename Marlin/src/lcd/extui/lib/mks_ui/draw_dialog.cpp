@@ -123,6 +123,7 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
           start_print_time();
           planner.set_e_position_mm(destination.e = current_position.e = 0);
           detector.reset();
+          p_babystep.reset();
           uiCfg.print_state = WORKING;
           #if ENABLED(POWER_LOSS_RECOVERY)
             recovery.info.print_paused = 0;
@@ -478,6 +479,12 @@ static void btn_return_event_cb(lv_obj_t *btn, lv_event_t event) {
     lv_clear_dialog();
     lv_draw_filament_change();
   }
+  else if (DIALOG_IS(TYPE_FINISH_PRINT)) {
+    if (p_babystep.isChanged()) {
+      TERN_(EEPROM_SETTINGS, (void)settings.save());
+      p_babystep.init();
+    }
+  }
 }
 #endif
 
@@ -502,6 +509,12 @@ void lv_draw_dialog(uint8_t type) {
     btnCancel = lv_button_btn_create(scr, TERN(MIXWARE_MODEL_V, BTN_RIGHT_X, BTN_CANCEL_X), TERN(MIXWARE_MODEL_V, BTN_POS_Y, BTN_CANCEL_Y), TERN(MIXWARE_MODEL_V, BTN_SIZE_WIDTH, 100), TERN(MIXWARE_MODEL_V, BTN_SIZE_HEIGHT, 50), btn_cancel_event_cb);
     lv_obj_t *labelCancel = lv_label_create_empty(btnCancel);
     lv_label_set_text(labelCancel, print_file_dialog_menu.confirm);
+
+    if (p_babystep.isChanged()) {
+        lv_obj_t *btnReturn = lv_button_btn_create(scr, BTN_RIGHT_X, BTN_POS_Y+100, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_return_event_cb);
+        lv_obj_t *labelReturn = lv_label_create_empty(btnReturn);
+        lv_label_set_text(labelReturn, print_file_dialog_menu.saveExit);
+    }
   }
   else if (DIALOG_IS(PAUSE_MESSAGE_RESUME)) {
     btnOk = lv_button_btn_create(scr, TERN(MIXWARE_MODEL_V, BTN_CENTER_X, (BTN_OK_X + 90)), TERN(MIXWARE_MODEL_V, BTN_POS_Y, BTN_OK_Y), TERN(MIXWARE_MODEL_V, BTN_SIZE_WIDTH, 100), TERN(MIXWARE_MODEL_V, BTN_SIZE_HEIGHT, 50), btn_ok_event_cb);
@@ -680,17 +693,36 @@ void lv_draw_dialog(uint8_t type) {
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -50);
   }
   else if (DIALOG_IS(TYPE_FINISH_PRINT)) {
-    lv_label_set_text(labelDialog, print_file_dialog_menu.print_finish);
-    lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -70);
-    #if ENABLED(MIXWARE_MODEL_V)
+    if (p_babystep.isChanged()) {
+      lv_label_set_text(labelDialog, print_file_dialog_menu.print_finish);
+      lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -110);
+
       lv_obj_t * labelTime = lv_label_create(scr, "");
       lv_obj_set_style(labelTime, &tft_style_label_rel);
 
       sprintf_P(public_buf_l, PSTR("%s: %d%d:%d%d:%d%d"), print_file_dialog_menu.print_time, print_time.hours / 10, print_time.hours % 10, print_time.minutes / 10, print_time.minutes % 10, print_time.seconds / 10, print_time.seconds % 10);
 
       lv_label_set_text(labelTime, public_buf_l);
-      lv_obj_align(labelTime, nullptr, LV_ALIGN_CENTER, 0, -30);
-    #endif
+      lv_obj_align(labelTime, nullptr, LV_ALIGN_CENTER, 0, -70);
+
+      lv_obj_t * labelTips = lv_label_create(scr, "");
+      lv_obj_set_style(labelTips, &tft_style_label_rel);
+      lv_label_set_text(labelTips, print_file_dialog_menu.saveExitTips);
+      lv_obj_align(labelTips, nullptr, LV_ALIGN_CENTER, 0, -10);
+    }
+    else {
+      lv_label_set_text(labelDialog, print_file_dialog_menu.print_finish);
+      lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -70);
+      #if ENABLED(MIXWARE_MODEL_V)
+        lv_obj_t * labelTime = lv_label_create(scr, "");
+        lv_obj_set_style(labelTime, &tft_style_label_rel);
+
+        sprintf_P(public_buf_l, PSTR("%s: %d%d:%d%d:%d%d"), print_file_dialog_menu.print_time, print_time.hours / 10, print_time.hours % 10, print_time.minutes / 10, print_time.minutes % 10, print_time.seconds / 10, print_time.seconds % 10);
+
+        lv_label_set_text(labelTime, public_buf_l);
+        lv_obj_align(labelTime, nullptr, LV_ALIGN_CENTER, 0, -30);
+      #endif
+    }
   }
   else if (DIALOG_IS(PAUSE_MESSAGE_PAUSING)) {
     lv_label_set_text(labelDialog, pause_msg_menu.pausing);

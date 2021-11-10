@@ -22,7 +22,6 @@
 #pragma once
 
 #include "../../../../inc/MarlinConfig.h"
-#include "../../../../module/probe.h"
 
 class FilamentDetector {
 private:
@@ -48,21 +47,17 @@ extern FilamentDetector detector;
 
 class Printing_Babystep {
 private:
+  float save_probe;
   float start_probe;
   float end_probe;
 
 public:
   Printing_Babystep();
 
-  void init() {
-    start_probe = end_probe = probe.offset.z;
-  };
-  void change() {
-    end_probe = probe.offset.z;
-  };
-  bool isChanged() {
-    return (bool)(start_probe == end_probe);
-  };
+  void init();
+  void reset();
+  void update();
+  bool isChanged();
 };
 
-extern Printing_Babystep printing_babystep;
+extern Printing_Babystep p_babystep;

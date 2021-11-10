@@ -808,4 +808,6 @@
   #define DEBUG_SELF_CHECK_TIPS_3DTPUCH_EN      "3D Touch"
 
   #define MENU_BUTTON_TIPS_EN                   "(Click Change)"
+  #define DIALOG_PRINT_SAVEEXIT_EN              "Save & Exit"
+  #define DIALOG_PRINT_SAVEEXITTIPS_EN          "Babystep has been used, you can use\n<save and exit> to save parameters."
 #endif

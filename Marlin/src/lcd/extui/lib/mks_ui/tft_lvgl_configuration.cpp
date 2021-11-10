@@ -123,6 +123,7 @@ void tft_lvgl_init() {
   gCfgItems_init();
   ui_cfg_init();
   disp_language_init();
+  p_babystep.init();
 
   watchdog_refresh();     // LVGL init takes time
 
@@ -245,7 +246,7 @@ void tft_lvgl_init() {
   #endif
 
   if (ready) {
-    // lv_draw_dialog(DIALOG_TYPE_FILAMENT_LOAD_HEAT);
+    // lv_draw_dialog(DIALOG_TYPE_FINISH_PRINT);
     lv_draw_ready_print();
   }
 

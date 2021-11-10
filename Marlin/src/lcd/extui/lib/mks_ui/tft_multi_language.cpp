@@ -2968,6 +2968,8 @@ void disp_language_init() {
       debug_menu.selfc_tips_y                       = DEBUG_SELF_CHECK_TIPS_Y_MOTOR_EN;
       debug_menu.selfc_tips_servo                   = DEBUG_SELF_CHECK_TIPS_3DTPUCH_EN;
       print_file_dialog_menu.print_again            = DIALOG_PRINT_AGAIN_EN;
+      print_file_dialog_menu.saveExit               = DIALOG_PRINT_SAVEEXIT_EN;
+      print_file_dialog_menu.saveExitTips           = DIALOG_PRINT_SAVEEXITTIPS_EN;
     #endif
     switch (gCfgItems.language) {
       case LANG_SIMPLE_CHINESE:
@@ -3020,6 +3022,8 @@ void disp_language_init() {
           debug_menu.selfc_tips_y                     = DEBUG_SELF_CHECK_TIPS_Y_MOTOR_CN;
           debug_menu.selfc_tips_servo                 = DEBUG_SELF_CHECK_TIPS_3DTPUCH_CN;
           print_file_dialog_menu.print_again          = DIALOG_PRINT_AGAIN_CN;
+          print_file_dialog_menu.saveExit             = DIALOG_PRINT_SAVEEXIT_CN;
+          print_file_dialog_menu.saveExitTips         = DIALOG_PRINT_SAVEEXITTIPS_CN;
         #endif
         break;
       case LANG_COMPLEX_CHINESE:
@@ -3072,6 +3076,8 @@ void disp_language_init() {
           debug_menu.selfc_tips_y                     = DEBUG_SELF_CHECK_TIPS_Y_MOTOR_T_CN;
           debug_menu.selfc_tips_servo                 = DEBUG_SELF_CHECK_TIPS_3DTPUCH_T_CN;
           print_file_dialog_menu.print_again          = DIALOG_PRINT_AGAIN_T_CN;
+          print_file_dialog_menu.saveExit             = DIALOG_PRINT_SAVEEXIT_T_CN;
+          print_file_dialog_menu.saveExitTips         = DIALOG_PRINT_SAVEEXITTIPS_T_CN;
         #endif
         break;
       case LANG_RUSSIAN:

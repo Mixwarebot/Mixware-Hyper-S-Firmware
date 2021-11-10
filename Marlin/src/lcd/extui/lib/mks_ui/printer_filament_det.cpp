@@ -32,6 +32,7 @@
 FilamentDetector detector;
 
 #include "../../../../module/stepper.h"
+#include "../../../../module/probe.h"
 #include "../../../../sd/cardreader.h"
 
 #ifndef FILAMENT_DETECTOR_ALARM_GAP
@@ -117,10 +118,26 @@ bool FilamentDetector::has_block() {
   return (bool)(gCfgItems.filament_det_enable && block_count > FILAMENT_DETECTOR_BLOCK_NUMBER);
 }
 
-Printing_Babystep printing_babystep();
+Printing_Babystep p_babystep;
 
-void Printing_Babystep::Printing_Babystep() {
+Printing_Babystep::Printing_Babystep() {
   init();
+}
+
+void Printing_Babystep::init() {
+  save_probe = start_probe = end_probe = probe.offset.z;
+}
+
+void Printing_Babystep::reset() {
+  start_probe = end_probe = probe.offset.z;
+}
+
+void Printing_Babystep::update() {
+  end_probe = probe.offset.z;
+}
+
+bool Printing_Babystep::isChanged() {
+  return (bool)(!(start_probe == end_probe && save_probe == end_probe));
 }
 
 #endif // MIXWARE_MODEL_V

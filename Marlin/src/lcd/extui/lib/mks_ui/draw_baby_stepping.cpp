@@ -114,6 +114,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       //   TERN_(EEPROM_SETTINGS, (void)settings.save());
       //   has_adjust_z = 0;
       // }
+      p_babystep.update();
       lv_clear_cur_ui();
       lv_draw_return_ui();
       break;

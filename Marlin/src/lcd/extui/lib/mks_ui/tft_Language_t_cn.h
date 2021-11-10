@@ -576,4 +576,6 @@
   #define DEBUG_SELF_CHECK_TIPS_Y_MOTOR_T_CN      "Y軸電機"
   #define DEBUG_SELF_CHECK_TIPS_3DTPUCH_T_CN      "3D Touch"
   #define MENU_BUTTON_TIPS_T_CN                   "(點擊切換)"
+  #define DIALOG_PRINT_SAVEEXIT_T_CN              "保存並退出"
+  #define DIALOG_PRINT_SAVEEXITTIPS_T_CN          "            已使用微移動,\n可使用<保存並退出>保存參數."
 #endif
