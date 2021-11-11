@@ -484,6 +484,8 @@ static void btn_return_event_cb(lv_obj_t *btn, lv_event_t event) {
       TERN_(EEPROM_SETTINGS, (void)settings.save());
       p_babystep.init();
     }
+    lv_clear_cur_ui();
+    lv_draw_ready_print();
   }
 }
 #endif
