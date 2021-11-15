@@ -1310,7 +1310,7 @@ lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char* title) {
 
   if (gCfgItems.filament_max_temper > 300 && newScreenType != PRINT_READY_UI && newScreenType != PRINTING_UI) {
     lv_obj_t *mode = lv_label_create(scr, filament_temp_select.temp_mode, true);
-    lv_obj_align(mode, nullptr, LV_ALIGN_IN_TOP_RIGHT, 0, 0);
+    lv_obj_align(mode, nullptr, LV_ALIGN_IN_TOP_RIGHT, 0, 5);
   }
 
   lv_refr_now(lv_refr_get_disp_refreshing());

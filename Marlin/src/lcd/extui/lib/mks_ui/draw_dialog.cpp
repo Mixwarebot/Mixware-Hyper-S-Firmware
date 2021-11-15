@@ -850,7 +850,7 @@ void lv_draw_dialog(uint8_t type) {
   }
   else if (DIALOG_IS(TYPE_FILAMENT_UNLOAD_HEAT)) {
     lv_label_set_text(labelDialog, filament_menu.filament_dialog_unload_heat);
-    lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -50);
+    lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -30);
   }
   else if (DIALOG_IS(TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED)) {
     lv_label_set_text(labelDialog, filament_menu.filament_dialog_unload_heat_confirm);
