@@ -1,7 +1,7 @@
   AppVersion = 49000
 [GENERAL]
   ConnectMode = 0
-  CurrentFile = "Z:\2.¹Ì¼þ\KD05\MKS Robin nano V2.0\Hyper-S Firmware 0910\Mixware_Hyper_S_V1_0.bin"
+  CurrentFile = "E:\RODEO\Firmware\KD5\Mixware-Hyper-S-Firmware-407-211123\.pio\build\mks_robin_nano_v3_usb_flash_drive_msc\firmware.bin"
   DataFileSAddr = 0x0800C000
   GUIMode = 0
   HostName = ""

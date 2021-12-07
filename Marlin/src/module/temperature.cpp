@@ -1215,7 +1215,11 @@ void Temperature::manage_heater() {
                 temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
             #elif ENABLED(MIXWARE_MODEL_V)
               // temp_bed.soft_pwm_amount = temp_bed.celsius < temp_bed.target ? (temp_bed.celsius < 70 ? 190 : temp_bed.celsius < 80 ? 208 : temp_bed.celsius < 90 ? 220 : 238) >> 1 : 0;
-              temp_bed.soft_pwm_amount = temp_bed.celsius < temp_bed.target ? (temp_bed.celsius < 70 ? 200 : temp_bed.celsius < 80 ? 210 : temp_bed.celsius < 90 ? 222 : 236) >> 1 : 0;
+              temp_bed.soft_pwm_amount = temp_bed.celsius < temp_bed.target ?
+              (temp_bed.celsius < 60 ? 165
+              : temp_bed.celsius < 70 ? 175
+               : temp_bed.celsius < 80 ? 185
+                : temp_bed.celsius < 90 ? 193 : 198) >> 1 : 0;
             #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
               temp_bed.soft_pwm_amount = temp_bed.celsius < temp_bed.target ? MAX_BED_POWER >> 1 : 0;
             #endif
