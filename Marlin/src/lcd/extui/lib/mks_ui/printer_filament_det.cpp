@@ -55,6 +55,11 @@ FilamentDetector detector;
   #define FILAMENT_DETECTOR_FILE_START_POS 512
 #endif
 
+#ifndef FILAMENT_DETECTOR_EFFECTIVE_LENGTH
+  #define FILAMENT_DETECTOR_EFFECTIVE_LENGTH 64
+  #define FILAMENT_DETECTOR_EFFECTIVE_GAP (planner.settings.axis_steps_per_mm[E_AXIS] * FILAMENT_DETECTOR_EFFECTIVE_LENGTH)
+#endif
+
 int32_t FilamentDetector::last_pos;
 int32_t FilamentDetector::cur_pos;
 int32_t FilamentDetector::alarm_gap;
@@ -74,7 +79,7 @@ void FilamentDetector::reset() {
 }
 
 void FilamentDetector::update() {
-  if (!gCfgItems.filament_det_enable || card.getIndex() < FILAMENT_DETECTOR_FILE_START_POS)// || current_position[Z_AXIS] < 0.5
+  if (!gCfgItems.filament_det_enable || card.getIndex() < FILAMENT_DETECTOR_FILE_START_POS || stepper.position(E_AXIS) < FILAMENT_DETECTOR_EFFECTIVE_GAP)// || current_position[Z_AXIS] < 0.5
     return;
 
   static uint8_t last_state = 0;
