@@ -42,8 +42,8 @@ static lv_obj_t *l_temp_nozzle, *l_heat_nozzle,
                 #if HAS_HEATED_BED
                   *l_temp_bed, *l_heat_bed,
                 #endif
-                *l_axis_x_motor, *l_axis_y_motor,
-                *l_servo;
+                *l_axis_x_motor, *l_axis_y_motor, *l_axis_z_motor,
+                *l_fan, *l_servo;
 
 static millis_t h_timer;
 
@@ -57,8 +57,10 @@ enum {
   #if HAS_HEATED_BED
     DEBUG_CHECK_HEAT_B,
   #endif
+  DEBUG_CHECK_FAN,
   DEBUG_CHECK_HOME_X,
   DEBUG_CHECK_HOME_Y,
+  DEBUG_CHECK_HOME_Z,
   DEBUG_CHECK_SERVO
 };
 static uint8_t debug_state = DEBUG_NULL,
@@ -70,22 +72,26 @@ enum {
   ID_DEBUG_S_RETURN
 };
 
-#define DEBUG_LABEL_POS_X   250
-#define DEBUG_LABEL_POS_Y(n)   PARA_UI_POS_Y + 30 * n
-#define DEBUG_LABEL_SIZE_W  50
-#define DEBUG_LABEL_SIZE_H  24
+#define DEBUG_LABEL_POS_X   (250)
+#define DEBUG_LABEL_POS_Y(n) (37+28*n)
+#define DEBUG_LABEL_SIZE_W  (50)
+#define DEBUG_LABEL_SIZE_H  (24)
 
 static void l_selfc_reset_label() {
   lv_label_set_text(l_temp_nozzle, "--");
   lv_label_set_text(l_heat_nozzle, "--");
+  lv_label_set_text(l_fan, "--");
   lv_label_set_text(l_axis_x_motor, "--");
   lv_label_set_text(l_axis_y_motor, "--");
+  lv_label_set_text(l_axis_z_motor, "--");
   lv_label_set_text(l_servo, "--");
 
   lv_obj_set_style(l_temp_nozzle, &tft_style_label_rel);
   lv_obj_set_style(l_heat_nozzle, &tft_style_label_rel);
+  lv_obj_set_style(l_fan, &tft_style_label_rel);
   lv_obj_set_style(l_axis_x_motor, &tft_style_label_rel);
   lv_obj_set_style(l_axis_y_motor, &tft_style_label_rel);
+  lv_obj_set_style(l_axis_z_motor, &tft_style_label_rel);
   lv_obj_set_style(l_servo, &tft_style_label_rel);
 
   #if HAS_HEATED_BED
@@ -101,19 +107,13 @@ static void l_selfc_label_create(lv_coord_t y, const char *text) {
   lv_obj_set_size(l_tips, 200, DEBUG_LABEL_SIZE_H);
 }
 
-// static void l_self_timer(millis_t t) {
-//   millis_t last_time = millis() + t;
-
-//   while (millis() < last_time)
-//     watchdog_refresh();
-// }
-
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_DEBUG_S_CHECK:
       if (debug_state_n == DEBUG_NULL) {
         l_selfc_reset_label();
+        gcode.process_subcommands_now(PSTR("M107"));
         debug_state_n = DEBUG_CHECK_TEMP_E;
         lv_label_set_text(l_debug, debug_menu.selfc_checking);
       }
@@ -135,9 +135,12 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           thermalManager.setTargetBed(uiCfg.desireSprayerTempBak);
         }
       #endif
-      else if (debug_state == DEBUG_CHECK_HOME_X || debug_state == DEBUG_CHECK_HOME_Y) {
+      else if (debug_state == DEBUG_CHECK_HOME_X || debug_state == DEBUG_CHECK_HOME_Y || debug_state == DEBUG_CHECK_HOME_Z) {
         break;
       }
+
+      gcode.process_subcommands_now(PSTR("M107"));
+
       lv_clear_cur_ui();
       lv_draw_return_ui();
       break;
@@ -153,12 +156,12 @@ void lv_draw_debug_selfc(void) {
   // Create an Image button
   l_temp_nozzle = lv_label_create(scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
   l_selfc_label_create(DEBUG_LABEL_POS_Y(index++), debug_menu.selfc_tips_etemp);
-  lv_obj_set_size(l_temp_nozzle,  DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
+  lv_obj_set_size(l_temp_nozzle, DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
 
   #if HAS_HEATED_BED
     l_temp_bed = lv_label_create(scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
     l_selfc_label_create(DEBUG_LABEL_POS_Y(index++), debug_menu.selfc_tips_btemp);
-    lv_obj_set_size(l_temp_bed,     DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
+    lv_obj_set_size(l_temp_bed, DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
   #endif
 
   l_heat_nozzle = lv_label_create(scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
@@ -168,8 +171,12 @@ void lv_draw_debug_selfc(void) {
   #if HAS_HEATED_BED
     l_heat_bed = lv_label_create(scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
     l_selfc_label_create(DEBUG_LABEL_POS_Y(index++), debug_menu.selfc_tips_bheat);
-    lv_obj_set_size(l_heat_bed,     DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
+    lv_obj_set_size(l_heat_bed, DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
   #endif
+
+  l_fan = lv_label_create(scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
+  l_selfc_label_create(DEBUG_LABEL_POS_Y(index++), debug_menu.selfc_tips_fan);
+  lv_obj_set_size(l_fan, DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
 
   l_axis_x_motor  = lv_label_create(scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
   l_selfc_label_create(DEBUG_LABEL_POS_Y(index++), debug_menu.selfc_tips_x);
@@ -179,18 +186,22 @@ void lv_draw_debug_selfc(void) {
   l_selfc_label_create(DEBUG_LABEL_POS_Y(index++), debug_menu.selfc_tips_y);
   lv_obj_set_size(l_axis_y_motor, DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
 
+  l_axis_z_motor  = lv_label_create(scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
+  l_selfc_label_create(DEBUG_LABEL_POS_Y(index++), debug_menu.selfc_tips_z);
+  lv_obj_set_size(l_axis_z_motor, DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
+
   l_servo         = lv_label_create(scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
   l_selfc_label_create(DEBUG_LABEL_POS_Y(index++), debug_menu.selfc_tips_servo);
   lv_obj_set_size(l_servo,        DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
 
   l_selfc_reset_label();
 
-  lv_obj_t* btn_check = lv_btn_create(scr, 20, 275, 280, 64, event_handler, ID_DEBUG_S_CHECK);
+  lv_obj_t* btn_check = lv_btn_create(scr, 20, 290, 280, 64, event_handler, ID_DEBUG_S_CHECK);
   l_debug = lv_label_create(btn_check, debug_menu.selfc_confirm);
   lv_btn_set_style_both(btn_check, &style_para_button);
   lv_obj_align(l_debug, btn_check, LV_ALIGN_CENTER, 0, 0);
 
-  lv_obj_t* btn_zaxis = lv_btn_create(scr, 20, 275+74, 280, 64, event_handler, ID_DEBUG_S_ZAXIS);
+  lv_obj_t* btn_zaxis = lv_btn_create(scr, 20, 290+69, 280, 64, event_handler, ID_DEBUG_S_ZAXIS);
   lv_obj_t* l_zaxis = lv_label_create(btn_zaxis, debug_menu.zaxis_title);
   lv_btn_set_style_both(btn_zaxis, &style_para_button);
   lv_obj_align(l_zaxis, btn_zaxis, LV_ALIGN_CENTER, 0, 0);
@@ -229,14 +240,22 @@ void dis_cur_debug() {
         }
         else {
           uiCfg.desireSprayerTempBak = thermalManager.degTargetHotend(0);
-          if (uiCfg.desireSprayerTempBak < 245)
+          if (uiCfg.desireSprayerTempBak < 245) {
             thermalManager.temp_hotend[0].target = cur_temp+15;
+          }
           else
             thermalManager.temp_hotend[0].target = 0;
 
+          if (uiCfg.desireSprayerTempBak < 75) {
+            thermalManager.temp_hotend[0].target = 75;
+          }
           thermalManager.start_watching_hotend(0);
 
-          h_timer = millis() + 20000;
+          if (cur_temp < 60) {
+            h_timer = millis() + ((int)(60-cur_temp)/3+20)*1000;
+          }
+          else
+            h_timer = millis() + 20000;
         }
         break;
       #if HAS_HEATED_BED
@@ -271,6 +290,13 @@ void dis_cur_debug() {
           }
           break;
       #endif
+      case DEBUG_CHECK_FAN:
+        gcode.process_subcommands_now(PSTR("M106 S255"));
+        while(planner.has_blocks_queued())
+          watchdog_refresh();
+        lv_label_set_text(l_fan, PSTR("ON"));
+        debug_state_n++;
+        break;
       case DEBUG_CHECK_HOME_X:
         gcode.process_subcommands_now(PSTR("G91\nG1 X10 F1200\nG90"));
         while(planner.has_blocks_queued())
@@ -292,7 +318,7 @@ void dis_cur_debug() {
           break;
         }
 
-        gcode.process_subcommands_now(PSTR("G0 X5 F1500"));
+        gcode.process_subcommands_now(PSTR("G0 X285 F1500"));
         while(planner.has_blocks_queued())
           watchdog_refresh();
         if (READ(X_MIN_PIN) == !X_MIN_ENDSTOP_INVERTING) {
@@ -326,7 +352,7 @@ void dis_cur_debug() {
           break;
         }
 
-        gcode.process_subcommands_now(PSTR("G0 Y5 F1500"));
+        gcode.process_subcommands_now(PSTR("G0 Y285 F1500"));
         while(planner.has_blocks_queued())
           watchdog_refresh();
         if (READ(Y_MIN_PIN) == !Y_MIN_ENDSTOP_INVERTING) {
@@ -337,6 +363,40 @@ void dis_cur_debug() {
         }
 
         lv_label_set_text(l_axis_y_motor, PSTR("OK"));
+        debug_state_n++;
+        break;
+      case DEBUG_CHECK_HOME_Z:
+        gcode.process_subcommands_now(PSTR("G91\nG1 Z10 F1200\nG90"));
+        while(planner.has_blocks_queued())
+          watchdog_refresh();
+        if (READ(Z_MIN_PIN) == !Z_MIN_ENDSTOP_INVERTING) {
+          lv_label_set_text(l_axis_z_motor, PSTR("NG"));
+          lv_obj_set_style(l_axis_z_motor, &tft_style_label_HT);
+          debug_state_n++;
+          break;
+        }
+
+        gcode.process_subcommands_now(PSTR("G28Z\nG1 Z0"));
+        while(planner.has_blocks_queued())
+          watchdog_refresh();
+        if (READ(Z_MIN_PIN) == Z_MIN_ENDSTOP_INVERTING) {
+          lv_label_set_text(l_axis_z_motor, PSTR("NG"));
+          lv_obj_set_style(l_axis_z_motor, &tft_style_label_HT);
+          debug_state_n++;
+          break;
+        }
+
+        gcode.process_subcommands_now(PSTR("G0 Z385 F2000"));
+        while(planner.has_blocks_queued())
+          watchdog_refresh();
+        if (READ(Z_MIN_PIN) == !Z_MIN_ENDSTOP_INVERTING) {
+          lv_label_set_text(l_axis_z_motor, PSTR("NG"));
+          lv_obj_set_style(l_axis_z_motor, &tft_style_label_HT);
+          debug_state_n++;
+          break;
+        }
+
+        lv_label_set_text(l_axis_z_motor, PSTR("OK"));
         debug_state_n++;
         break;
       case DEBUG_CHECK_SERVO:
@@ -359,6 +419,9 @@ void dis_cur_debug() {
           lv_obj_set_style(l_servo, &tft_style_label_HT);
         }
 
+        gcode.process_subcommands_now(PSTR("G0 X150 Y150 Z100 F2000"));
+        while(planner.has_blocks_queued())
+          watchdog_refresh();
         debug_state = debug_state_n = DEBUG_NULL;
         lv_label_set_text(l_debug, debug_menu.selfc_confirm);
         gcode.process_subcommands_now(PSTR("M84"));

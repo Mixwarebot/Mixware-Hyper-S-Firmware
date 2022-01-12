@@ -576,6 +576,8 @@
   #define DEBUG_SELF_CHECK_TIPS_B_HEAT_CN       "热床加热"
   #define DEBUG_SELF_CHECK_TIPS_X_MOTOR_CN      "X轴电机"
   #define DEBUG_SELF_CHECK_TIPS_Y_MOTOR_CN      "Y轴电机"
+  #define DEBUG_SELF_CHECK_TIPS_Z_MOTOR_CN      "Z轴电机"
+  #define DEBUG_SELF_CHECK_TIPS_FAN_CN          "风扇"
   #define DEBUG_SELF_CHECK_TIPS_3DTPUCH_CN      "3D Touch"
   #define MENU_BUTTON_TIPS_CN                   "(点击切换)"
   #define DIALOG_PRINT_SAVEEXIT_CN              "保存并退出"

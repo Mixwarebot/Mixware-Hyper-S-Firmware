@@ -2966,6 +2966,8 @@ void disp_language_init() {
       debug_menu.selfc_tips_bheat                   = DEBUG_SELF_CHECK_TIPS_B_HEAT_EN;
       debug_menu.selfc_tips_x                       = DEBUG_SELF_CHECK_TIPS_X_MOTOR_EN;
       debug_menu.selfc_tips_y                       = DEBUG_SELF_CHECK_TIPS_Y_MOTOR_EN;
+      debug_menu.selfc_tips_fan                     = DEBUG_SELF_CHECK_TIPS_FAN_EN;
+      debug_menu.selfc_tips_z                       = DEBUG_SELF_CHECK_TIPS_Z_MOTOR_EN;
       debug_menu.selfc_tips_servo                   = DEBUG_SELF_CHECK_TIPS_3DTPUCH_EN;
       print_file_dialog_menu.print_again            = DIALOG_PRINT_AGAIN_EN;
       print_file_dialog_menu.saveExit               = DIALOG_PRINT_SAVEEXIT_EN;
@@ -3020,6 +3022,8 @@ void disp_language_init() {
           debug_menu.selfc_tips_bheat                 = DEBUG_SELF_CHECK_TIPS_B_HEAT_CN;
           debug_menu.selfc_tips_x                     = DEBUG_SELF_CHECK_TIPS_X_MOTOR_CN;
           debug_menu.selfc_tips_y                     = DEBUG_SELF_CHECK_TIPS_Y_MOTOR_CN;
+          debug_menu.selfc_tips_fan                   = DEBUG_SELF_CHECK_TIPS_FAN_CN;
+          debug_menu.selfc_tips_z                     = DEBUG_SELF_CHECK_TIPS_Z_MOTOR_CN;
           debug_menu.selfc_tips_servo                 = DEBUG_SELF_CHECK_TIPS_3DTPUCH_CN;
           print_file_dialog_menu.print_again          = DIALOG_PRINT_AGAIN_CN;
           print_file_dialog_menu.saveExit             = DIALOG_PRINT_SAVEEXIT_CN;
@@ -3074,6 +3078,8 @@ void disp_language_init() {
           debug_menu.selfc_tips_bheat                 = DEBUG_SELF_CHECK_TIPS_B_HEAT_T_CN;
           debug_menu.selfc_tips_x                     = DEBUG_SELF_CHECK_TIPS_X_MOTOR_T_CN;
           debug_menu.selfc_tips_y                     = DEBUG_SELF_CHECK_TIPS_Y_MOTOR_T_CN;
+          debug_menu.selfc_tips_fan                   = DEBUG_SELF_CHECK_TIPS_FAN_T_CN;
+          debug_menu.selfc_tips_z                     = DEBUG_SELF_CHECK_TIPS_Z_MOTOR_T_CN;
           debug_menu.selfc_tips_servo                 = DEBUG_SELF_CHECK_TIPS_3DTPUCH_T_CN;
           print_file_dialog_menu.print_again          = DIALOG_PRINT_AGAIN_T_CN;
           print_file_dialog_menu.saveExit             = DIALOG_PRINT_SAVEEXIT_T_CN;
