@@ -256,7 +256,7 @@ void disp_print_speed() {
 
 void disp_speed_type() {
   #if ENABLED(MIXWARE_MODEL_V)
-    lv_imgbtn_set_src_both(buttonType, editingFlowrate ? (gCfgItems.filament_max_temper < 300 ? "F:/img_extruct.bin" : "F:/HI_extruct.bin") : "F:/img_move.bin");
+    lv_imgbtn_set_src_both(buttonType, editingFlowrate ? MIXWARE_UI_SELECT("F:/img_extruct.bin", "F:/HI_extruct.bin") : "F:/img_move.bin");
     lv_obj_refresh_ext_draw_pad(buttonType);
     if (gCfgItems.multiple_language) {
       lv_label_set_text(labelType, editingFlowrate ? speed_menu.extrude : speed_menu.move);

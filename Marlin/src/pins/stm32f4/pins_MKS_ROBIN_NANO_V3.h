@@ -46,7 +46,7 @@
 #define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
 // #define I2C_EEPROM
 #define FLASH_EEPROM_LEVELING
-#define FLASH_ADDRESS_START               0x080E0000
+#define FLASH_ADDRESS_START               0x08070000
 #define MARLIN_EEPROM_SIZE                0x1000  // 4KB
 
 // #define I2C_SCL_PIN                       PB6

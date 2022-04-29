@@ -112,8 +112,9 @@ extern void lv_filament_setbar();
 
 #if ENABLED(MIXWARE_MODEL_V)
   #define BTN_CENTER_X    (TFT_WIDTH/2 - BTN_SIZE_WIDTH/2)
-  #define BTN_LEFT_X      (TFT_WIDTH/2 - 20 - BTN_SIZE_WIDTH)
-  #define BTN_RIGHT_X     (TFT_WIDTH/2 + 20)
+  #define BTN_LEFT_X      (TFT_WIDTH/2 - BTN_HR_SPACE - BTN_SIZE_WIDTH)
+  #define BTN_RIGHT_X     (TFT_WIDTH/2 + BTN_HR_SPACE)
+  #define BTN_HR_SPACE    15
   #define BTN_POS_Y       280
   #define BTN_SIZE_WIDTH  120
   #define BTN_SIZE_HEIGHT 60

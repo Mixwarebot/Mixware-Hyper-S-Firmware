@@ -162,9 +162,9 @@ void gCfgItems_init() {
   gCfgItems.fileSysType   = FILE_SYS_SD;
   gCfgItems.wifi_type     = ESP_WIFI;
   gCfgItems.filamentchange_load_length   = TERN(MIXWARE_MODEL_V, 100,  200);
-  gCfgItems.filamentchange_load_speed    = TERN(MIXWARE_MODEL_V, 300, 1000);
+  gCfgItems.filamentchange_load_speed    = TERN(MIXWARE_MODEL_V, 240, 1000);
   gCfgItems.filamentchange_unload_length = TERN(MIXWARE_MODEL_V,  80,  200);
-  gCfgItems.filamentchange_unload_speed  = TERN(MIXWARE_MODEL_V, 2400, 1000);
+  gCfgItems.filamentchange_unload_speed  = TERN(MIXWARE_MODEL_V, 2100, 1000);
   gCfgItems.filament_limit_temper        = 200;
   gCfgItems.filament_max_temper          = 260;
 
@@ -223,6 +223,7 @@ void ui_cfg_init() {
   uiCfg.filament_unloading_time_flg  = 0;
   uiCfg.filament_unloading_time_cnt  = 0;
   TERN_(MIXWARE_MODEL_V, uiCfg.filament_broken = 0);
+  TERN_(MIXWARE_MODEL_V, uiCfg.filament_flow = 1.0);
 
   #if ENABLED(MKS_WIFI_MODULE)
     memset(&wifiPara, 0, sizeof(wifiPara));
@@ -441,7 +442,7 @@ void tft_style_init() {
   style_para_button.body.main_color   = LV_COLOR_BACKGROUND;
   style_para_button.body.grad_color   = LV_COLOR_BACKGROUND;
   style_para_button.body.shadow.width = 0;
-  style_para_button.body.radius       = 3;
+  style_para_button.body.radius       = 5;
   style_para_button.body.border.color = TFT_LV_PARA_BACK_BODY_COLOR;
   style_para_button.body.border.width = 4;
   style_para_button.text.color        = LV_COLOR_WHITE;
@@ -454,7 +455,7 @@ void tft_style_init() {
   style_btn_rel.body.grad_color   = TERN(MIXWARE_MODEL_V, TFT_LV_PARA_BACK_BODY_COLOR, lv_color_hex3(0x46B));
   style_btn_rel.body.shadow.width = 4;
   style_btn_rel.body.shadow.type  = LV_SHADOW_BOTTOM;
-  style_btn_rel.body.radius       = LV_RADIUS_CIRCLE;
+  style_btn_rel.body.radius       = 9;
   style_btn_rel.text.color        = TERN(MIXWARE_MODEL_V, LV_COLOR_WHITE, lv_color_hex3(0xDEF));
   style_btn_rel.text.font         = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
 

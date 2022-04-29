@@ -806,6 +806,7 @@
   #define DEBUG_SELF_CHECK_TIPS_X_MOTOR_EN      "X-axis Motor"
   #define DEBUG_SELF_CHECK_TIPS_Y_MOTOR_EN      "Y-axis Motor"
   #define DEBUG_SELF_CHECK_TIPS_Z_MOTOR_EN      "Z-axis Motor"
+  #define DEBUG_SELF_CHECK_TIPS_E_MOTOR_EN      "E-axis Motor"
   #define DEBUG_SELF_CHECK_TIPS_FAN_EN          "Fan"
   #define DEBUG_SELF_CHECK_TIPS_3DTPUCH_EN      "3D Touch"
 

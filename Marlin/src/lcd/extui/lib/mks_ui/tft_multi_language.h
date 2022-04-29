@@ -351,6 +351,7 @@ typedef struct preheat_menu_disp {
   TERN_(MIXWARE_MODEL_V, const char *heatPLA;)
   TERN_(MIXWARE_MODEL_V, const char *heatPETG;)
   TERN_(MIXWARE_MODEL_V, const char *heatPACF;)
+  TERN_(MIXWARE_MODEL_V, const char *heatTPU;)
 } preheat_menu_def;
 
 extern preheat_menu_def preheat_menu;
@@ -787,6 +788,7 @@ extern eeprom_def eeprom_menu;
 #define PREHAET_ABS         "ABS"
 #define PREHAET_PETG        "PETG"
 #define PREHAET_PACF        "PA-CF"
+#define PREHAET_TPU         "TPU"
 
 #define AXIS_X_ADD_TEXT     "X+"
 #define AXIS_X_DEC_TEXT     "X-"
@@ -954,6 +956,7 @@ extern eeprom_def eeprom_menu;
       const char *selfc_tips_x;
       const char *selfc_tips_y;
       const char *selfc_tips_z;
+      const char *selfc_tips_e;
       const char *selfc_tips_servo;
     } debug_menu_def;
     extern debug_menu_def debug_menu;

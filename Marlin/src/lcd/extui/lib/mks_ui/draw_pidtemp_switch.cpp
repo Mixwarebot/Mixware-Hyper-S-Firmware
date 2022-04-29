@@ -71,7 +71,7 @@ void lv_draw_pidtemp_switch(void) {
   lv_big_button_create(scr, "F:/img_normal_mode.bin",  pidtemp_sw_menu.normal,  button_pixel_point[2].x, button_pixel_point[2].y, event_handler, ID_PIDTEMP_NORMAL);
   lv_big_button_create(scr, "F:/HI_high_mode.bin", pidtemp_sw_menu.high, button_pixel_point[3].x, button_pixel_point[3].y, event_handler, ID_PIDTEMP_HIGH);
 
-  lv_obj_t *labelTips = lv_label_create(scr, gCfgItems.filament_max_temper < 300 ? pidtemp_sw_menu.n_model : pidtemp_sw_menu.h_model);
+  lv_obj_t *labelTips = lv_label_create(scr, MIXWARE_UI_SELECT(pidtemp_sw_menu.n_model, pidtemp_sw_menu.h_model));
   lv_obj_align(labelTips, nullptr, LV_ALIGN_CENTER, 0, -130);
 
   lv_screen_menu_item_return(scr, event_handler, ID_PIDTEMP_RETURN);

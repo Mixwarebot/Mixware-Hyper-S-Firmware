@@ -575,6 +575,7 @@
   #define DEBUG_SELF_CHECK_TIPS_X_MOTOR_T_CN      "X軸電機"
   #define DEBUG_SELF_CHECK_TIPS_Y_MOTOR_T_CN      "Y軸電機"
   #define DEBUG_SELF_CHECK_TIPS_Z_MOTOR_T_CN      "Z軸電機"
+  #define DEBUG_SELF_CHECK_TIPS_E_MOTOR_T_CN      "E軸電機"
   #define DEBUG_SELF_CHECK_TIPS_FAN_T_CN          "風扇"
   #define DEBUG_SELF_CHECK_TIPS_3DTPUCH_T_CN      "3D Touch"
   #define MENU_BUTTON_TIPS_T_CN                   "(點擊切換)"

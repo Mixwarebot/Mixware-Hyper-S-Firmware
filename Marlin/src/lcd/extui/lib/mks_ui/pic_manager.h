@@ -125,9 +125,9 @@
 
 // SD card information first addr
 #define VAR_INF_ADDR                    0x000000
-#define FLASH_INF_VALID_FLAG            0x20210802
+#define FLASH_INF_VALID_FLAG            0x20220407
 #if (FLASH_INF_VALID_FLAG >= 0x20210629)
-  #define MIXWARE_UI_SELECT(a, b) gCfgItems.filament_max_temper < 300 ? a : b
+  #define MIXWARE_UI_SELECT(a, b) IF((gCfgItems.filament_max_temper < 300), (a), (b))
 #else
   #define MIXWARE_UI_SELECT(a, b) a
 #endif

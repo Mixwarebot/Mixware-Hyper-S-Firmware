@@ -322,6 +322,7 @@ typedef struct {
   uint8_t dialogType;
   uint8_t F[4];
   uint8_t filament_rate;
+  TERN_(MIXWARE_MODEL_V, float filament_flow;)
   TERN_(MIXWARE_MODEL_V, uint8_t move_axis;)
   TERN_(MIXWARE_MODEL_V, uint8_t filament_broken;)
   uint16_t moveSpeed;

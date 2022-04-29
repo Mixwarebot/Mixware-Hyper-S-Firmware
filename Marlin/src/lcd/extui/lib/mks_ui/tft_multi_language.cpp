@@ -2890,6 +2890,7 @@ void disp_language_init() {
     preheat_menu.heatPLA                            = PREHAET_PLA;
     preheat_menu.heatPETG                           = PREHAET_PETG;
     preheat_menu.heatPACF                           = PREHAET_PACF;
+    preheat_menu.heatTPU                            = PREHAET_TPU;
     move_menu.step_5mm                              = TEXT_5MM;
     move_menu.x_axis                                = HOME_X_TEXT;
     move_menu.y_axis                                = HOME_Y_TEXT;
@@ -2968,6 +2969,7 @@ void disp_language_init() {
       debug_menu.selfc_tips_y                       = DEBUG_SELF_CHECK_TIPS_Y_MOTOR_EN;
       debug_menu.selfc_tips_fan                     = DEBUG_SELF_CHECK_TIPS_FAN_EN;
       debug_menu.selfc_tips_z                       = DEBUG_SELF_CHECK_TIPS_Z_MOTOR_EN;
+      debug_menu.selfc_tips_e                       = DEBUG_SELF_CHECK_TIPS_E_MOTOR_EN;
       debug_menu.selfc_tips_servo                   = DEBUG_SELF_CHECK_TIPS_3DTPUCH_EN;
       print_file_dialog_menu.print_again            = DIALOG_PRINT_AGAIN_EN;
       print_file_dialog_menu.saveExit               = DIALOG_PRINT_SAVEEXIT_EN;
@@ -3024,6 +3026,7 @@ void disp_language_init() {
           debug_menu.selfc_tips_y                     = DEBUG_SELF_CHECK_TIPS_Y_MOTOR_CN;
           debug_menu.selfc_tips_fan                   = DEBUG_SELF_CHECK_TIPS_FAN_CN;
           debug_menu.selfc_tips_z                     = DEBUG_SELF_CHECK_TIPS_Z_MOTOR_CN;
+          debug_menu.selfc_tips_e                     = DEBUG_SELF_CHECK_TIPS_E_MOTOR_CN;
           debug_menu.selfc_tips_servo                 = DEBUG_SELF_CHECK_TIPS_3DTPUCH_CN;
           print_file_dialog_menu.print_again          = DIALOG_PRINT_AGAIN_CN;
           print_file_dialog_menu.saveExit             = DIALOG_PRINT_SAVEEXIT_CN;
@@ -3080,6 +3083,7 @@ void disp_language_init() {
           debug_menu.selfc_tips_y                     = DEBUG_SELF_CHECK_TIPS_Y_MOTOR_T_CN;
           debug_menu.selfc_tips_fan                   = DEBUG_SELF_CHECK_TIPS_FAN_T_CN;
           debug_menu.selfc_tips_z                     = DEBUG_SELF_CHECK_TIPS_Z_MOTOR_T_CN;
+          debug_menu.selfc_tips_e                     = DEBUG_SELF_CHECK_TIPS_E_MOTOR_T_CN;
           debug_menu.selfc_tips_servo                 = DEBUG_SELF_CHECK_TIPS_3DTPUCH_T_CN;
           print_file_dialog_menu.print_again          = DIALOG_PRINT_AGAIN_T_CN;
           print_file_dialog_menu.saveExit             = DIALOG_PRINT_SAVEEXIT_T_CN;

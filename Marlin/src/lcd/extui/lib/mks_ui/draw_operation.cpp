@@ -151,7 +151,7 @@ void lv_draw_operation(void) {
 
   // Create image buttons
 #if ENABLED(MIXWARE_MODEL_V)
-  lv_big_button_create(scr, (gCfgItems.filament_max_temper < 300 ? "F:/img_preheat.bin" : "F:/HI_preheat.bin"), operation_menu.temp, button_pixel_point[0].x, button_pixel_point[0].y, event_handler, ID_O_PRE_HEAT);
+  lv_big_button_create(scr, MIXWARE_UI_SELECT("F:/img_preheat.bin", "F:/HI_preheat.bin"), operation_menu.temp, button_pixel_point[0].x, button_pixel_point[0].y, event_handler, ID_O_PRE_HEAT);
   lv_big_button_create(scr, "F:/img_filamentchange.bin", operation_menu.filament, button_pixel_point[1].x, button_pixel_point[1].y, event_handler, ID_O_FILAMENT);
   lv_big_button_create(scr, "F:/img_fan.bin", operation_menu.fan, button_pixel_point[2].x, button_pixel_point[2].y, event_handler, ID_O_FAN);
 

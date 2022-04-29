@@ -137,7 +137,7 @@ void lv_draw_printing(void) {
 
   // Create image buttons
   lv_obj_t *buttonExt1 = lv_img_create(scr, nullptr);
-  lv_img_set_src(buttonExt1, TERN(MIXWARE_MODEL_V, (gCfgItems.filament_max_temper < 300 ? "F:/bmp_ext_state.bin" : "F:/HI_ext_state.bin"), "F:/bmp_ext1_state.bin"));
+  lv_img_set_src(buttonExt1, TERN(MIXWARE_MODEL_V, MIXWARE_UI_SELECT("F:/bmp_ext_state.bin", "F:/HI_ext_state.bin"), "F:/bmp_ext1_state.bin"));
   lv_obj_set_pos(buttonExt1, TERN(MIXWARE_MODEL_V, 165, 205), TERN(MIXWARE_MODEL_V, 170, 136));
 
   #if DISABLED(SINGLENOZZLE) && HAS_MULTI_EXTRUDER

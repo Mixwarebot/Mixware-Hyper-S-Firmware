@@ -240,10 +240,10 @@ void lv_draw_ready_print(void) {
 
       lv_big_button_create(scr, "F:/img_tool.bin",     main_menu.tool,  28,  340, event_handler, ID_TOOL);
       lv_big_button_create(scr, "F:/img_set.bin",      main_menu.set,   173, 340, event_handler, ID_SET);
-      lv_big_button_create(scr, (gCfgItems.filament_max_temper < 300 ? "F:/img_printing.bin" : "F:/HI_printing.bin"), main_menu.print, 101, 198, event_handler, ID_PRINT);
+      lv_big_button_create(scr, MIXWARE_UI_SELECT("F:/img_printing.bin", "F:/HI_printing.bin"), main_menu.print, 101, 198, event_handler, ID_PRINT);
 
       lv_obj_t *buttonExt = lv_img_create(scr, nullptr);
-      lv_img_set_src(buttonExt, (gCfgItems.filament_max_temper < 300 ? "F:/bmp_ext_state.bin" : "F:/HI_ext_state.bin"));
+      lv_img_set_src(buttonExt, MIXWARE_UI_SELECT("F:/bmp_ext_state.bin", "F:/HI_ext_state.bin"));
       lv_obj_set_pos(buttonExt, 30, 82);
       label_R_Ext = lv_label_create(scr, 75, 92, nullptr);
 

@@ -488,6 +488,62 @@ static void btn_return_event_cb(lv_obj_t *btn, lv_event_t event) {
     lv_draw_ready_print();
   }
 }
+
+static void btn_center_event_cb(lv_obj_t *btn, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
+
+  uiCfg.filament_flow = 0.7;
+  if (DIALOG_IS(TYPE_FILAMENT_LOAD_SELECT)) {
+    thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = PREHEAT_1_TEMP_HOTEND+10;
+    thermalManager.start_watching_hotend(uiCfg.curSprayerChoose);
+    gCfgItems.filament_limit_temper = PREHEAT_1_TEMP_HOTEND+10;
+
+    if (uiCfg.print_state == IDLE) {
+      uiCfg.leveling_first_time = 1;
+      lv_clear_dialog();
+      lv_draw_dialog(DIALOG_TYPE_FILAMENT_WAIT_START);
+    }
+    else if (uiCfg.print_state == WORKING) {
+      #if ENABLED(SDSUPPORT)
+        card.pauseSDPrint();
+        stop_print_time();
+        uiCfg.print_state = PAUSING;
+      #endif
+
+      lv_clear_dialog();
+      lv_draw_dialog(DIALOG_TYPE_FILAMENT_PAUSING);
+    }
+    else {
+      lv_clear_dialog();
+      lv_draw_dialog(DIALOG_TYPE_FILAMENT_LOAD_HEAT);
+    }
+  }
+  else if (DIALOG_IS(TYPE_FILAMENT_UNLOAD_SELECT)) {
+    thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = PREHEAT_1_TEMP_HOTEND+10;
+    thermalManager.start_watching_hotend(uiCfg.curSprayerChoose);
+    gCfgItems.filament_limit_temper = PREHEAT_1_TEMP_HOTEND+10;
+
+    if (uiCfg.print_state == IDLE) {
+      uiCfg.leveling_first_time = 1;
+      lv_clear_dialog();
+      lv_draw_dialog(DIALOG_TYPE_FILAMENT_WAIT_START);
+    }
+    else if (uiCfg.print_state == WORKING) {
+      #if ENABLED(SDSUPPORT)
+        card.pauseSDPrint();
+        stop_print_time();
+        uiCfg.print_state = PAUSING;
+      #endif
+
+      lv_clear_dialog();
+      lv_draw_dialog(DIALOG_TYPE_FILAMENT_PAUSING);
+    }
+    else {
+      lv_clear_dialog();
+      lv_draw_dialog(DIALOG_TYPE_FILAMENT_UNLOAD_HEAT);
+    }
+  }
+}
 #endif
 
 void lv_draw_dialog(uint8_t type) {
@@ -641,6 +697,38 @@ void lv_draw_dialog(uint8_t type) {
         lv_label_set_text(labelOk, print_file_dialog_menu.confirm);
       }
     #endif
+    else if (DIALOG_IS(TYPE_FILAMENT_LOAD_SELECT, TYPE_FILAMENT_UNLOAD_SELECT)) {
+      lv_obj_t *btnMore = nullptr, *btnReturn = nullptr, *btnTPU = nullptr;
+      if (gCfgItems.filament_max_temper < 300) {
+        btnOk     = lv_button_btn_create(scr, BTN_LEFT_X, BTN_POS_Y-40, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_ok_event_cb);
+        btnCancel = lv_button_btn_create(scr, BTN_RIGHT_X, BTN_POS_Y-40, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_cancel_event_cb);
+        btnTPU    = lv_button_btn_create(scr, BTN_LEFT_X, BTN_POS_Y+40, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_center_event_cb);
+        btnMore   = lv_button_btn_create(scr, BTN_RIGHT_X, BTN_POS_Y+40, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_more_event_cb);
+        btnReturn = lv_button_btn_create(scr, BTN_RIGHT_X, BTN_POS_Y+120, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_return_event_cb);
+
+        lv_obj_t *labelTPU = lv_label_create_empty(btnTPU);     // Add a label to the button
+        lv_label_set_text(labelTPU, preheat_menu.heatTPU);
+      }
+      else {
+        btnOk = lv_button_btn_create(scr, BTN_LEFT_X, BTN_POS_Y, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_ok_event_cb);
+        btnCancel = lv_button_btn_create(scr, BTN_RIGHT_X, BTN_POS_Y, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_cancel_event_cb);
+        btnMore = lv_button_btn_create(scr, BTN_LEFT_X, BTN_POS_Y+100, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_more_event_cb);
+        btnReturn = lv_button_btn_create(scr, BTN_RIGHT_X, BTN_POS_Y+100, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_return_event_cb);
+      }
+      lv_obj_t *labelOk = lv_label_create_empty(btnOk);             // Add a label to the button
+      lv_label_set_text(labelOk,     MIXWARE_UI_SELECT(preheat_menu.heatPLA, preheat_menu.heatPETG));
+
+      lv_obj_t *labelCancel = lv_label_create_empty(btnCancel);     // Add a label to the button
+      lv_label_set_text(labelCancel, MIXWARE_UI_SELECT(preheat_menu.heatPETG, preheat_menu.heatPACF));
+
+      lv_obj_t *labelMore = lv_label_create_empty(btnMore);
+      lv_label_set_text(labelMore, main_menu.more);
+
+      lv_obj_t *labelReturn = lv_label_create_empty(btnReturn);
+      lv_label_set_text(labelReturn, common_menu.text_back);
+
+      uiCfg.filament_flow = 1.0;
+    }
   #endif
   else {
     btnOk = lv_button_btn_create(scr, TERN(MIXWARE_MODEL_V, BTN_LEFT_X, BTN_OK_X), TERN(MIXWARE_MODEL_V, BTN_POS_Y, BTN_OK_Y), TERN(MIXWARE_MODEL_V, BTN_SIZE_WIDTH, 100), TERN(MIXWARE_MODEL_V, BTN_SIZE_HEIGHT, 50), btn_ok_event_cb);
@@ -657,18 +745,6 @@ void lv_draw_dialog(uint8_t type) {
       else if (DIALOG_IS(RUNOUT_FINISH)) {
         lv_label_set_text(labelOk, pause_msg_menu.purgeMore);        // Set the labels text
         lv_label_set_text(labelCancel, pause_msg_menu.continuePrint);
-      }
-      else if (DIALOG_IS(TYPE_FILAMENT_LOAD_SELECT, TYPE_FILAMENT_UNLOAD_SELECT)) {
-        lv_label_set_text(labelOk,     (gCfgItems.filament_max_temper < 300 ? preheat_menu.heatPLA  : preheat_menu.heatPETG));        // Set the labels text
-        lv_label_set_text(labelCancel, (gCfgItems.filament_max_temper < 300 ? preheat_menu.heatPETG : preheat_menu.heatPACF));
-
-        lv_obj_t *btnMore = lv_button_btn_create(scr, BTN_LEFT_X, BTN_POS_Y+100, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_more_event_cb);
-        lv_obj_t *labelMore = lv_label_create_empty(btnMore);
-        lv_label_set_text(labelMore, main_menu.more);
-
-        lv_obj_t *btnReturn = lv_button_btn_create(scr, BTN_RIGHT_X, BTN_POS_Y+100, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_return_event_cb);
-        lv_obj_t *labelReturn = lv_label_create_empty(btnReturn);
-        lv_label_set_text(labelReturn, common_menu.text_back);
       }
       #if HAS_ABL_NOT_UBL
         else if (DIALOG_IS(AUTO_LEVEL_FINISHED)) {
@@ -1044,7 +1120,7 @@ void filament_dialog_handle() {
     planner.synchronize();
     uiCfg.filament_loading_time_flg = 1;
     uiCfg.filament_loading_time_cnt = 0;
-    sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E%d F%d\nG90"), uiCfg.curSprayerChoose, gCfgItems.filamentchange_load_length, gCfgItems.filamentchange_load_speed);
+    sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E%d F%d\nG90"), uiCfg.curSprayerChoose, gCfgItems.filamentchange_load_length, (int)(gCfgItems.filamentchange_load_speed*uiCfg.filament_flow));
     queue.inject(public_buf_m);
   }
   if (uiCfg.filament_heat_completed_unload == 1) {
@@ -1054,7 +1130,7 @@ void filament_dialog_handle() {
     planner.synchronize();
     uiCfg.filament_unloading_time_flg = 1;
     uiCfg.filament_unloading_time_cnt = 0;
-    sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E15 F100\nG1 E-%d F%d\nG90"), uiCfg.curSprayerChoose, gCfgItems.filamentchange_unload_length, gCfgItems.filamentchange_unload_speed);
+    sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E15 F%d\nG1 E-%d F%d\nG90"), uiCfg.curSprayerChoose, (int)(100*uiCfg.filament_flow), gCfgItems.filamentchange_unload_length, (int)(gCfgItems.filamentchange_unload_speed*uiCfg.filament_flow));
     queue.inject(public_buf_m);
   }
 
@@ -1206,11 +1282,13 @@ void runout_dialog_handle() {
   if (DIALOG_IS(RUNOUT_UNLOAD) && (abs(thermalManager.temp_hotend[0].target - thermalManager.temp_hotend[0].celsius) <= 2)) {
     if (uiCfg.filament_heat_completed_unload) {
       uiCfg.filament_heat_completed_unload = 0;
+      if (thermalManager.temp_hotend[0].target >= 210 && uiCfg.filament_flow == 1.0)
+        uiCfg.filament_flow = 0.8;
       planner.synchronize();
       uiCfg.filament_unloading_time_flg = 1;
       uiCfg.filament_unloading_time_cnt = 0;
       ZERO(public_buf_m);
-      sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E10 F100\nG1 E-%d F%d\nG90"), uiCfg.curSprayerChoose, gCfgItems.filamentchange_unload_length, gCfgItems.filamentchange_unload_speed);
+      sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E10 F%d\nG1 E-%d F%d\nG90"), uiCfg.curSprayerChoose, (int)(100*uiCfg.filament_flow), gCfgItems.filamentchange_unload_length, (int)(gCfgItems.filamentchange_unload_speed*uiCfg.filament_flow));
       queue.inject_P(PSTR(public_buf_m));
     }
     if (uiCfg.filament_unloading_completed) {
@@ -1224,11 +1302,13 @@ void runout_dialog_handle() {
   if (DIALOG_IS(RUNOUT_LOAD) && (abs(thermalManager.temp_hotend[0].target - thermalManager.temp_hotend[0].celsius) <= 2)) {
     if (uiCfg.filament_heat_completed_load) {
       uiCfg.filament_heat_completed_load = 0;
+      if (thermalManager.temp_hotend[0].target >= 210 && uiCfg.filament_flow == 1.0)
+        uiCfg.filament_flow = 0.8;
       planner.synchronize();
       uiCfg.filament_loading_time_flg = 1;
       uiCfg.filament_loading_time_cnt = 0;
       ZERO(public_buf_m);
-      sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E%d F%d\nG90"), uiCfg.curSprayerChoose, gCfgItems.filamentchange_load_length, gCfgItems.filamentchange_load_speed);
+      sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E%d F%d\nG90"), uiCfg.curSprayerChoose, gCfgItems.filamentchange_load_length, (int)(gCfgItems.filamentchange_load_speed*uiCfg.filament_flow));
       queue.inject_P(PSTR(public_buf_m));
     }
 
