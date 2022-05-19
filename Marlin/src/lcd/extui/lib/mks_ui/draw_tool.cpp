@@ -109,7 +109,7 @@ void lv_draw_tool(void) {
   scr = lv_screen_create(TOOL_UI);
 
   #if ENABLED(MIXWARE_MODEL_V)
-    lv_big_button_create(scr, MIXWARE_UI_SELECT("F:/img_extruct.bin", "F:/HI_extruct.bin"),        operation_menu.temp, button_pixel_point[0].x, button_pixel_point[0].y, event_handler, ID_T_PRE_HEAT);
+    lv_big_button_create(scr, MIXWARE_UI_SELECT("F:/img_preHeat.bin", "F:/HI_preHeat.bin"), operation_menu.temp, button_pixel_point[0].x, button_pixel_point[0].y, event_handler, ID_T_PRE_HEAT);
     lv_big_button_create(scr, "F:/img_fan.bin",            set_menu.fan,        button_pixel_point[1].x, button_pixel_point[1].y, event_handler, ID_T_EXTRUCT);
     lv_big_button_create(scr, "F:/img_filamentchange.bin", tool_menu.filament,  button_pixel_point[2].x, button_pixel_point[2].y, event_handler, ID_T_FILAMENT);
     lv_big_button_create(scr, "F:/img_move.bin",           tool_menu.move,      button_pixel_point[3].x, button_pixel_point[3].y, event_handler, ID_T_MOV);
