@@ -190,7 +190,8 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "HI_preheat.bin",
   "HI_extruct.bin",
   "HI_ext_state.bin",
-  "HI_mode_tip.bin"
+  "HI_mode_tip.bin",
+  "img_babystep.bin"
 
 #else
   //homing screen

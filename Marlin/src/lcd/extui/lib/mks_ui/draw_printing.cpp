@@ -45,9 +45,9 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 static lv_obj_t *labelExt1, *labelFan, *labelZpos, *labelTime;
-static lv_obj_t *labelPause, *labelStop, *labelOperat;
+static lv_obj_t *labelPause, *labelStop, *labelOperat, *labelBabystep;
 static lv_obj_t *bar1, *bar1ValueText;
-static lv_obj_t *buttonPause, *buttonOperat, *buttonStop;
+static lv_obj_t *buttonPause, *buttonOperat, *buttonStop, *buttonBabystep;
 
 #if ENABLED(MIXWARE_MODEL_V)
   static lv_obj_t *buttonDet, *labelDet;
@@ -67,6 +67,7 @@ enum {
   ID_OPTION
   #if ENABLED(MIXWARE_MODEL_V)
     ,ID_FILAMENT_DET
+    ,ID_BABYSTEP
   #endif
 };
 
@@ -87,20 +88,17 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         #endif
         lv_imgbtn_set_src_both(buttonPause, "F:/bmp_resume.bin");
         lv_label_set_text(labelPause, printing_menu.resume);
-        lv_obj_align(labelPause, buttonPause, LV_ALIGN_CENTER, 18, 0);
       }
       else if (uiCfg.print_state == PAUSED) {
         uiCfg.print_state = RESUMING;
         lv_imgbtn_set_src_both(obj, "F:/bmp_pause.bin");
         lv_label_set_text(labelPause, printing_menu.pause);
-        lv_obj_align(labelPause, buttonPause, LV_ALIGN_CENTER, 18, 0);
       }
       #if ENABLED(POWER_LOSS_RECOVERY)
         else if (uiCfg.print_state == REPRINTING) {
           uiCfg.print_state = REPRINTED;
           lv_imgbtn_set_src_both(obj, "F:/bmp_pause.bin");
           lv_label_set_text(labelPause, printing_menu.pause);
-          lv_obj_align(labelPause, buttonPause, LV_ALIGN_CENTER, 18, 0);
           print_time.hours   = recovery.info.print_job_elapsed / 3600;
           print_time.minutes = (recovery.info.print_job_elapsed % 3600) / 60;
           print_time.seconds = recovery.info.print_job_elapsed % 60;
@@ -125,6 +123,11 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         update_spi_flash();
 
         detector.reset();
+        break;
+      case ID_BABYSTEP:
+        TERN_(MIXWARE_MODEL_V, uiCfg.move_axis = Z_AXIS);
+        lv_clear_printing();
+        lv_draw_baby_stepping();
         break;
     #endif
   }
@@ -164,19 +167,21 @@ void lv_draw_printing(void) {
   lv_img_set_src(buttonZpos, TERN(MIXWARE_MODEL_V, "F:/img_zpos_state.bin", "F:/bmp_zpos_state.bin"));
   lv_obj_set_pos(buttonZpos, TERN(MIXWARE_MODEL_V, 165, 350), TERN(MIXWARE_MODEL_V, 125, 86));
 
-  buttonPause  = lv_imgbtn_create(scr, uiCfg.print_state == WORKING ? "F:/bmp_pause.bin" : "F:/bmp_resume.bin", TERN(MIXWARE_MODEL_V, 5, 5), TERN(MIXWARE_MODEL_V, 320, 240), event_handler, ID_PAUSE);
-  buttonStop   = lv_imgbtn_create(scr, "F:/bmp_stop.bin", TERN(MIXWARE_MODEL_V, 5, 165), TERN(MIXWARE_MODEL_V, 400, 240), event_handler, ID_STOP);
-  buttonOperat = lv_imgbtn_create(scr, "F:/bmp_operate.bin", TERN(MIXWARE_MODEL_V, 165, 325), TERN(MIXWARE_MODEL_V, 400, 240), event_handler, ID_OPTION);
   #if ENABLED(MIXWARE_MODEL_V)
-    buttonDet  = lv_imgbtn_create(scr, "F:/img_run_out.bin", 165, 320, event_handler, ID_FILAMENT_DET);
+    buttonDet  = lv_imgbtn_create(scr, "F:/img_run_out.bin", 5, 325, event_handler, ID_FILAMENT_DET);
+    buttonBabystep  = lv_imgbtn_create(scr, "F:/img_babystep.bin", 161, 325, event_handler, ID_BABYSTEP);
   #endif
+  buttonPause  = lv_imgbtn_create(scr, uiCfg.print_state == WORKING ? "F:/bmp_pause.bin" : "F:/bmp_resume.bin", 4, 395, event_handler, ID_PAUSE);
+  buttonStop   = lv_imgbtn_create(scr, "F:/bmp_stop.bin", 108, 395, event_handler, ID_STOP);
+  buttonOperat = lv_imgbtn_create(scr, "F:/bmp_operate.bin", 212, 395, event_handler, ID_OPTION);
 
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
+      TERN_(MIXWARE_MODEL_V, lv_group_add_obj(g, buttonDet));
+      TERN_(MIXWARE_MODEL_V, lv_group_add_obj(g, buttonBabystep));
       lv_group_add_obj(g, buttonPause);
       lv_group_add_obj(g, buttonStop);
       lv_group_add_obj(g, buttonOperat);
-      TERN_(MIXWARE_MODEL_V, lv_group_add_obj(g, buttonDet));
     }
   #endif
 
@@ -194,10 +199,11 @@ void lv_draw_printing(void) {
   labelTime = lv_label_create(scr, TERN(MIXWARE_MODEL_V, 234, 250), TERN(MIXWARE_MODEL_V,  90,  96), nullptr);
   labelZpos = lv_label_create(scr, TERN(MIXWARE_MODEL_V, 234, 395), TERN(MIXWARE_MODEL_V, 135,  96), nullptr);
 
+  TERN_(MIXWARE_MODEL_V, labelDet = lv_label_create_empty(buttonDet));
+  TERN_(MIXWARE_MODEL_V, labelBabystep = lv_label_create_empty(buttonBabystep));
   labelPause  = lv_label_create_empty(buttonPause);
   labelStop   = lv_label_create_empty(buttonStop);
   labelOperat = lv_label_create_empty(buttonOperat);
-  TERN_(MIXWARE_MODEL_V, labelDet = lv_label_create_empty(buttonDet));
 
   if (gCfgItems.filament_max_temper > 300) {
     lv_obj_t *b_mode = lv_img_create(scr, nullptr);
@@ -209,17 +215,20 @@ void lv_draw_printing(void) {
 
   if (gCfgItems.multiple_language) {
     lv_label_set_text(labelPause, uiCfg.print_state == WORKING ? printing_menu.pause : printing_menu.resume);
-    lv_obj_align(labelPause, buttonPause, LV_ALIGN_CENTER, 18, 0);
+    lv_obj_align(labelPause, buttonPause, LV_ALIGN_IN_BOTTOM_MID, 0, -10);
 
     lv_label_set_text(labelStop, printing_menu.stop);
-    lv_obj_align(labelStop, buttonStop, LV_ALIGN_CENTER, 18, 0);
+    lv_obj_align(labelStop, buttonStop, LV_ALIGN_IN_BOTTOM_MID, 0, -10);
 
     lv_label_set_text(labelOperat, printing_menu.option);
-    lv_obj_align(labelOperat, buttonOperat, LV_ALIGN_CENTER, 18, 0);
+    lv_obj_align(labelOperat, buttonOperat, LV_ALIGN_IN_BOTTOM_MID, 0, -10);
 
     #if ENABLED(MIXWARE_MODEL_V)
       lv_label_set_text(labelDet, gCfgItems.filament_det_enable ? operation_menu.filament_sensor_on : operation_menu.filament_sensor_off);
-      lv_obj_align(labelDet, buttonDet, LV_ALIGN_CENTER, 18, 0);
+      lv_obj_align(labelDet, buttonDet, LV_ALIGN_CENTER, 15, 0);
+      
+      lv_label_set_text(labelBabystep, operation_menu.babystep);
+      lv_obj_align(labelBabystep, buttonBabystep, LV_ALIGN_CENTER, 15, 0);
     #endif
   }
 
@@ -311,7 +320,6 @@ void setProBarRate() {
     last_print_state = uiCfg.print_state;
     lv_imgbtn_set_src_both(buttonPause, (uiCfg.print_state == WORKING || uiCfg.print_state == REPRINTED) ? "F:/bmp_pause.bin" : "F:/bmp_resume.bin");
     lv_label_set_text(labelPause, (uiCfg.print_state == WORKING || uiCfg.print_state == REPRINTED) ? printing_menu.pause : printing_menu.resume);
-    lv_obj_align(labelPause, buttonPause, LV_ALIGN_CENTER, 18, 0);
   }
 
   if (rate <= 0) return;
@@ -320,7 +328,6 @@ void setProBarRate() {
     lv_bar_set_value(bar1, rate, LV_ANIM_ON);
     sprintf_P(public_buf_l, "%d%%", rate);
     lv_label_set_text(bar1ValueText,public_buf_l);
-    lv_obj_align(bar1ValueText, bar1, LV_ALIGN_CENTER, 0, 0);
   }
 }
 
