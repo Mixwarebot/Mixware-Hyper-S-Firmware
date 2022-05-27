@@ -177,6 +177,9 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   #if HAS_LOGO_IN_FLASH
     "bmp_logo.bin",
   #endif
+  #if ENABLED(MIXWARE_SHOW_LOGO)
+    "img_mixware.bin",
+  #endif
   //base icons
   "bmp_arrow.bin",
   "img_null.bin",

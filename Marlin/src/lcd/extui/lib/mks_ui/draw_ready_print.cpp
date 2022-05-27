@@ -88,179 +88,120 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-lv_obj_t *limit_info, *det_info;
-lv_obj_t *tmc_state_info;
-lv_style_t limit_style, det_style, tmc_state_style;
+// lv_obj_t *limit_info, *det_info;
+// lv_obj_t *tmc_state_info;
+// lv_style_t limit_style, det_style, tmc_state_style;
 void disp_Limit_ok() {
-  limit_style.text.color.full = 0xFFFF;
-  lv_obj_set_style(limit_info, &limit_style);
-  lv_label_set_text(limit_info, "Limit:ok");
+//   limit_style.text.color.full = 0xFFFF;
+//   lv_obj_set_style(limit_info, &limit_style);
+//   lv_label_set_text(limit_info, "Limit:ok");
 }
 void disp_Limit_error() {
-  limit_style.text.color.full = 0xF800;
-  lv_obj_set_style(limit_info, &limit_style);
-  lv_label_set_text(limit_info, "Limit:error");
+//   limit_style.text.color.full = 0xF800;
+//   lv_obj_set_style(limit_info, &limit_style);
+//   lv_label_set_text(limit_info, "Limit:error");
 }
 
 void disp_det_ok() {
-  det_style.text.color.full = 0xFFFF;
-  lv_obj_set_style(det_info, &det_style);
-  lv_label_set_text(det_info, "det:ok");
+//   det_style.text.color.full = 0xFFFF;
+//   lv_obj_set_style(det_info, &det_style);
+//   lv_label_set_text(det_info, "det:ok");
 }
 void disp_det_error() {
-  det_style.text.color.full = 0xF800;
-  lv_obj_set_style(det_info, &det_style);
-  lv_label_set_text(det_info, "det:error");
+//   det_style.text.color.full = 0xF800;
+//   lv_obj_set_style(det_info, &det_style);
+//   lv_label_set_text(det_info, "det:error");
 }
 
 void disp_tmc_ok() {
-  tmc_state_style.text.color.full = 0xFFFF;
-  lv_obj_set_style(tmc_state_info, &tmc_state_style);
-  lv_label_set_text(tmc_state_info, "TMC CONNECTION OK");
+//   tmc_state_style.text.color.full = 0xFFFF;
+//   lv_obj_set_style(tmc_state_info, &tmc_state_style);
+//   lv_label_set_text(tmc_state_info, "TMC CONNECTION OK");
 }
 void disp_tmc_error() {
-  tmc_state_style.text.color.full = 0xF800;
-  lv_obj_set_style(tmc_state_info, &tmc_state_style);
-  lv_label_set_text(tmc_state_info, "TMC CONNECTION ERROR");
+//   tmc_state_style.text.color.full = 0xF800;
+//   lv_obj_set_style(tmc_state_info, &tmc_state_style);
+//   lv_label_set_text(tmc_state_info, "TMC CONNECTION ERROR");
 }
 
-lv_obj_t *e1, *e2, *e3, *bed;
+// lv_obj_t *e1, *e2, *e3, *bed;
 void mks_disp_test() {
-  char buf[30] = {0};
-  sprintf_P(buf, PSTR("e1:%d"), (int)thermalManager.temp_hotend[0].celsius);
-  lv_label_set_text(e1, buf);
-  #if HAS_MULTI_HOTEND
-    sprintf_P(buf, PSTR("e2:%d"), (int)thermalManager.temp_hotend[1].celsius);
-    lv_label_set_text(e2, buf);
-  #endif
-  #if HAS_HEATED_BED
-    sprintf_P(buf, PSTR("bed:%d"), (int)thermalManager.temp_bed.celsius);
-    lv_label_set_text(bed, buf);
-  #endif
+  // char buf[30] = {0};
+  // sprintf_P(buf, PSTR("e1:%d"), (int)thermalManager.temp_hotend[0].celsius);
+  // lv_label_set_text(e1, buf);
+  // #if HAS_MULTI_HOTEND
+  //   sprintf_P(buf, PSTR("e2:%d"), (int)thermalManager.temp_hotend[1].celsius);
+  //   lv_label_set_text(e2, buf);
+  // #endif
+  // #if HAS_HEATED_BED
+  //   sprintf_P(buf, PSTR("bed:%d"), (int)thermalManager.temp_bed.celsius);
+  //   lv_label_set_text(bed, buf);
+  // #endif
 }
 
 void lv_draw_ready_print(void) {
-  char buf[30] = {0};
-  lv_obj_t *buttonTool;
-
   disp_state_stack._disp_index = 0;
   ZERO(disp_state_stack._disp_state);
   scr = lv_screen_create(PRINT_READY_UI, "");
 
-  if (mks_test_flag == 0x1E) {
-    // Create image buttons
-    buttonTool = lv_imgbtn_create(scr, "F:/bmp_tool.bin", event_handler, ID_TOOL);
+  #if ENABLED(MIXWARE_MODEL_V)
 
-    lv_obj_set_pos(buttonTool, 360, 180);
+    if (gCfgItems.filament_max_temper > 300) {
+      // lv_obj_t *mode = lv_label_create(scr, filament_temp_select.temp_mode_tips);
+      // lv_obj_align(mode, nullptr, LV_ALIGN_CENTER, 0, -86);
+      lv_style_copy(&style_para, &lv_style_plain);
+      style_para.body.border.color = LV_COLOR_BACKGROUND;
+      style_para.body.border.width = 1;
+      style_para.body.main_color   = LV_COLOR_BACKGROUND;
+      style_para.body.grad_color   = LV_COLOR_BACKGROUND;
+      style_para.body.shadow.width = 0;
+      style_para.body.radius       = 3;
+      style_para.body.border.color = TFT_LV_PARA_BACK_BODY_COLOR;
+      style_para.body.border.width = 2;
+      style_para.text.color        = LV_COLOR_WHITE;
+      style_para.text.font         = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
 
-    lv_obj_t *label_tool = lv_label_create_empty(buttonTool);
-    if (gCfgItems.multiple_language) {
-      lv_label_set_text(label_tool, main_menu.tool);
-      lv_obj_align(label_tool, buttonTool, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+      lv_obj_t* btn = lv_btn_create(scr, nullptr);
+      lv_obj_t* label = lv_label_create(btn, filament_temp_select.temp_mode_tips, true);
+      lv_btn_set_style_both(btn, &style_para);
+      lv_obj_set_size(btn, 240, 36);
+      lv_obj_align(label, btn, LV_ALIGN_CENTER, 0, 0);
+      lv_obj_align(btn, nullptr, LV_ALIGN_CENTER, 0, -78);
     }
 
-    #if 1
-      e1 = lv_label_create_empty(scr);
-      lv_obj_set_pos(e1, 20, 20);
-      sprintf_P(buf, PSTR("e1:  %d"), (int)thermalManager.temp_hotend[0].celsius);
-      lv_label_set_text(e1, buf);
-      #if HAS_MULTI_HOTEND
-        e2 = lv_label_create_empty(scr);
-        lv_obj_set_pos(e2, 20, 45);
-        sprintf_P(buf, PSTR("e1:  %d"), (int)thermalManager.temp_hotend[1].celsius);
-        lv_label_set_text(e2, buf);
-      #endif
+    lv_big_button_create(scr, "F:/img_tool.bin",     main_menu.tool,  28,  340, event_handler, ID_TOOL);
+    lv_big_button_create(scr, "F:/img_set.bin",      main_menu.set,   173, 340, event_handler, ID_SET);
+    lv_big_button_create(scr, MIXWARE_UI_SELECT("F:/img_printing.bin", "F:/HI_printing.bin"), main_menu.print, 101, 198, event_handler, ID_PRINT);
 
-      #if HAS_HEATED_BED
-        bed = lv_label_create_empty(scr);
-        lv_obj_set_pos(bed, 20, 95);
-        sprintf_P(buf, PSTR("bed:  %d"), (int)thermalManager.temp_bed.celsius);
-        lv_label_set_text(bed, buf);
-      #endif
-
-      limit_info = lv_label_create_empty(scr);
-
-      lv_style_copy(&limit_style, &lv_style_scr);
-      limit_style.body.main_color.full = 0X0000;
-      limit_style.body.grad_color.full = 0X0000;
-      limit_style.text.color.full      = 0Xffff;
-      lv_obj_set_style(limit_info, &limit_style);
-
-      lv_obj_set_pos(limit_info, 20, 120);
-      lv_label_set_text(limit_info, " ");
-
-      det_info = lv_label_create_empty(scr);
-
-      lv_style_copy(&det_style, &lv_style_scr);
-      det_style.body.main_color.full = 0X0000;
-      det_style.body.grad_color.full = 0X0000;
-      det_style.text.color.full      = 0Xffff;
-      lv_obj_set_style(det_info, &det_style);
-
-      lv_obj_set_pos(det_info, 20, 145);
-      lv_label_set_text(det_info, " ");
-
-      tmc_state_info = lv_label_create_empty(scr);
-
-      lv_style_copy(&tmc_state_style, &lv_style_scr);
-      tmc_state_style.body.main_color.full = 0X0000;
-      tmc_state_style.body.grad_color.full = 0X0000;
-      tmc_state_style.text.color.full      = 0Xffff;
-      lv_obj_set_style(tmc_state_info, &tmc_state_style);
-
-      lv_obj_set_pos(tmc_state_info, 20, 170);
-      lv_label_set_text(tmc_state_info, " ");
-    #endif // if 1
-
-  }
-  else {
-    #if ENABLED(MIXWARE_MODEL_V)
-      if (gCfgItems.filament_max_temper > 300) {
-        // lv_obj_t *mode = lv_label_create(scr, filament_temp_select.temp_mode_tips);
-        // lv_obj_align(mode, nullptr, LV_ALIGN_CENTER, 0, -86);
-        lv_style_copy(&style_para, &lv_style_plain);
-        style_para.body.border.color = LV_COLOR_BACKGROUND;
-        style_para.body.border.width = 1;
-        style_para.body.main_color   = LV_COLOR_BACKGROUND;
-        style_para.body.grad_color   = LV_COLOR_BACKGROUND;
-        style_para.body.shadow.width = 0;
-        style_para.body.radius       = 3;
-        style_para.body.border.color = TFT_LV_PARA_BACK_BODY_COLOR;
-        style_para.body.border.width = 2;
-        style_para.text.color        = LV_COLOR_WHITE;
-        style_para.text.font         = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
-
-        lv_obj_t* btn = lv_btn_create(scr, nullptr);
-        lv_obj_t* label = lv_label_create(btn, filament_temp_select.temp_mode_tips, true);
-        lv_btn_set_style_both(btn, &style_para);
-        lv_obj_set_size(btn, 240, 36);
-        lv_obj_align(label, btn, LV_ALIGN_CENTER, 0, 0);
-        lv_obj_align(btn, nullptr, LV_ALIGN_CENTER, 0, -78);
-      }
-
-      lv_big_button_create(scr, "F:/img_tool.bin",     main_menu.tool,  28,  340, event_handler, ID_TOOL);
-      lv_big_button_create(scr, "F:/img_set.bin",      main_menu.set,   173, 340, event_handler, ID_SET);
-      lv_big_button_create(scr, MIXWARE_UI_SELECT("F:/img_printing.bin", "F:/HI_printing.bin"), main_menu.print, 101, 198, event_handler, ID_PRINT);
-
+    #if HAS_HEATED_BED
       lv_obj_t *buttonExt = lv_img_create(scr, nullptr);
       lv_img_set_src(buttonExt, MIXWARE_UI_SELECT("F:/bmp_ext_state.bin", "F:/HI_ext_state.bin"));
-      lv_obj_set_pos(buttonExt, 30, 82);
-      label_R_Ext = lv_label_create(scr, 75, 92, nullptr);
+      lv_obj_set_pos(buttonExt, 30, 92);
+      label_R_Ext = lv_label_create(scr, 75, 102, nullptr);
 
       lv_obj_t *buttonBedstate = lv_img_create(scr, nullptr);
       lv_img_set_src(buttonBedstate, "F:/bmp_bed_state.bin");
-      lv_obj_set_pos(buttonBedstate, 175, 82);
-      #if HAS_HEATED_BED
-        label_R_Bed = lv_label_create(scr, 220, 92, nullptr);
-      #endif
-
-      disp_ready_print_temp();
+      lv_obj_set_pos(buttonBedstate, 195, 92);
+      label_R_Bed = lv_label_create(scr, 240, 102, nullptr);
     #else
-      lv_big_button_create(scr, "F:/bmp_tool.bin", main_menu.tool, 20, 90, event_handler, ID_TOOL);
-      lv_big_button_create(scr, "F:/bmp_set.bin", main_menu.set, 180, 90, event_handler, ID_SET);
-      lv_big_button_create(scr, "F:/bmp_printing.bin", main_menu.print, 340, 90, event_handler, ID_PRINT);
+      lv_obj_t *buttonExt = lv_img_create(scr, nullptr);
+      lv_img_set_src(buttonExt, MIXWARE_UI_SELECT("F:/bmp_ext_state.bin", "F:/HI_ext_state.bin"));
+      lv_obj_set_pos(buttonExt, 103, 92);
+      label_R_Ext = lv_label_create(scr, 148, 102, nullptr);
     #endif
-  }
+
+    #if ENABLED(MIXWARE_SHOW_LOGO)
+      lv_obj_t *img = lv_img_create(scr, nullptr);
+      lv_img_set_src(img, "F:/img_mixware.bin");
+      lv_obj_set_pos(img, 2, 6);
+    #endif
+      
+    disp_ready_print_temp();
+  #else
+    lv_big_button_create(scr, "F:/bmp_tool.bin", main_menu.tool, 20, 90, event_handler, ID_TOOL);
+    lv_big_button_create(scr, "F:/bmp_set.bin", main_menu.set, 180, 90, event_handler, ID_SET);
+    lv_big_button_create(scr, "F:/bmp_printing.bin", main_menu.print, 340, 90, event_handler, ID_PRINT);
+  #endif
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
     // If calibration is required, let's trigger it now, handles the case when there is default value in configuration files

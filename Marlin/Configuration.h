@@ -2431,6 +2431,7 @@
 #if ENABLED(TFT_LVGL_UI)
   //#define MKS_WIFI_MODULE  // MKS WiFi module
   #define MIXWARE_MODEL_V     // mixware vertical screen model. KD5.
+  #define MIXWARE_SHOW_LOGO
 #endif
 
 /**
