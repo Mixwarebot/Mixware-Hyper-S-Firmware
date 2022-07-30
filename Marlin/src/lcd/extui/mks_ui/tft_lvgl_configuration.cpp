@@ -111,8 +111,8 @@ void SysTick_Callback() {
   }
   if (uiCfg.filament_unloading_time_flg) {
     uiCfg.filament_unloading_time_cnt++;
-    uiCfg.filament_rate = uint32_t(100.0f * uiCfg.filament_unloading_time_cnt / SEC_TO_MS(uiCfg.filament_unloading_time/TERN1(TFT_MIXWARE_LVGL_UI, MPRE.extrusionVolume)) + 0.5f);
-    if (uiCfg.filament_unloading_time_cnt >= SEC_TO_MS(uiCfg.filament_unloading_time/TERN1(TFT_MIXWARE_LVGL_UI, MPRE.extrusionVolume))) {
+    uiCfg.filament_rate = uint32_t(100.0f * uiCfg.filament_unloading_time_cnt / SEC_TO_MS(uiCfg.filament_unloading_time/TERN1(TFT_MIXWARE_LVGL_UI, MPRE.extrusion_volume)) + 0.5f);
+    if (uiCfg.filament_unloading_time_cnt >= SEC_TO_MS(uiCfg.filament_unloading_time/TERN1(TFT_MIXWARE_LVGL_UI, MPRE.extrusion_volume))) {
       uiCfg.filament_unloading_time_cnt  = 0;
       uiCfg.filament_unloading_time_flg  = false;
       uiCfg.filament_unloading_completed = true;
@@ -142,7 +142,7 @@ void tft_lvgl_init() {
   #endif
 
   // Init TFT first!
-  TERN_(TFT_MIXWARE_LVGL_UI, MUI.imagePathInit());
+  TERN_(TFT_MIXWARE_LVGL_UI, MUI.image_path_init());
   SPI_TFT.spi_init(SPI_FULL_SPEED);
   SPI_TFT.LCD_init();
 

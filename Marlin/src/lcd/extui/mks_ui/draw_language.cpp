@@ -215,11 +215,12 @@ void lv_draw_language() {
     lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_L_RETURN);
     disp_language(gCfgItems.language, SELECTED);
   #else
+    MUI.page_placeholder(scr, 0, TFT_HEIGHT - 50);
     // Create image buttons
     buttonCN   = lv_big_button_create(scr, MIMG.languageSCN, language_menu.chinese_s, IMAGEBTN_P_X(0), IMAGEBTN_P_Y(0), event_handler, ID_CN);
     buttonT_CN = lv_big_button_create(scr, MIMG.languageTCN, language_menu.chinese_t, IMAGEBTN_P_X(1), IMAGEBTN_P_Y(1), event_handler, ID_T_CN);
     buttonEN   = lv_big_button_create(scr, MIMG.languageEN,  language_menu.english,   IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), event_handler, ID_EN);
-    MUI.ScreenReturnButton(scr, event_handler, ID_L_RETURN);
+    MUI.page_button_return(scr, event_handler, ID_L_RETURN);
 
     disp_language(gCfgItems.language, SELECTED);
   #endif

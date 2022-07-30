@@ -139,6 +139,8 @@ void PrintJobRecovery::load() {
 void PrintJobRecovery::prepare() {
   card.getAbsFilenameInCWD(info.sd_filename);  // SD filename
   cmd_sdpos = 0;
+
+  TERN_(TFT_MIXWARE_LVGL_UI, info.print_paused_raised = 0);
 }
 
 /**
@@ -339,12 +341,13 @@ void PrintJobRecovery::resume() {
     // Make sure leveling is off before any G92 and G28
     gcode.process_subcommands_now_P(PSTR("M420 S0 Z0"));
   #endif
+  TERN_(TFT_MIXWARE_LVGL_UI, planner.leveling_active = false);
 
   #if HAS_HEATED_BED
     const celsius_t bt = info.target_temperature_bed;
     if (bt) {
       // Restore the bed temperature
-      sprintf_P(cmd, PSTR("M190S%i"), bt);
+      sprintf_P(cmd, PSTR("M140S%i"), bt);
       gcode.process_subcommands_now(cmd);
     }
   #endif
@@ -361,6 +364,14 @@ void PrintJobRecovery::resume() {
         sprintf_P(cmd, PSTR("M109S%i"), et);
         gcode.process_subcommands_now(cmd);
       }
+    }
+  #endif
+
+  #if HAS_HEATED_BED
+    if (bt) {
+      // Restore the bed temperature
+      sprintf_P(cmd, PSTR("M190S%i"), bt);
+      gcode.process_subcommands_now(cmd);
     }
   #endif
 
@@ -567,6 +578,16 @@ void PrintJobRecovery::resume() {
   char *fn = info.sd_filename;
   sprintf_P(cmd, M23_STR, fn);
   gcode.process_subcommands_now(cmd);
+
+  #if ENABLED(TFT_MIXWARE_LVGL_UI)
+    if (info.print_paused_raised != (float)0) {
+      gcode.process_subcommands_now_P(PSTR("G91"));
+      sprintf_P(cmd, PSTR("G1 Z%s F1000"), dtostrf((-info.print_paused_raised), 1, 3, str_1));
+      gcode.process_subcommands_now(cmd);
+      gcode.process_subcommands_now_P(PSTR("G90"));
+    }
+  #endif
+
   sprintf_P(cmd, PSTR("M24S%ldT%ld"), resume_sdpos, info.print_job_elapsed);
   gcode.process_subcommands_now(cmd);
 

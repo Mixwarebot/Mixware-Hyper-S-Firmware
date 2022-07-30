@@ -121,6 +121,9 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
           card.startOrResumeFilePrinting();
           TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
           once_flag = false;
+
+          detector.reset();
+          p_babystep.reset();
         }
       }
     #endif
@@ -183,7 +186,7 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
   #endif
   else if (DIALOG_IS(STORE_EEPROM_TIPS)) {
     TERN_(EEPROM_SETTINGS, (void)settings.save());
-    MPRE.zOffsetChanged = true;
+    MPRE.is_z_offset_changed = true;
     clear_cur_ui();
     draw_return_ui();
   }
@@ -279,14 +282,14 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
   }
   #if HAS_ABL_NOT_UBL
     else if (DIALOG_IS(AUTO_LEVEL_COMPLETED)) {
-      MUI.setAutoLevelingState(LEVEL_STATE_NULL);
+      MUI.set_auto_leveling_state(LEVEL_STATE_NULL);
       clear_cur_ui();
       lv_draw_dialog(DIALOG_AUTO_LEVELING);
     }
     else if (DIALOG_IS(AUTO_LEVEL_FINISHED, AUTO_LEVEL_LEVELERR)) {
-      MUI.setAutoLevelingState(LEVEL_STATE_NULL);
-      clear_cur_ui();
-      draw_return_ui();
+      MUI.set_auto_leveling_state(LEVEL_STATE_NULL);
+      lv_clear_dialog();
+      MUI.page_draw_leveling();
     }
   #endif
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT, TYPE_FILAMENT_UNLOAD_HEAT)) {
@@ -297,15 +300,15 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     }
   }
   else if (DIALOG_IS(EHEATINGMODE_NORMAL)) {
-    gcode.process_subcommands_now(PSTR("M301 P13.14 I0.85 D55.20\nM500"));
-    MUI.setEHeating(M_EHEATING_MODE_NORMAL_TEMP);
+    gcode.process_subcommands_now(mixware_ui.HEATINGMODE_NORMAL_CMD);
+    MUI.set_heating_mode_temperature(M_EHEATING_MODE_NORMAL_TEMP);
     update_spi_flash();
     clear_cur_ui();
     draw_return_ui();
   }
   else if (DIALOG_IS(EHEATINGMODE_HIGH)) {
-    gcode.process_subcommands_now(PSTR("M301 P20.30 I1.23 D57.77\nM500"));
-    MUI.setEHeating(M_EHEATING_MODE_HIGH_TEMP);
+    gcode.process_subcommands_now(mixware_ui.HEATINGMODE_HIGH_CMD);
+    MUI.set_heating_mode_temperature(M_EHEATING_MODE_HIGH_TEMP);
     update_spi_flash();
     clear_cur_ui();
     draw_return_ui();
@@ -415,7 +418,7 @@ static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
 
     }
     else if (DIALOG_IS(AUTO_LEVEL_FINISHED)) {
-      MUI.setAutoLevelingState(LEVEL_STATE_NULL);
+      MUI.set_auto_leveling_state(LEVEL_STATE_NULL);
       uiCfg.leveling_first_time = 1;
       uiCfg.move_dist = 0.1;
       clear_cur_ui();
@@ -423,7 +426,10 @@ static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
     }
   #endif
   else if (DIALOG_IS(AXIS_Z_TEST)) {
-    quickstop_stepper();
+    if (!all_axes_trusted())
+      queue.enqueue_one_P(PSTR("M410"));
+    else
+      gcode.process_subcommands_now(PSTR("M410"));
 
     clear_cur_ui();
     draw_return_ui();
@@ -447,7 +453,7 @@ static void btn_more_event_cb(lv_obj_t *btn, lv_event_t event) {
   if (DIALOG_IS(TYPE_FILAMENT_UNLOAD_SELECT, TYPE_FILAMENT_LOAD_SELECT)) {
     lv_clear_dialog();
     uiCfg.para_ui_page = 0;
-    MUI.drawPage_eHeatingTemperature();
+    MUI.page_draw_temperature_adjust();
   }
   if ((uiCfg.filament_load_heat_flg == 1 || uiCfg.filament_unload_heat_flg == 1) && DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT, TYPE_FILAMENT_UNLOAD_HEAT)) {
     value = filament_temp_input;
@@ -465,7 +471,7 @@ static void btn_return_event_cb(lv_obj_t *btn, lv_event_t event) {
     lv_draw_filament_change();
   }
   else if (DIALOG_IS(TYPE_FINISH_PRINT)) {
-    if (p_babystep.isChanged()) {
+    if (p_babystep.is_changed()) {
       TERN_(EEPROM_SETTINGS, (void)settings.save());
       p_babystep.init();
     }
@@ -477,7 +483,7 @@ static void btn_return_event_cb(lv_obj_t *btn, lv_event_t event) {
 static void btn_center_event_cb(lv_obj_t *btn, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
 
-   MPRE.extrusionVolume = 0.7;
+   MPRE.extrusion_volume = 0.7;
   if (DIALOG_IS(TYPE_FILAMENT_LOAD_SELECT)) {
     thermalManager.setTargetHotend(PREHEAT_1_TEMP_HOTEND+10, uiCfg.extruderIndex);
     gCfgItems.filament_limit_temp = PREHEAT_1_TEMP_HOTEND+10;
@@ -535,18 +541,18 @@ void lv_draw_dialog(uint8_t type) {
 
   lv_obj_t *labelDialog = lv_label_create(scr, "");
 
-  TERN_(TFT_LVGL_MIXWARE_UI, MUI.ScreenPlaceholder());
+  TERN_(TFT_LVGL_MIXWARE_UI, MUI.page_placeholder(scr, 0, TFT_HEIGHT - 50));
 
   if (DIALOG_IS(TYPE_FINISH_PRINT)) {
     btnOk = lv_button_btn_create(scr, BTN_LEFT_X, BTN_POS_Y, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_ok_event_cb);
     lv_obj_t *labelOk = lv_label_create_empty(btnOk);             // Add a label to the button
-    lv_label_set_text(labelOk, MTR.printAgain);    // Set the labels text
+    lv_label_set_text(labelOk, MTR.print_again);    // Set the labels text
 
     btnCancel = lv_button_btn_create(scr, BTN_RIGHT_X, BTN_POS_Y, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_cancel_event_cb);
     lv_obj_t *labelCancel = lv_label_create_empty(btnCancel);
     lv_label_set_text(labelCancel, print_file_dialog_menu.confirm);
 
-    if (p_babystep.isChanged()) {
+    if (p_babystep.is_changed()) {
         lv_obj_t *btnReturn = lv_button_btn_create(scr, BTN_RIGHT_X, BTN_POS_Y+100, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_return_event_cb);
         lv_obj_t *labelReturn = lv_label_create_empty(btnReturn);
         lv_label_set_text(labelReturn, MTR.printTipsSaveOffset);
@@ -666,7 +672,7 @@ void lv_draw_dialog(uint8_t type) {
   #endif
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_SELECT, TYPE_FILAMENT_UNLOAD_SELECT)) {
     lv_obj_t *btnMore = nullptr, *btnReturn = nullptr, *btnTPU = nullptr;
-    if (MUI.getEHeatingMode()) {
+    if (MUI.get_heating_mode()) {
       btnOk     = lv_button_btn_create(scr, BTN_LEFT_X, BTN_POS_Y-40, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_ok_event_cb);
       btnCancel = lv_button_btn_create(scr, BTN_RIGHT_X, BTN_POS_Y-40, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_cancel_event_cb);
       btnTPU    = lv_button_btn_create(scr, BTN_LEFT_X, BTN_POS_Y+40, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_center_event_cb);
@@ -683,10 +689,10 @@ void lv_draw_dialog(uint8_t type) {
       btnReturn = lv_button_btn_create(scr, BTN_RIGHT_X, BTN_POS_Y+100, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_return_event_cb);
     }
     lv_obj_t *labelOk = lv_label_create_empty(btnOk);             // Add a label to the button
-    lv_label_set_text(labelOk, IF(MUI.getEHeatingMode(), MTR.preheatPLA, MTR.preheatPETG));
+    lv_label_set_text(labelOk, IF(MUI.get_heating_mode(), MTR.preheatPLA, MTR.preheatPETG));
 
     lv_obj_t *labelCancel = lv_label_create_empty(btnCancel);     // Add a label to the button
-    lv_label_set_text(labelCancel, IF(MUI.getEHeatingMode(), MTR.preheatPETG, MTR.preheatPACF));
+    lv_label_set_text(labelCancel, IF(MUI.get_heating_mode(), MTR.preheatPETG, MTR.preheatPACF));
 
     lv_obj_t *labelMore = lv_label_create_empty(btnMore);
     lv_label_set_text(labelMore, operation_menu.more);
@@ -694,7 +700,7 @@ void lv_draw_dialog(uint8_t type) {
     lv_obj_t *labelReturn = lv_label_create_empty(btnReturn);
     lv_label_set_text(labelReturn, common_menu.text_back);
 
-     MPRE.extrusionVolume = 1.0;
+     MPRE.extrusion_volume = 1.0;
   }
   else {
     btnOk = lv_button_btn_create(scr, BTN_LEFT_X, BTN_POS_Y, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_ok_event_cb);
@@ -734,7 +740,7 @@ void lv_draw_dialog(uint8_t type) {
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -50);
   }
   else if (DIALOG_IS(TYPE_FINISH_PRINT)) {
-    if (p_babystep.isChanged()) {
+    if (p_babystep.is_changed()) {
       lv_label_set_text(labelDialog, print_file_dialog_menu.print_finish);
       lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -110);
 
@@ -915,7 +921,7 @@ void lv_draw_dialog(uint8_t type) {
     lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -50);
   }
   else if (DIALOG_IS(TYPE_REPRINT_NO_FILE)) {
-    lv_label_set_text(labelDialog, MTR.printNoFileTips);
+    lv_label_set_text(labelDialog, MTR.no_file_tips);
     lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -70);
   }
   else if (DIALOG_IS(ADJUST_Z_HEIGHT_WAIT_START, AXIS_Z_TEST_WAIT_START)) {
@@ -1081,7 +1087,7 @@ void filament_dialog_handle() {
     #if DISABLED(TFT_MIXWARE_LVGL_UI)
       sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E%d F%d\nG90"), uiCfg.extruderIndex, gCfgItems.filamentchange_load_length, gCfgItems.filamentchange_load_speed);
     #else
-      sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E%d F%d\nG90"), uiCfg.extruderIndex, gCfgItems.filamentchange_load_length, (int)gCfgItems.filamentchange_load_speed*MPRE.extrusionVolume);
+      sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E%d F%d\nG90"), uiCfg.extruderIndex, gCfgItems.filamentchange_load_length, (int)(gCfgItems.filamentchange_load_speed*MPRE.extrusion_volume));
     #endif
     queue.inject(public_buf_m);
   }
@@ -1096,7 +1102,7 @@ void filament_dialog_handle() {
     #if DISABLED(TFT_MIXWARE_LVGL_UI)
       sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E-%d F%d\nG90"), uiCfg.extruderIndex, gCfgItems.filamentchange_unload_length, gCfgItems.filamentchange_unload_speed);
     #else
-      sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E15 F%d\nG1 E-%d F%d\nG90"), uiCfg.extruderIndex, (int)(100*MPRE.extrusionVolume), gCfgItems.filamentchange_unload_length, (int)(gCfgItems.filamentchange_unload_speed*MPRE.extrusionVolume));
+      sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E15 F%d\nG1 E-%d F%d\nG90"), uiCfg.extruderIndex, (int)(100*MPRE.extrusion_volume), gCfgItems.filamentchange_unload_length, (int)(gCfgItems.filamentchange_unload_speed*MPRE.extrusion_volume));
     #endif
     queue.inject(public_buf_m);
   }

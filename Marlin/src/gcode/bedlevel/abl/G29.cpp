@@ -63,7 +63,7 @@
 #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
   #include "../../../lcd/e3v2/enhanced/dwin.h"
 #elif ENABLED(TFT_MIXWARE_LVGL_UI)
-  #include "../../../lcd/extui/mks_ui/mixware_ui/Mixware_LVGL_UI.h"
+  #include "../../../lcd/extui/mks_ui/mixware_ui/mixware_ui.h"
 #endif
 
 #if HAS_MULTI_HOTEND
@@ -250,7 +250,7 @@ G29_TYPE GcodeSuite::G29() {
 
   // Don't allow auto-leveling without homing first
   if (homing_needed_error()) {
-    IF_ENABLED(TFT_MIXWARE_LVGL_UI, mixware_ui.setAutoLevelingState(LEVEL_STATE_LEVELERR));
+    IF_ENABLED(TFT_MIXWARE_LVGL_UI, mixware_ui.set_auto_leveling_state(LEVEL_STATE_LEVELERR));
     G29_RETURN(false);
   }
 
@@ -647,7 +647,7 @@ G29_TYPE GcodeSuite::G29() {
 
           if (isnan(abl.measured_z)) {
             set_bed_leveling_enabled(abl.reenable);
-            IF_ENABLED(TFT_MIXWARE_LVGL_UI, mixware_ui.setAutoLevelingState(LEVEL_STATE_LEVELERR));
+            IF_ENABLED(TFT_MIXWARE_LVGL_UI, mixware_ui.set_auto_leveling_state(LEVEL_STATE_LEVELERR));
             break; // Breaks out of both loops
           }
 
@@ -715,7 +715,7 @@ G29_TYPE GcodeSuite::G29() {
     // Stow the probe. No raise for FIX_MOUNTED_PROBE.
     if (probe.stow()) {
       set_bed_leveling_enabled(abl.reenable);
-      IF_ENABLED(TFT_MIXWARE_LVGL_UI, mixware_ui.setAutoLevelingState(LEVEL_STATE_LEVELERR));
+      IF_ENABLED(TFT_MIXWARE_LVGL_UI, mixware_ui.set_auto_leveling_state(LEVEL_STATE_LEVELERR));
       abl.measured_z = NAN;
     }
   }
@@ -897,7 +897,7 @@ G29_TYPE GcodeSuite::G29() {
   report_current_position();
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
-  IF_ENABLED(TFT_MIXWARE_LVGL_UI, if (mixware_ui.getAutoLevelingState() == LEVEL_STATE_LEVELING) mixware_ui.setAutoLevelingState(LEVEL_STATE_FINISHED));
+  IF_ENABLED(TFT_MIXWARE_LVGL_UI, if (mixware_ui.get_auto_leveling_state() == LEVEL_STATE_LEVELING) mixware_ui.set_auto_leveling_state(LEVEL_STATE_FINISHED));
 
   G29_RETURN(isnan(abl.measured_z));
 

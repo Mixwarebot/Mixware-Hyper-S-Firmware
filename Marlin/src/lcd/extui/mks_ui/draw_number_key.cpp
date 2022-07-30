@@ -416,7 +416,7 @@ static void set_value_confirm() {
       case filament_temp_input:
         int temper = atoi(key_value);
         NOLESS(temper, 0);
-        NOMORE(temper, MUI.getEHeating());
+        NOMORE(temper, MUI.get_heating_mode_temperature());
         gCfgItems.filament_limit_temp = thermalManager.temp_hotend[0].target = temper;
         thermalManager.start_watching_hotend(uiCfg.extruderIndex);
         break;
@@ -577,21 +577,21 @@ void lv_draw_number_key() {
 
     buttonValue = lv_btn_create(scr, 4, 3, 313, 114, event_handler, 0, &style_num_text);
     labelValue = lv_label_create_empty(buttonValue);
-    DRAW_NO_KEY(NumberKey_1, labelKey_1,      MTR.key1,        NO_KEY_P_X1, NO_KEY_P_Y3, NO_KEY_HEIGHT,  ID_NUM_KEY1);
-    DRAW_NO_KEY(NumberKey_2, labelKey_2,      MTR.key2,        NO_KEY_P_X2, NO_KEY_P_Y3, NO_KEY_HEIGHT,  ID_NUM_KEY2);
-    DRAW_NO_KEY(NumberKey_3, labelKey_3,      MTR.key3,        NO_KEY_P_X3, NO_KEY_P_Y3, NO_KEY_HEIGHT,  ID_NUM_KEY3);
-    DRAW_NO_KEY(NumberKey_4, labelKey_4,      MTR.key4,        NO_KEY_P_X1, NO_KEY_P_Y2, NO_KEY_HEIGHT,  ID_NUM_KEY4);
-    DRAW_NO_KEY(NumberKey_5, labelKey_5,      MTR.key5,        NO_KEY_P_X2, NO_KEY_P_Y2, NO_KEY_HEIGHT,  ID_NUM_KEY5);
-    DRAW_NO_KEY(NumberKey_6, labelKey_6,      MTR.key6,        NO_KEY_P_X3, NO_KEY_P_Y2, NO_KEY_HEIGHT,  ID_NUM_KEY6);
-    DRAW_NO_KEY(NumberKey_7, labelKey_7,      MTR.key7,        NO_KEY_P_X1, NO_KEY_P_Y1, NO_KEY_HEIGHT,  ID_NUM_KEY7);
-    DRAW_NO_KEY(NumberKey_8, labelKey_8,      MTR.key8,        NO_KEY_P_X2, NO_KEY_P_Y1, NO_KEY_HEIGHT,  ID_NUM_KEY8);
-    DRAW_NO_KEY(NumberKey_9, labelKey_9,      MTR.key9,        NO_KEY_P_X3, NO_KEY_P_Y1, NO_KEY_HEIGHT,  ID_NUM_KEY9);
-    DRAW_NO_KEY(NumberKey_0, labelKey_0,      MTR.key0,        NO_KEY_P_X2, NO_KEY_P_Y4, NO_KEY_HEIGHT,  ID_NUM_KEY0);
-    DRAW_NO_KEY(KeyBack,     labelKeyBack,    MTR.keyBack,     NO_KEY_P_X4, NO_KEY_P_Y1, NO_KEY_HEIGHT,  ID_NUM_BACK);
-    DRAW_NO_KEY(KeyReset,    labelKeyReset,   MTR.keyReset,    NO_KEY_P_X4, NO_KEY_P_Y2, NO_KEY_HEIGHT,  ID_NUM_RESET);
-    DRAW_NO_KEY(KeyConfirm,  labelKeyConfirm, MTR.keyConfirm,  NO_KEY_P_X4, NO_KEY_P_Y3, NO_KEY_HEIGHT2, ID_NUM_CONFIRM);
-    DRAW_NO_KEY(KeyPoint,    labelKeyPoint,   MTR.keyPoint,    NO_KEY_P_X3, NO_KEY_P_Y4, NO_KEY_HEIGHT,  ID_NUM_POINT);
-    DRAW_NO_KEY(Minus,       labelMinus,      MTR.keyNegative, NO_KEY_P_X1, NO_KEY_P_Y4, NO_KEY_HEIGHT,  ID_NUM_NEGATIVE);
+    DRAW_NO_KEY(NumberKey_1, labelKey_1,      MTR.key_1,        NO_KEY_P_X1, NO_KEY_P_Y3, NO_KEY_HEIGHT,  ID_NUM_KEY1);
+    DRAW_NO_KEY(NumberKey_2, labelKey_2,      MTR.key_2,        NO_KEY_P_X2, NO_KEY_P_Y3, NO_KEY_HEIGHT,  ID_NUM_KEY2);
+    DRAW_NO_KEY(NumberKey_3, labelKey_3,      MTR.key_3,        NO_KEY_P_X3, NO_KEY_P_Y3, NO_KEY_HEIGHT,  ID_NUM_KEY3);
+    DRAW_NO_KEY(NumberKey_4, labelKey_4,      MTR.key_4,        NO_KEY_P_X1, NO_KEY_P_Y2, NO_KEY_HEIGHT,  ID_NUM_KEY4);
+    DRAW_NO_KEY(NumberKey_5, labelKey_5,      MTR.key_5,        NO_KEY_P_X2, NO_KEY_P_Y2, NO_KEY_HEIGHT,  ID_NUM_KEY5);
+    DRAW_NO_KEY(NumberKey_6, labelKey_6,      MTR.key_6,        NO_KEY_P_X3, NO_KEY_P_Y2, NO_KEY_HEIGHT,  ID_NUM_KEY6);
+    DRAW_NO_KEY(NumberKey_7, labelKey_7,      MTR.key_7,        NO_KEY_P_X1, NO_KEY_P_Y1, NO_KEY_HEIGHT,  ID_NUM_KEY7);
+    DRAW_NO_KEY(NumberKey_8, labelKey_8,      MTR.key_8,        NO_KEY_P_X2, NO_KEY_P_Y1, NO_KEY_HEIGHT,  ID_NUM_KEY8);
+    DRAW_NO_KEY(NumberKey_9, labelKey_9,      MTR.key_9,        NO_KEY_P_X3, NO_KEY_P_Y1, NO_KEY_HEIGHT,  ID_NUM_KEY9);
+    DRAW_NO_KEY(NumberKey_0, labelKey_0,      MTR.key_0,        NO_KEY_P_X2, NO_KEY_P_Y4, NO_KEY_HEIGHT,  ID_NUM_KEY0);
+    DRAW_NO_KEY(KeyBack,     labelKeyBack,    MTR.key_back,     NO_KEY_P_X4, NO_KEY_P_Y1, NO_KEY_HEIGHT,  ID_NUM_BACK);
+    DRAW_NO_KEY(KeyReset,    labelKeyReset,   MTR.key_reset,    NO_KEY_P_X4, NO_KEY_P_Y2, NO_KEY_HEIGHT,  ID_NUM_RESET);
+    DRAW_NO_KEY(KeyConfirm,  labelKeyConfirm, MTR.key_confirm,  NO_KEY_P_X4, NO_KEY_P_Y3, NO_KEY_HEIGHT2, ID_NUM_CONFIRM);
+    DRAW_NO_KEY(KeyPoint,    labelKeyPoint,   MTR.key_point,    NO_KEY_P_X3, NO_KEY_P_Y4, NO_KEY_HEIGHT,  ID_NUM_POINT);
+    DRAW_NO_KEY(Minus,       labelMinus,      MTR.key_negative, NO_KEY_P_X1, NO_KEY_P_Y4, NO_KEY_HEIGHT,  ID_NUM_NEGATIVE);
   #endif
 
   disp_key_value();

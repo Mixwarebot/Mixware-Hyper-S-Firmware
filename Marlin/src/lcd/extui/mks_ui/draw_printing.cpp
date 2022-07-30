@@ -48,7 +48,11 @@ static lv_obj_t *scr;
 static lv_obj_t *labelExt1, *labelFan, *labelZpos, *labelTime;
 static lv_obj_t *labelPause, *labelStop, *labelOperat;
 static lv_obj_t *bar1, *bar1ValueText;
-static lv_obj_t *buttonPause, *buttonOperat, *buttonStop, *buttonExt1, *buttonFanstate, *buttonZpos;
+static lv_obj_t *buttonPause, *buttonOperat, *buttonStop
+                #if DISABLED(TFT_MIXWARE_LVGL_UI)
+                , *buttonExt1, *buttonFanstate, *buttonZpos
+                #endif
+                ;
 
 #if HAS_MULTI_EXTRUDER
   static lv_obj_t *labelExt2;
@@ -57,7 +61,9 @@ static lv_obj_t *buttonPause, *buttonOperat, *buttonStop, *buttonExt1, *buttonFa
 
 #if HAS_HEATED_BED
   static lv_obj_t* labelBed;
-  static lv_obj_t* buttonBedstate;
+  #if DISABLED(TFT_MIXWARE_LVGL_UI)
+    static lv_obj_t* buttonBedstate;
+  #endif
 #endif
 
 #if ENABLED(TFT_MIXWARE_LVGL_UI)
@@ -93,26 +99,25 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           uiCfg.print_state = PAUSING;
         #endif
         lv_imgbtn_set_src_both(buttonPause, TERN(TFT_MIXWARE_LVGL_UI, MIMG.printResume, "F:/bmp_resume.bin"));
-        lv_label_set_text(labelPause, printing_menu.resume);
-        IF_DISABLED(TFT_MIXWARE_LVGL_UI, lv_obj_align(labelPause, buttonPause, LV_ALIGN_CENTER, 30, 0));
+        lv_label_set_text(labelPause, TERN(TFT_MIXWARE_LVGL_UI, MTR.printResume, printing_menu.resume));
       }
       else if (uiCfg.print_state == PAUSED) {
         uiCfg.print_state = RESUMING;
         lv_imgbtn_set_src_both(obj, TERN(TFT_MIXWARE_LVGL_UI, MIMG.printPause, "F:/bmp_pause.bin"));
-        lv_label_set_text(labelPause, printing_menu.pause);
-        IF_DISABLED(TFT_MIXWARE_LVGL_UI, lv_obj_align(labelPause, buttonPause, LV_ALIGN_CENTER, 30, 0));
+        lv_label_set_text(labelPause, TERN(TFT_MIXWARE_LVGL_UI, MTR.printPause, printing_menu.pause));
       }
       #if ENABLED(POWER_LOSS_RECOVERY)
         else if (uiCfg.print_state == REPRINTING) {
           uiCfg.print_state = REPRINTED;
           lv_imgbtn_set_src_both(obj, TERN(TFT_MIXWARE_LVGL_UI, MIMG.printPause, "F:/bmp_pause.bin"));
-          lv_label_set_text(labelPause, printing_menu.pause);
-          IF_DISABLED(TFT_MIXWARE_LVGL_UI, lv_obj_align(labelPause, buttonPause, LV_ALIGN_CENTER, 30, 0));
+          lv_label_set_text(labelPause, TERN(TFT_MIXWARE_LVGL_UI, MTR.printPause, printing_menu.pause));
           print_time.minutes = recovery.info.print_job_elapsed / 60;
           print_time.seconds = recovery.info.print_job_elapsed % 60;
           print_time.hours   = print_time.minutes / 60;
         }
       #endif
+
+      lv_obj_align(labelPause, buttonPause, LV_ALIGN_IN_BOTTOM_MID, 0, -10);
       break;
     case ID_STOP:
       lv_clear_printing();
@@ -133,8 +138,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         lv_clear_printing();
         lv_draw_preHeat();
       #else
-        MUI.toggleFilamentDetector();
-        lv_label_set_text(labelFMDet, MUI.getFilamentDetectorString());
+        MUI.toggle_filament_detector();
+        lv_label_set_text(labelFMDet, MUI.get_filament_detector_tr());
         update_spi_flash();
 
         detector.reset();
@@ -232,7 +237,7 @@ void lv_draw_printing() {
 #else
   lv_imgbtn_create(scr, MIMG.stateTime,        165,  80, nullptr);
   lv_imgbtn_create(scr, MIMG.stateZ,           165, 125, nullptr);
-  lv_imgbtn_create(scr, MIMG_HM(stateExtruct), 165, 170, nullptr);
+  lv_imgbtn_create(scr, MIMG_HM(state_extruct), 165, 170, nullptr);
   lv_imgbtn_create(scr, MIMG.stateBed,         165, 215, nullptr);
   lv_imgbtn_create(scr, MIMG.stateFan,         165, 260, nullptr);
 
@@ -255,15 +260,15 @@ void lv_draw_printing() {
   labelStop   = lv_label_create_empty(buttonStop);
   labelOperat = lv_label_create_empty(buttonOperat);
 
-  if (!MUI.getEHeatingMode()) {
+  if (!MUI.get_heating_mode()) {
     lv_obj_t *b_mode = lv_img_create(scr, nullptr);
-    lv_img_set_src(b_mode, MIMG.eHeatingModeTip);
+    lv_img_set_src(b_mode, MIMG.heating_mode_tips);
     lv_obj_set_pos(b_mode, 20, 285);
-    lv_obj_t *l_mode = MUI.ScreenLabel(b_mode, MTR.eHeatingModeTipsAbb);
+    lv_obj_t *l_mode = MUI.page_label(b_mode, MTR.eHeatingModeTipsAbb);
     lv_obj_align(l_mode, b_mode, LV_ALIGN_CENTER, 0, 0);
   }
 
-  lv_label_set_text(labelFMDet, MUI.getFilamentDetectorString());
+  lv_label_set_text(labelFMDet, MUI.get_filament_detector_tr());
   lv_obj_align(labelFMDet, buttonFMDet, LV_ALIGN_CENTER, 15, 0);
 
   lv_label_set_text(labelBabystep, MTR.babystep);

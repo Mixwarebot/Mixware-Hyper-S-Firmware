@@ -109,7 +109,7 @@ void lv_draw_jerk_settings() {
     M_SCREEN_EDITITEM(MTR.ADVSetJerkE, ID_JERK_E, index);
     index++;
 
-    MUI.ScreenReturnButton(scr, event_handler, ID_JERK_RETURN);
+    MUI.page_button_return(scr, event_handler, ID_JERK_RETURN);
   #endif
 }
 

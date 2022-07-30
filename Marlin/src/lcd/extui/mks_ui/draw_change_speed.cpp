@@ -32,8 +32,8 @@
 
 extern lv_group_t *g;
 static lv_obj_t *scr;
-static lv_obj_t *labelStep, *buttonStep, *buttonMov, *buttonExt;
-static lv_obj_t *labelMov, *labelExt;
+static lv_obj_t *labelStep, *buttonStep, *buttonMov;//, *buttonExt;
+static lv_obj_t *labelMov;//, *labelExt;
 static lv_obj_t *printSpeedText;
 
 enum {
@@ -159,14 +159,14 @@ void lv_draw_change_speed() {
   buttonStep = lv_imgbtn_create(scr, nullptr, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), event_handler, ID_C_STEP);
   lv_big_button_create(scr, MIMG.add, MTR.add, IMAGEBTN_P_X(4), IMAGEBTN_P_Y(4), event_handler, ID_C_ADD);
   lv_big_button_create(scr, MIMG.dec, MTR.dec, IMAGEBTN_P_X(5), IMAGEBTN_P_Y(5), event_handler, ID_C_DEC);
-  MUI.ScreenReturnButton(scr, event_handler, ID_C_RETURN);
+  MUI.page_button_return(scr, event_handler, ID_C_RETURN);
 
   // Create labels on the image buttons
   labelMov = lv_label_create_empty(buttonMov);
   labelStep = lv_label_create_empty(buttonStep);
 
-  MUI.ButtonAddClickTips(buttonMov);
-  MUI.ButtonAddClickTips(buttonStep);
+  MUI.page_button_add_tips(buttonMov);
+  MUI.page_button_add_tips(buttonStep);
 #endif
 
   disp_speed_type();

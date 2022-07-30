@@ -108,11 +108,11 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         break;
       case ID_ADVSETUP_TEMPMODE:
         lv_clear_advance_settings();
-        MUI.drawPage_eHeatingModeSetting();
+        MUI.page_draw_heating_mode_setup();
         break;
       case ID_ADVSETUP_THERMALPROTECTION:
-        MUI.toggleThermalProtection();
-        MUI.updateEnabledButton(buttonTP, MUI.getThermalProtection());
+        MUI.toggle_thermal_protection();
+        MUI.update_button_enabled(buttonTP, MUI.get_thermal_protection());
         update_spi_flash();
         break;
     #endif
@@ -153,9 +153,9 @@ void lv_draw_advance_settings() {
     index++;
     M_SCREEN_ITEM(MTR.ADVSeteHeatingMode, ID_ADVSETUP_TEMPMODE, index);
     index++;
-    buttonTP = MUI.ScreenEnabledButton(scr, MTR.thermalProtection, PARA_UI_POS_X, M_ITEM_POS_Y(index), event_handler, ID_ADVSETUP_THERMALPROTECTION, index, MUI.getThermalProtection());
+    buttonTP = MUI.page_button_enabled(scr, MTR.thermal_protection, PARA_UI_POS_X, M_ITEM_POS_Y(index), event_handler, ID_ADVSETUP_THERMALPROTECTION, index, MUI.get_thermal_protection());
 
-    MUI.ScreenReturnButton(scr, event_handler, ID_ADVANCE_RETURN);
+    MUI.page_button_return(scr, event_handler, ID_ADVANCE_RETURN);
   #endif
 }
 

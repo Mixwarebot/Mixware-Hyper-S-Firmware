@@ -127,7 +127,11 @@
   #define FIL_RUNOUT_PIN                    PE0
 #endif
 
-#define LED_PIN                           PC0
+#define LED_PIN                             PC0
+
+#ifndef USB_POWER_PIN
+  #define USB_POWER_PIN                     PA8
+#endif
 
 // Random Info
 #define USB_SERIAL              -1  // USB Serial

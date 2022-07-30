@@ -127,7 +127,7 @@ void lv_draw_step_settings() {
     M_SCREEN_EDITITEM(MTR.ADVSetStepE, ID_STEP_E0, index);
     index++;
 
-    MUI.ScreenReturnButton(scr, event_handler, ID_STEP_RETURN);
+    MUI.page_button_return(scr, event_handler, ID_STEP_RETURN);
   #endif
 }
 

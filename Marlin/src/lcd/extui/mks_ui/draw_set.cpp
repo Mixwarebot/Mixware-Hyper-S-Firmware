@@ -75,9 +75,9 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
   #if ENABLED(TFT_MIXWARE_LVGL_UI)
     if (obj->mks_obj_id == ID_S_FILAMENT_DET) {
-      MUI.toggleFilamentDetector();
-      lv_imgbtn_set_src_both(buttonFilamentDet, MUI.getFilamentDetectorImage());
-      lv_label_set_text(labelFilamentDet, MUI.getFilamentDetectorString());
+      MUI.toggle_filament_detector();
+      lv_imgbtn_set_src_both(buttonFilamentDet, MUI.get_filament_detector_image_path());
+      lv_label_set_text(labelFilamentDet, MUI.get_filament_detector_tr());
       lv_obj_refresh_ext_draw_pad(labelFilamentDet);
       update_spi_flash();
       return;
@@ -136,7 +136,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     #endif
     #if ENABLED(TFT_MIXWARE_LVGL_UI)
       case ID_S_DEBUG:
-        MUI.drawPage_deviceDebug();
+        MUI.page_draw_device_debug();
         break;
     #endif
   }
@@ -156,12 +156,12 @@ void lv_draw_set() {
   lv_big_button_create(scr, MIMG.configuration, MTR.ADVSet,         IMAGEBTN_P_X(1), IMAGEBTN_P_Y(1), event_handler, ID_S_MACHINE_PARA);
   lv_big_button_create(scr, MIMG.about,         MTR.about,          IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), event_handler, ID_S_ABOUT);
   lv_big_button_create(scr, MIMG.language,      MTR.language,       IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), event_handler, ID_S_LANGUAGE);
-  buttonFilamentDet = lv_imgbtn_create(scr, MUI.getFilamentDetectorImage(), IMAGEBTN_P_X(4), IMAGEBTN_P_Y(4), event_handler, ID_S_FILAMENT_DET);
+  buttonFilamentDet = lv_imgbtn_create(scr, MUI.get_filament_detector_image_path(), IMAGEBTN_P_X(4), IMAGEBTN_P_Y(4), event_handler, ID_S_FILAMENT_DET);
   lv_big_button_create(scr, MIMG.deviceDebug,   MTR.debugDevTitle,  IMAGEBTN_P_X(5), IMAGEBTN_P_Y(5), event_handler, ID_S_DEBUG);
-  MUI.ScreenReturnButton(scr, event_handler, ID_S_RETURN);
+  MUI.page_button_return(scr, event_handler, ID_S_RETURN);
 
   labelFilamentDet = lv_label_create_empty(buttonFilamentDet);
-  lv_label_set_text(labelFilamentDet, MUI.getFilamentDetectorString());
+  lv_label_set_text(labelFilamentDet, MUI.get_filament_detector_tr());
   lv_obj_align(labelFilamentDet, buttonFilamentDet, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 #endif
 }

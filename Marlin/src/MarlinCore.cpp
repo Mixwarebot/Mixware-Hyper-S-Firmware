@@ -1268,6 +1268,9 @@ void setup() {
     SETUP_RUN(controllerFan.setup());
   #endif
 
+  #if PIN_EXISTS(USB_POWER)
+    OUT_WRITE(USB_POWER_PIN, HIGH);
+  #endif
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
 

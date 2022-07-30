@@ -59,6 +59,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_O_PRE_HEAT:
+      TERN_(TFT_MIXWARE_LVGL_UI, uiCfg.para_ui_page = 0);
       lv_clear_operation();
       lv_draw_preHeat();
       break;
@@ -103,8 +104,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         else
           default_preview_flg = true;
       #endif
-      clear_cur_ui();
-      draw_return_ui();
+      lv_clear_operation();
+      lv_draw_printing();
       break;
     case ID_O_POWER_OFF:
       #if DISABLED(TFT_MIXWARE_LVGL_UI)
@@ -122,9 +123,9 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         lv_obj_refresh_ext_draw_pad(label_PowerOff);
         update_spi_flash();
       #else
-        MUI.toggleFilamentDetector();
-        lv_imgbtn_set_src_both(buttonPowerOff, MUI.getFilamentDetectorImage());
-        lv_label_set_text(label_PowerOff, MUI.getFilamentDetectorString());
+        MUI.toggle_filament_detector();
+        lv_imgbtn_set_src_both(buttonPowerOff, MUI.get_filament_detector_image_path());
+        lv_label_set_text(label_PowerOff, MUI.get_filament_detector_tr());
         lv_obj_align(label_PowerOff, buttonPowerOff, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
         lv_obj_refresh_ext_draw_pad(label_PowerOff);
         update_spi_flash();
@@ -246,13 +247,13 @@ void lv_draw_operation() {
   #else
     scr = lv_screen_create(OPERATE_UI, MTR.operation);
 
-    lv_big_button_create(scr, MUI.getEHeatingModeImage(), MTR.temp,     IMAGEBTN_P_X(0), IMAGEBTN_P_Y(0), event_handler, ID_O_PRE_HEAT);
+    lv_big_button_create(scr, MUI.get_heating_mode_image_path(), MTR.temp,     IMAGEBTN_P_X(0), IMAGEBTN_P_Y(0), event_handler, ID_O_PRE_HEAT);
     lv_big_button_create(scr, MIMG.filament,                     MTR.filament, IMAGEBTN_P_X(1), IMAGEBTN_P_Y(1), event_handler, ID_O_FILAMENT);
     lv_big_button_create(scr, MIMG.fan,                          MTR.fan,      IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), event_handler, ID_O_FAN);
 
-    buttonPowerOff = lv_imgbtn_create(scr, MUI.getFilamentDetectorImage(), IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), event_handler, ID_O_POWER_OFF);
+    buttonPowerOff = lv_imgbtn_create(scr, MUI.get_filament_detector_image_path(), IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), event_handler, ID_O_POWER_OFF);
     label_PowerOff = lv_label_create_empty(buttonPowerOff);
-    lv_label_set_text(label_PowerOff, MUI.getFilamentDetectorString());
+    lv_label_set_text(label_PowerOff, MUI.get_filament_detector_tr());
     lv_obj_align(label_PowerOff, buttonPowerOff, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
     if (uiCfg.print_state != WORKING) {
@@ -263,7 +264,7 @@ void lv_draw_operation() {
       lv_big_button_create(scr, MIMG.move,  MTR.babystep, IMAGEBTN_P_X(5), IMAGEBTN_P_Y(5), event_handler, ID_O_BABY_STEP);
     }
 
-    MUI.ScreenReturnButton(scr, event_handler, ID_O_RETURN);
+    MUI.page_button_return(scr, event_handler, ID_O_RETURN);
   #endif
 }
 

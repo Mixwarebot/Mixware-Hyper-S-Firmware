@@ -192,7 +192,7 @@ void lv_draw_acceleration_settings() {
     M_SCREEN_EDITITEM(MTR.ADVSetAccelTravel, ID_ACCE_TRAVEL, index);
     index++;
 
-    MUI.ScreenReturnButton(scr, event_handler, ID_ACCE_RETURN);
+    MUI.page_button_return(scr, event_handler, ID_ACCE_RETURN);
   #endif
 }
 

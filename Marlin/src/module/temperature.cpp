@@ -50,7 +50,7 @@
 #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
   #include "../lcd/e3v2/enhanced/dwin.h"
 #elif ENABLED(TFT_MIXWARE_LVGL_UI)
-  #include "../lcd/extui/mks_ui/mixware_ui/Mixware_LVGL_UI.h"
+  #include "../lcd/extui/mks_ui/mixware_ui/mixware_ui.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -1025,7 +1025,7 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
   #elif defined(BOGUS_TEMPERATURE_GRACE_PERIOD)
     UNUSED(killed);
   #else
-    TERN_(TFT_MIXWARE_LVGL_UI, if (MUI.getThermalProtection()))
+    TERN_(TFT_MIXWARE_LVGL_UI, if (MUI.get_thermal_protection()))
     if (!killed) { killed = 1; loud_kill(lcd_msg, heater_id); }
   #endif
 }

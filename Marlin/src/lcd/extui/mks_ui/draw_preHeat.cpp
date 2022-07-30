@@ -81,13 +81,13 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       if (uiCfg.curTempType == 0) {
 
         // #if ANY(WATCH_TEMP_INCREASE, WATCH_BED_TEMP_INCREASE)
-        int16_t max_target;
+        int16_t max_target = HEATER_0_MAXTEMP;
         // #endif
 
         thermalManager.temp_hotend[uiCfg.extruderIndex].target += uiCfg.stepHeat;
 #ifdef WATCH_TEMP_INCREASE
         if (uiCfg.extruderIndex == 0){
-            max_target = TERN(TFT_MIXWARE_LVGL_UI, MUI.getEHeating(), HEATER_0_MAXTEMP) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1);
+            max_target = TERN(TFT_MIXWARE_LVGL_UI, MUI.get_heating_mode_temperature(), HEATER_0_MAXTEMP) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1);
 
         }
         else {
@@ -171,16 +171,23 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       disp_step_heat();
       break;
     case ID_P_OFF:
-      if (uiCfg.curTempType == 0) {
+      #if DISABLED(TFT_MIXWARE_LVGL_UI)
+        if (uiCfg.curTempType == 0) {
+          thermalManager.setTargetHotend(0, uiCfg.extruderIndex);
+          thermalManager.start_watching_hotend(uiCfg.extruderIndex);
+        }
+        else {
+          #if HAS_HEATED_BED
+            thermalManager.temp_bed.target = 0;
+            thermalManager.start_watching_bed();
+          #endif
+        }
+      #else
         thermalManager.setTargetHotend(0, uiCfg.extruderIndex);
         thermalManager.start_watching_hotend(uiCfg.extruderIndex);
-      }
-      else {
-        #if HAS_HEATED_BED
-          thermalManager.temp_bed.target = 0;
-          thermalManager.start_watching_bed();
-        #endif
-      }
+        thermalManager.temp_bed.target = 0;
+        thermalManager.start_watching_bed();
+      #endif
       disp_desire_temp();
       break;
     case ID_P_RETURN:
@@ -284,7 +291,7 @@ void lv_draw_preHeat() {
       lv_big_button_create(scr, MIMG.add, MTR.add, IMAGEBTN_P_X(4), IMAGEBTN_P_Y(4), event_handler, ID_P_ADD);
       lv_big_button_create(scr, MIMG.dec, MTR.dec, IMAGEBTN_P_X(5), IMAGEBTN_P_Y(5), event_handler, ID_P_DEC);
       if (uiCfg.print_state == IDLE) {
-        MUI.ScreenBottomMiddleButton(scr, MTR.preheat, event_handler, ID_P_PAGE_SW);
+        MUI.page_bottom_button_middle(scr, MTR.preheat, event_handler, ID_P_PAGE_SW);
       }
 
       // Create labels on the image buttons
@@ -294,11 +301,11 @@ void lv_draw_preHeat() {
       disp_temp_type();
       disp_step_heat();
 
-      MUI.ButtonAddClickTips(buttonType);
-      MUI.ButtonAddClickTips(buttonStep);
+      MUI.page_button_add_tips(buttonType);
+      MUI.page_button_add_tips(buttonStep);
     }
     else {
-      if (MUI.getEHeatingMode()) {
+      if (MUI.get_heating_mode()) {
         lv_big_button_create(scr, MIMG.preheatPLA,  MTR.preheatPLA, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), event_handler, ID_P_PLA);
         lv_big_button_create(scr, MIMG.preheatPETG, MTR.preheatPETG, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), event_handler, ID_P_PETG);
       }
@@ -309,14 +316,14 @@ void lv_draw_preHeat() {
 
       lv_big_button_create(scr, MIMG.preheatBed,  MTR.bed,  IMAGEBTN_P_X(4), IMAGEBTN_P_Y(4), event_handler, ID_P_BED);
       lv_big_button_create(scr, MIMG.preheatCool, MTR.Cool,     IMAGEBTN_P_X(5), IMAGEBTN_P_Y(5), event_handler, ID_P_OFF);
-      MUI.ScreenBottomMiddleButton(scr, MTR.temp, event_handler, ID_P_PAGE_SW);
+      MUI.page_bottom_button_middle(scr, MTR.temp, event_handler, ID_P_PAGE_SW);
     }
 
-    MUI.ScreenReturnButton(scr, event_handler, ID_P_RETURN);
+    MUI.page_button_return(scr, event_handler, ID_P_RETURN);
 
     #if HAS_HEATED_BED
       lv_obj_t *buttonExt = lv_img_create(scr, nullptr);
-      lv_img_set_src(buttonExt, MIMG_HM(stateExtruct));
+      lv_img_set_src(buttonExt, MIMG_HM(state_extruct));
       lv_obj_set_pos(buttonExt, 30, 82);
       labelExt = lv_label_create(scr, 75, 92, nullptr);
 
@@ -326,7 +333,7 @@ void lv_draw_preHeat() {
       labelBed = lv_label_create(scr, 220, 92, nullptr);
     #else
       lv_obj_t *buttonExt = lv_img_create(scr, nullptr);
-      lv_img_set_src(buttonExt, MIMG_HM(stateExtruct));
+      lv_img_set_src(buttonExt, MIMG_HM(state_extruct));
       lv_obj_set_pos(buttonExt, 103, 82);
       labelExt = lv_label_create(scr, 148, 92, nullptr);
     #endif

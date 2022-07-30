@@ -157,7 +157,7 @@
 #define FILE_PRE_PIC_Y_OFFSET 10
 
 #undef PARA_UI_POS_Y
-#define PARA_UI_POS_Y 42
+#define PARA_UI_POS_Y 48
 
 #undef PARA_UI_SIZE_X
 #define PARA_UI_SIZE_X (TFT_WIDTH - 30)
@@ -229,7 +229,9 @@
 #define MTR MUI.info.tr
 #define MIMG MUI.info.image
 #define MPRE MUI.info.preference
-#define MIMG_HM(p) MUI.getEHeatingMode() ? MIMG.p : MIMG.p##HM
+#define MIMG_HM(p) MUI.get_heating_mode() ? MIMG.p : MIMG.heating_mode_## p
 
 #define M_EHEATING_MODE_NORMAL_TEMP 260
 #define M_EHEATING_MODE_HIGH_TEMP   350
+
+#define M_CMD "M301 P20.30 I1.23 D57.77\nM500"

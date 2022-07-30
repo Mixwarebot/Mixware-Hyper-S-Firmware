@@ -132,25 +132,25 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       break;
     #if ENABLED(TFT_MIXWARE_LVGL_UI)
       case ID_BABYSTEP_AXIS:
-        MUI.updateAxis(buttonAxis, labelAxis);
+        MUI.update_move_axis(buttonAxis, labelAxis);
         break;
       case ID_BABYSTEP_ADD:
-        switch (MPRE.moveAxis)
+        switch (MPRE.move_axis)
         {
-        case X_AXIS: sprintf_P(baby_buf, PSTR("M290 X%s"), dtostrf(babystep_dist, 1, 2, str_1)); break;
-        case Y_AXIS: sprintf_P(baby_buf, PSTR("M290 Y%s"), dtostrf(babystep_dist, 1, 2, str_1)); break;
-        case Z_AXIS: sprintf_P(baby_buf, PSTR("M290 Z%s"), dtostrf(babystep_dist, 1, 2, str_1)); break;
+        case X_AXIS: sprintf_P(baby_buf, PSTR("M290 X%s"), dtostrf(babystep_dist, 1, 3, str_1)); break;
+        case Y_AXIS: sprintf_P(baby_buf, PSTR("M290 Y%s"), dtostrf(babystep_dist, 1, 3, str_1)); break;
+        case Z_AXIS: sprintf_P(baby_buf, PSTR("M290 Z%s"), dtostrf(babystep_dist, 1, 3, str_1)); break;
 
         default: break;
-        gcode.process_subcommands_now(PSTR(baby_buf));
         }
+        gcode.process_subcommands_now(PSTR(baby_buf));
         break;
       case ID_BABYSTEP_DEC:
-        switch (MPRE.moveAxis)
+        switch (MPRE.move_axis)
         {
-        case X_AXIS: sprintf_P(baby_buf, PSTR("M290 X%s"), dtostrf(-babystep_dist, 1, 2, str_1)); break;
-        case Y_AXIS: sprintf_P(baby_buf, PSTR("M290 Y%s"), dtostrf(-babystep_dist, 1, 2, str_1)); break;
-        case Z_AXIS: sprintf_P(baby_buf, PSTR("M290 Z%s"), dtostrf(-babystep_dist, 1, 2, str_1)); break;
+        case X_AXIS: sprintf_P(baby_buf, PSTR("M290 X%s"), dtostrf(-babystep_dist, 1, 3, str_1)); break;
+        case Y_AXIS: sprintf_P(baby_buf, PSTR("M290 Y%s"), dtostrf(-babystep_dist, 1, 3, str_1)); break;
+        case Z_AXIS: sprintf_P(baby_buf, PSTR("M290 Z%s"), dtostrf(-babystep_dist, 1, 3, str_1)); break;
 
         default: break;
         }
@@ -184,15 +184,15 @@ void lv_draw_baby_stepping() {
   disp_z_offset_value();
 #else
   babystep_dist = 0.1;
-  MPRE.moveAxis = Z_AXIS;
+  MPRE.move_axis = Z_AXIS;
   buttonAxis = lv_imgbtn_create(scr, MIMG.axisZ, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), event_handler, ID_BABYSTEP_AXIS);
   buttonV    = lv_imgbtn_create(scr, nullptr,    IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), event_handler, ID_BABY_STEP_DIST);
   lv_big_button_create(scr, MIMG.add, MTR.offsetZAdd,  IMAGEBTN_P_X(4), IMAGEBTN_P_Y(4), event_handler, ID_BABYSTEP_ADD);
   lv_big_button_create(scr, MIMG.dec, MTR.offsetZDec,  IMAGEBTN_P_X(5), IMAGEBTN_P_Y(5), event_handler, ID_BABYSTEP_DEC);
-  MUI.ScreenReturnButton(scr, event_handler, ID_BABY_STEP_RETURN);
+  MUI.page_button_return(scr, event_handler, ID_BABY_STEP_RETURN);
 
   labelAxis = lv_label_create_empty(buttonAxis);
-  lv_label_set_text(labelAxis, MTR.x);
+  lv_label_set_text(labelAxis, MTR.z);
   lv_obj_align(labelAxis, buttonAxis, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET-10);
 
   labelV = lv_label_create_empty(buttonV);
@@ -206,8 +206,8 @@ void lv_draw_baby_stepping() {
   disp_baby_step_dist();
   disp_z_offset_value();
 
-  MUI.ButtonAddClickTips(buttonAxis);
-  MUI.ButtonAddClickTips(buttonV);
+  MUI.page_button_add_tips(buttonAxis);
+  MUI.page_button_add_tips(buttonV);
 #endif
 }
 
@@ -236,17 +236,17 @@ void disp_baby_step_dist() {
     }
   #else
     if ((int)(100 * babystep_dist) == 5)
-      lv_imgbtn_set_src_both(buttonV, MIMG.moveDistance_1_mm);
+      lv_imgbtn_set_src_both(buttonV, MIMG.move_distance_mm_1);
     else if ((int)(100 * babystep_dist) == 10)
-      lv_imgbtn_set_src_both(buttonV, MIMG.moveDistance_10_mm);
+      lv_imgbtn_set_src_both(buttonV, MIMG.move_distance_mm_10);
 
     if (gCfgItems.multiple_language) {
       if ((int)(100 * babystep_dist) == 5) {
-        lv_label_set_text(labelV, MTR.moveDistanceMM005);
+        lv_label_set_text(labelV, MTR.move_distance_mm_0_0_5);
         lv_obj_align(labelV, buttonV, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET-10);
       }
       else if ((int)(100 * babystep_dist) == 10) {
-        lv_label_set_text(labelV, MTR.moveDistanceMM01);
+        lv_label_set_text(labelV, MTR.move_distance_mm_0_1);
         lv_obj_align(labelV, buttonV, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET-10);
       }
     }
@@ -262,7 +262,7 @@ void disp_z_offset_value() {
       sprintf_P(buf, PSTR("Offset Z: %s mm"), dtostrf(probe.offset.z, 1, 3, str_1));
     #else
       sprintf_P(buf, PSTR("%s mm"), dtostrf(probe.offset.z, 1, 2, str_1));
-    #endif    sprintf_P(buf, PSTR("Offset Z: %s mm"), dtostrf(probe.offset.z, 1, 3, str_1));
+    #endif
   #else
     strcpy_P(buf, PSTR("Offset Z: 0 mm"));
   #endif

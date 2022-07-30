@@ -39,7 +39,10 @@ static lv_obj_t *scr;
 #endif
 extern lv_group_t*  g;
 
-static lv_obj_t *buttonPageUp, *buttonPageDown, *buttonBack,
+static lv_obj_t
+                #if DISABLED(TFT_MIXWARE_LVGL_UI)
+                  *buttonPageUp, *buttonPageDown, *buttonBack,
+                #endif
                 *buttonGcode[FILE_BTN_CNT], *labelPageUp[FILE_BTN_CNT], *buttonText[FILE_BTN_CNT];
 
 enum {
@@ -56,56 +59,6 @@ extern uint8_t public_buf[513];
 extern char public_buf_m[100];
 
 uint8_t sel_id = 0;
-
-// fix wang
-uint16_t lv_longFilename[FILENAME_LENGTH * MAX_VFAT_ENTRIES + 1];
-/*
-Unicode      		|        UTF-8
-Hexadecimal      	|        Binary
---------------------------+---------------------------------------------
-0000 0000-0000 007F | 0xxxxxxx
-0000 0080-0000 07FF | 110xxxxx 10xxxxxx
-0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
-0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-*/
-void unicode_2_utf8(char *des, uint16_t *source, uint8_t Len) {
-	uint8_t FileName_UTF8[30];
-	ZERO(FileName_UTF8);
-	LOOP_L_N(i, Len) {
-		if(0 <= source[i] && source[i] <= 0x7F) {
-			// 0xxxxxxx
-			*des = (source[i] & 0x7F);
-			des++;
-		}
-		else if(0X80 <= source[i] && source[i] <= 0x7FF) {
-			// 110xxxxx 10xxxxxx
-			*(des+1) = (source[i] & 0x3F) | 0x80;
-        	*des     = ((source[i] >> 6) & 0x1F) | 0xC0;
-			des 	 += 2;
-		}
-		else if(0X800 <= source[i] && source[i] <= 0xFFFF) {
-			// 1110xxxx 10xxxxxx 10xxxxxx
-			*(des+2) = (source[i] & 0x3F) | 0x80;
-        	*(des+1) = ((source[i] >>  6) & 0x3F) | 0x80;
-        	*des     = ((source[i] >> 12) & 0x0F) | 0xE0;
-			des 	 += 3;
-		}
-		else if(0X10000 <= source[i] && source[i] <= 0x10FFFF) {
-			// 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-			*(des+3) = (source[i] & 0x3F) | 0x80;
-			*(des+2) = ((source[i] >>  6) & 0x3F) | 0x80;
-			*(des+1) = ((source[i] >> 12) & 0x3F) | 0x80;
-			*des     = ((source[i] >> 18) & 0x07) | 0xF0;
-      		des 	 += 4;
-		}
-		else {
-			break; //Out of range
-		}
-	}
-}
-
-
-
 
 #if ENABLED(SDSUPPORT)
 
@@ -134,18 +87,7 @@ void unicode_2_utf8(char *des, uint16_t *source, uint8_t Len) {
         strcpy(list_file.file_name[valid_name_cnt], list_file.curDirPath);
         strcat_P(list_file.file_name[valid_name_cnt], PSTR("/"));
         strcat(list_file.file_name[valid_name_cnt], card.filename);
-        // strcpy(list_file.long_name[valid_name_cnt], card.longest_filename());
-
-        ZERO(list_file.long_name[valid_name_cnt]);
-        if (lv_longFilename[0] == 0)
-				  strncpy(list_file.long_name[valid_name_cnt], card.filename, strlen(card.filename));
-				else {
-					//chinese is 3 byte, ascii is 1 byte
-					//max chinese: (sizeof(list_file.long_name[valid_name_cnt]) - strlen(".gcode") - 1) / 3 = (53 - 6 - 1) / 3 = 15
-					//max ascii: (sizeof(list_file.long_name[valid_name_cnt]) - strlen(".gcode") - 1) = 53 -6 - 1 = 46
-					unicode_2_utf8(list_file.long_name[valid_name_cnt], lv_longFilename, FILENAME_LENGTH * MAX_VFAT_ENTRIES);
-					list_file.long_name[valid_name_cnt][SHORT_NAME_LEN * 4] = '\0';
-				}
+        strcpy(list_file.long_name[valid_name_cnt], card.longest_filename());
 
         valid_name_cnt++;
         if (valid_name_cnt == 1)
@@ -306,22 +248,20 @@ void disp_gcode_icon(uint8_t file_num) {
 
   // Create image buttons
 #ifndef USE_NEW_LVGL_CONF
-    lv_obj_t *buttonNull = lv_img_create(scr, NULL);// Empty picture.
-    lv_img_set_src(buttonNull, "F:/img_null.bin");
-    lv_obj_set_pos(buttonNull,  TFT_WIDTH - 20, 0);
+    MUI.page_placeholder(scr, 0, 0);
 
     if (dir_offset[curDirLever].curPage > 0 && dir_offset[curDirLever].cur_page_last_offset > 0 && card.get_num_Files() > (dir_offset[curDirLever].curPage+1) * FILE_NUM) {
-      MUI.ScreenBottomLeftButton(scr, MTR.previous, event_handler, ID_P_UP);
-      MUI.ScreenBottomMiddleButton(scr, MTR.next, event_handler, ID_P_DOWN);
+      MUI.screen_bottom_button_left(scr, MTR.previous, event_handler, ID_P_UP);
+      MUI.page_bottom_button_middle(scr, MTR.next, event_handler, ID_P_DOWN);
     }
     else {
       if (dir_offset[curDirLever].curPage > 0)
-        MUI.ScreenBottomMiddleButton(scr, MTR.previous, event_handler, ID_P_UP);
+        MUI.page_bottom_button_middle(scr, MTR.previous, event_handler, ID_P_UP);
       else if (dir_offset[curDirLever].cur_page_last_offset > 0 && card.get_num_Files() > FILE_NUM)
-        MUI.ScreenBottomMiddleButton(scr, MTR.next, event_handler, ID_P_DOWN);
+        MUI.page_bottom_button_middle(scr, MTR.next, event_handler, ID_P_DOWN);
     }
 
-    MUI.ScreenReturnButton(scr, event_handler, ID_P_RETURN);
+    MUI.page_button_return(scr, event_handler, ID_P_RETURN);
 #else
   buttonPageUp   = lv_imgbtn_create(mks_ui.src_main, "F:/bmp_pageUp.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_P_UP);
   buttonPageDown = lv_imgbtn_create(mks_ui.src_main, "F:/bmp_pageDown.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + OTHER_BTN_YPIEL + INTERVAL_H, event_handler, ID_P_DOWN);

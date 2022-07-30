@@ -34,7 +34,7 @@
 #include "../../../../module/temperature.h"
 #include "../../../../sd/cardreader.h"
 
-#include "Mixware_LVGL_UI.h"
+#include "mixware_ui.h"
 #include "language/language.h"
 
 extern lv_group_t *g;
@@ -52,20 +52,25 @@ static lv_obj_t *l_temp_nozzle,
                   *l_temp_bed,
                   *l_heat_bed,
                 #endif
+                *l_fan,
                 *l_axis_x_motor,
                 *l_axis_y_motor,
                 *l_axis_z_motor,
                 *l_axis_e_motor,
-                *l_fan,
                 *l_servo;
 
 static millis_t h_timer;
 static bool     b_motor_ok;
+static bool     bak_thermal_protection;
 
-static uint8_t  debugState = MDEVICEDEBUGNULL,
-                debugState_n = MDEVICEDEBUGNULL;
+static uint8_t  device_debug_state = MDEVICEDEBUGNULL,
+                device_debug_state_next = MDEVICEDEBUGNULL;
+MixwareUI mixware_ui;
 
-lv_point_t line_points_2[8][2] = {
+char  MixwareUI::HEATINGMODE_NORMAL_CMD[] = "M301 P13.14 I0.85 D55.20\nM500",
+      MixwareUI::HEATINGMODE_HIGH_CMD[] = "M301 P20.30 I1.23 D57.77\nM500";
+
+lv_point_t MixwareUI::page_line_pos[8][2] = {
     {{PARA_UI_POS_X, PARA_UI_POS_Y * 1 + PARA_UI_SIZE_Y}, {TFT_WIDTH, PARA_UI_POS_Y * 1 + PARA_UI_SIZE_Y}},
     {{PARA_UI_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_SIZE_Y}, {TFT_WIDTH, PARA_UI_POS_Y * 2 + PARA_UI_SIZE_Y}},
     {{PARA_UI_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_SIZE_Y}, {TFT_WIDTH, PARA_UI_POS_Y * 3 + PARA_UI_SIZE_Y}},
@@ -76,9 +81,8 @@ lv_point_t line_points_2[8][2] = {
     {{PARA_UI_POS_X, PARA_UI_POS_Y * 8 + PARA_UI_SIZE_Y}, {TFT_WIDTH, PARA_UI_POS_Y * 8 + PARA_UI_SIZE_Y}}
 };
 
-MixwareUI mixware_ui;
 
-void MixwareUI::translatorInit()
+void MixwareUI::translator_init()
 {
   MTR.print                           = MTRLANG(PRINT);
   MTR.tool                            = MTRLANG(TOOL);
@@ -172,9 +176,9 @@ void MixwareUI::translatorInit()
   MTR.ADVSetFilOutLength              = MTRLANG(ADVSET_FILAMENT_OUT_LENGTH);
   MTR.ADVSetFilOutSpeed               = MTRLANG(ADVSET_FILAMENT_OUT_SPEED);
   MTR.ADVSeteHeatingMode              = MTRLANG(ADVSET_EHEATING_MODE);
-  MTR.thermalProtection               = MTRLANG(ADVSET_THERMALPROTECTION);
-  MTR.eHeatingModeNormal              = MTRLANG(EHEATMODE_NORMAL);
-  MTR.eHeatingModeHigh                = MTRLANG(EHEATMODE_HIGH);
+  MTR.thermal_protection               = MTRLANG(ADVSET_THERMALPROTECTION);
+  MTR.heating_mode_mormal              = MTRLANG(EHEATMODE_NORMAL);
+  MTR.heating_mode_high                = MTRLANG(EHEATMODE_HIGH);
   MTR.eHeatingModeCurNormal           = MTRLANG(EHEATMODE_CUR_NORMAL);
   MTR.eHeatingModeCurHigh             = MTRLANG(EHEATMODE_CUR_HIGH);
   MTR.eHeatingModeTipsNormal          = MTRLANG(EHEATMODE_TIPS_NORMAL);
@@ -209,7 +213,7 @@ void MixwareUI::translatorInit()
   MTR.debugZSlowMode                  = MTRLANG(DEBUG_ZAXIS_SLOWMODE);
   MTR.debugZFastMode                  = MTRLANG(DEBUG_ZAXIS_FASTMODE);
   MTR.debugZWorking                   = MTRLANG(DEBUG_ZAXIS_WORKING);
-  MTR.printAgain                      = MTRLANG(PRINT_AGAIN);
+  MTR.print_again                      = MTRLANG(PRINT_AGAIN);
   MTR.printTipsSaveOffset             = MTRLANG(PRINT_TIPS_SAVEOFFSET);
   MTR.printTipsSave                   = MTRLANG(PRINT_TIPS_SAVE);
   MTR.printPause                      = MTRLANG(PRINT_PAUSE);
@@ -217,16 +221,16 @@ void MixwareUI::translatorInit()
   MTR.printStop                       = MTRLANG(PRINT_STOP);
   MTR.previous                        = MTRLANG(PAGE_PREV);
   MTR.next                            = MTRLANG(PAGE_NEXT);
-  MTR.keyBack                         = MTRLANG(NO_KEY_BACK);
-  MTR.keyReset                        = MTRLANG(NO_KEY_RESET);
-  MTR.keyConfirm                      = MTRLANG(NO_KEY_CONFIRM);
-  MTR.printNoFileTips                 = MTRLANG(PRINT_NOFILE_TIPS);
+  MTR.key_back                         = MTRLANG(NO_KEY_BACK);
+  MTR.key_reset                        = MTRLANG(NO_KEY_RESET);
+  MTR.key_confirm                      = MTRLANG(NO_KEY_CONFIRM);
+  MTR.no_file_tips                 = MTRLANG(PRINT_NOFILE_TIPS);
   MTR.operation                       = MTRLANG(OPERATION);
   MTR.speed                           = MTRLANG(SPEED);
   MTR.babystep                        = MTRLANG(BABYSTEP);
 }
 
-void MixwareUI::textRevisionInit()
+void MixwareUI::text_revision_init()
 {
   MTR.main                            = MTR_MAIN;
   MTR.tempRange1c                     = MTR_TEMPERATURE_RANGE_1C;
@@ -240,28 +244,28 @@ void MixwareUI::textRevisionInit()
   MTR.y                               = MTR_Y;
   MTR.z                               = MTR_Z;
   MTR.e                               = MTR_E;
-  MTR.moveDistanceMM005               = MTR_AXIS_MOVEDISTANCE_MM_0_0_5;
-  MTR.moveDistanceMM01                = MTR_AXIS_MOVEDISTANCE_MM_0_1;
-  MTR.moveDistanceMM1                 = MTR_AXIS_MOVEDISTANCE_MM_1;
-  MTR.moveDistanceMM5                 = MTR_AXIS_MOVEDISTANCE_MM_5;
-  MTR.moveDistanceMM10                = MTR_AXIS_MOVEDISTANCE_MM_10;
-  MTR.key1                            = MTR_NO_KEY_1;
-  MTR.key2                            = MTR_NO_KEY_2;
-  MTR.key3                            = MTR_NO_KEY_3;
-  MTR.key4                            = MTR_NO_KEY_4;
-  MTR.key5                            = MTR_NO_KEY_5;
-  MTR.key6                            = MTR_NO_KEY_6;
-  MTR.key7                            = MTR_NO_KEY_7;
-  MTR.key8                            = MTR_NO_KEY_8;
-  MTR.key9                            = MTR_NO_KEY_9;
-  MTR.key0                            = MTR_NO_KEY_0;
-  MTR.keyPoint                        = MTR_NO_KEY_POINT;
-  MTR.keyNegative                     = MTR_NO_KEY_NEGATIVE;
+  MTR.move_distance_mm_0_0_5               = MTR_AXIS_MOVEDISTANCE_MM_0_0_5;
+  MTR.move_distance_mm_0_1                = MTR_AXIS_MOVEDISTANCE_MM_0_1;
+  MTR.move_distance_mm_1                 = MTR_AXIS_MOVEDISTANCE_MM_1;
+  MTR.move_distance_mm_5                 = MTR_AXIS_MOVEDISTANCE_MM_5;
+  MTR.move_distance_mm_10                = MTR_AXIS_MOVEDISTANCE_MM_10;
+  MTR.key_1                            = MTR_NO_KEY_1;
+  MTR.key_2                            = MTR_NO_KEY_2;
+  MTR.key_3                            = MTR_NO_KEY_3;
+  MTR.key_4                            = MTR_NO_KEY_4;
+  MTR.key_5                            = MTR_NO_KEY_5;
+  MTR.key_6                            = MTR_NO_KEY_6;
+  MTR.key_7                            = MTR_NO_KEY_7;
+  MTR.key_8                            = MTR_NO_KEY_8;
+  MTR.key_9                            = MTR_NO_KEY_9;
+  MTR.key_0                            = MTR_NO_KEY_0;
+  MTR.key_point                        = MTR_NO_KEY_POINT;
+  MTR.key_negative                     = MTR_NO_KEY_NEGATIVE;
 
-  translatorInit();
+  translator_init();
 }
 
-void MixwareUI::imagePathInit()
+void MixwareUI::image_path_init()
 {
   MIMG.homeAll                        = MIMAGEPATH(MIMG_N_HOME_ALL);
   MIMG.homeX                          = MIMAGEPATH(MIMG_N_HOME_X);
@@ -293,9 +297,9 @@ void MixwareUI::imagePathInit()
   MIMG.speedHigh                      = MIMAGEPATH(MIMG_N_SPEED_HIGH);
   MIMG.speedSlow                      = MIMAGEPATH(MIMG_N_SPEED_SLOW);
   MIMG.speedNormal                    = MIMAGEPATH(MIMG_N_SPEED_NORMAL);
-  MIMG.moveDistance_1_mm              = MIMAGEPATH(MIMG_N_STEP_MM_1);
-  MIMG.moveDistance_5_mm              = MIMAGEPATH(MIMG_N_STEP_MM_5);
-  MIMG.moveDistance_10_mm             = MIMAGEPATH(MIMG_N_STEP_MM_10);
+  MIMG.move_distance_mm_1              = MIMAGEPATH(MIMG_N_STEP_MM_1);
+  MIMG.move_distance_mm_5              = MIMAGEPATH(MIMG_N_STEP_MM_5);
+  MIMG.move_distance_mm_10             = MIMAGEPATH(MIMG_N_STEP_MM_10);
 
   MIMG.dir                            = MIMAGEPATH(MIMG_N_DIR);
   MIMG.file                           = MIMAGEPATH(MIMG_N_FILE);
@@ -303,7 +307,7 @@ void MixwareUI::imagePathInit()
   MIMG.axisX                          = MIMAGEPATH(MIMG_N_AXIS_X);
   MIMG.axisY                          = MIMAGEPATH(MIMG_N_AXIS_Y);
   MIMG.axisZ                          = MIMAGEPATH(MIMG_N_AXIS_Z);
-  MIMG.moveDistance_0_1_mm            = MIMAGEPATH(MIMG_N_STEP_MM_0_1);
+  MIMG.move_distance_mm_0_1            = MIMAGEPATH(MIMG_N_STEP_MM_0_1);
 
   MIMG.speed                          = MIMAGEPATH(MIMG_N_SPEED);
 
@@ -313,7 +317,7 @@ void MixwareUI::imagePathInit()
   MIMG.stateX                         = MIMAGEPATH(MIMG_N_STATE_X);
   MIMG.stateY                         = MIMAGEPATH(MIMG_N_STATE_Y);
   MIMG.stateZ                         = MIMAGEPATH(MIMG_N_STATE_Z);
-  MIMG.stateExtruct                   = MIMAGEPATH(MIMG_N_STATE_EXT);
+  MIMG.state_extruct                   = MIMAGEPATH(MIMG_N_STATE_EXT);
   MIMG.stateBed                       = MIMAGEPATH(MIMG_N_STATE_BED);
   MIMG.stateFan                       = MIMAGEPATH(MIMG_N_STATE_FAN);
   MIMG.stateTime                      = MIMAGEPATH(MIMG_N_STATE_TIME);
@@ -364,110 +368,115 @@ void MixwareUI::imagePathInit()
   MIMG.arrow                          = MIMAGEPATH(MIMG_N_ARROW);
   MIMG.placeholder                    = MIMAGEPATH(MIMG_N_NULL);
 
-  MIMG.eHeatingModeNormal             = MIMAGEPATH(MIMG_N_E_HEAT_M_NORMAL);
-  MIMG.eHeatingModeHigh               = MIMAGEPATH(MIMG_N_E_HEAT_M_HIGH);
-  MIMG.printHM                        = MIMAGEPATH(MIMG_N_PRINT_HM);
-  MIMG.preheatHM                      = MIMAGEPATH(MIMG_N_PREHEAT_HM);
-  MIMG.extructHM                      = MIMAGEPATH(MIMG_N_EXT_HM);
-  MIMG.stateExtructHM                 = MIMAGEPATH(MIMG_N_STATE_EXT_HM);
-  MIMG.eHeatingModeTip                = MIMAGEPATH(MIMG_N_E_HEAT_M_TIP_HM);
+  MIMG.heating_mode_mormal             = MIMAGEPATH(MIMG_N_E_HEAT_M_NORMAL);
+  MIMG.heating_mode_high               = MIMAGEPATH(MIMG_N_E_HEAT_M_HIGH);
+  MIMG.heating_mode_print                        = MIMAGEPATH(MIMG_N_PRINT_HM);
+  MIMG.heating_mode_preheat                      = MIMAGEPATH(MIMG_N_PREHEAT_HM);
+  MIMG.heating_mode_extruct                      = MIMAGEPATH(MIMG_N_EXT_HM);
+  MIMG.heating_mode_state_extruct                 = MIMAGEPATH(MIMG_N_STATE_EXT_HM);
+  MIMG.heating_mode_tips                = MIMAGEPATH(MIMG_N_E_HEAT_M_TIP_HM);
 
   MIMG.preview                        = MIMAGEPATH(MIMG_N_PREVIEW);
   MIMG.logo                           = MIMAGEPATH(MIMG_N_LOGO);
-  MIMG.mainLogo                       = MIMAGEPATH(MIMG_N_MIXWARE);
+  MIMG.logo_main                       = MIMAGEPATH(MIMG_N_MIXWARE);
 
   MIMG.enable                         = MIMAGEPATH(MIMG_N_ENABLE);
   MIMG.disable                        = MIMAGEPATH(MIMG_N_DISABLE);
 }
 
-void MixwareUI::preferenceInit()
+void MixwareUI::preference_init()
 {
-  MPRE.zOffsetChanged = false;
-  MPRE.zAxisDebugFastMode = false;
-  MPRE.filamentIsBroken = false;
-  MPRE.moveAxis = 0;
-  MPRE.extrusionVolume = 1.0;
+  MPRE.is_z_offset_changed = false;
+  MPRE.is_z_axis_debug_fast_mode = false;
+  MPRE.is_filament_broken = false;
+  MPRE.move_axis = 0;
+  MPRE.extrusion_volume = 1.0;
 
-  MPRE.param.eHeatingMaxTemp = 260;
-  MPRE.param.filamentDetectorEnabled = false;
-  MPRE.param.thermalProtectionEnabled = false;
+  MPRE.param.max_heating_mode_temp = 260;
+  MPRE.param.enabled_filament_detector = false;
+  MPRE.param.enabled_thermal_protection = false;
+
+  p_babystep.init();
 }
 
-void MixwareUI::styleInit()
+void MixwareUI::style_init()
 {
-  lv_style_copy(&tft_style_label, &tft_style_label_rel);
-  tft_style_label.text.color          = TFT_LV_PARA_BACK_BODY_COLOR;
-  tft_style_label.text.sel_color      = TFT_LV_PARA_BACK_BODY_COLOR;
+  lv_style_copy(&page_label_style, &tft_style_label_rel);
+  page_label_style.text.color          = TFT_LV_PARA_BACK_BODY_COLOR;
+  page_label_style.text.sel_color      = TFT_LV_PARA_BACK_BODY_COLOR;
 
-  lv_style_copy(&style_para_button, &lv_style_plain);
-  style_para_button.body.border.color = LV_COLOR_BACKGROUND;
-  style_para_button.body.border.width = 1;
-  style_para_button.body.main_color   = LV_COLOR_BACKGROUND;
-  style_para_button.body.grad_color   = LV_COLOR_BACKGROUND;
-  style_para_button.body.shadow.width = 0;
-  style_para_button.body.radius       = 5;
-  style_para_button.body.border.color = TFT_LV_PARA_BACK_BODY_COLOR;
-  style_para_button.body.border.width = 4;
-  style_para_button.text.color        = LV_COLOR_WHITE;
-  style_para_button.text.font         = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
+  lv_style_copy(&page_button_style, &lv_style_plain);
+  page_button_style.body.border.color = LV_COLOR_BACKGROUND;
+  page_button_style.body.border.width = 1;
+  page_button_style.body.main_color   = LV_COLOR_BACKGROUND;
+  page_button_style.body.grad_color   = LV_COLOR_BACKGROUND;
+  page_button_style.body.shadow.width = 0;
+  page_button_style.body.radius       = 5;
+  page_button_style.body.border.color = TFT_LV_PARA_BACK_BODY_COLOR;
+  page_button_style.body.border.width = 4;
+  page_button_style.text.color        = LV_COLOR_WHITE;
+  page_button_style.text.font         = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
 
-  lv_style_copy(&style_para_tips, &lv_style_plain);
-  style_para_tips.body.border.color   = LV_COLOR_BACKGROUND;
-  style_para_tips.body.border.width   = 1;
-  style_para_tips.body.main_color     = LV_COLOR_BACKGROUND;
-  style_para_tips.body.grad_color     = LV_COLOR_BACKGROUND;
-  style_para_tips.body.shadow.width   = 0;
-  style_para_tips.body.radius         = 3;
-  style_para_tips.body.border.color   = TFT_LV_PARA_BACK_BODY_COLOR;
-  style_para_tips.body.border.width   = 2;
-  style_para_tips.text.color          = LV_COLOR_WHITE;
-  style_para_tips.text.font           = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
+  lv_style_copy(&page_tips_style, &lv_style_plain);
+  page_tips_style.body.border.color   = LV_COLOR_BACKGROUND;
+  page_tips_style.body.border.width   = 1;
+  page_tips_style.body.main_color     = LV_COLOR_BACKGROUND;
+  page_tips_style.body.grad_color     = LV_COLOR_BACKGROUND;
+  page_tips_style.body.shadow.width   = 0;
+  page_tips_style.body.radius         = 3;
+  page_tips_style.body.border.color   = TFT_LV_PARA_BACK_BODY_COLOR;
+  page_tips_style.body.border.width   = 2;
+  page_tips_style.text.color          = LV_COLOR_WHITE;
+  page_tips_style.text.font           = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
 }
 
 //
 //  page button
 //
-void MixwareUI::ButtonAddClickTips(lv_obj_t *button)
+void MixwareUI::page_button_add_tips(lv_obj_t *button)
 {
   lv_obj_t *tips = lv_label_create(button, MTR.clickTips);
   lv_obj_align(tips, button, LV_ALIGN_IN_BOTTOM_MID, 0, 2);
 }
 
-void MixwareUI::ScreenPlaceholder()
+//
+// page placeholder, Effectively prevent image duplication bugs (lvgl 6.1)
+//
+void MixwareUI::page_placeholder(lv_obj_t *par, lv_coord_t x, lv_coord_t y)
 {
-  lv_obj_t *placeholder = lv_img_create(scr, nullptr); // Empty picture.
+  lv_obj_t *placeholder = lv_img_create(par, nullptr); // Empty picture.
   lv_img_set_src(placeholder, MIMG.placeholder);
-  lv_obj_set_pos(placeholder, 0, TFT_HEIGHT - 50);
+  lv_obj_set_pos(placeholder, x, y);
 }
 
-void MixwareUI::ScreenMainLogo(lv_obj_t *par) {
+void MixwareUI::page_logo_main(lv_obj_t *par) {
   lv_obj_t *img = lv_img_create(par, nullptr);
   lv_obj_set_pos(img, 2, 6);
-  lv_img_set_src(img, MIMG.mainLogo);
+  lv_img_set_src(img, MIMG.logo_main);
 }
 
-void MixwareUI::ScreenMainTips(lv_obj_t *par) {
-  if (!getEHeatingMode()) {
+void MixwareUI::page_tips_main(lv_obj_t *par) {
+  if (!get_heating_mode()) {
     lv_obj_t* btn = lv_btn_create(par, nullptr);
-    lv_obj_t* label = ScreenLabel(btn, MTR.eHeatingModeTips);
-    lv_btn_set_style_both(btn, &style_para_tips);
+    lv_obj_t* label = page_label(btn, MTR.eHeatingModeTips);
+    lv_btn_set_style_both(btn, &page_tips_style);
     lv_obj_set_size(btn, 240, 36);
     lv_obj_align(label, btn, LV_ALIGN_CENTER, 0, 0);
     lv_obj_align(btn, nullptr, LV_ALIGN_CENTER, 0, -78);
   }
 }
 
-lv_obj_t *MixwareUI::ScreenLabel(lv_obj_t *par, const char *text)
+lv_obj_t *MixwareUI::page_label(lv_obj_t *par, const char *text)
 {
   lv_obj_t *label = lv_label_create_empty(par);
   if (text)
     lv_label_set_text(label, text);
-  lv_obj_set_style(label, &tft_style_label);
+  lv_obj_set_style(label, &page_label_style);
 
   return label;
 }
 
-void MixwareUI::ScreenBottomButton(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id)
+void MixwareUI::page_bottom_button(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id)
 {
   lv_obj_t *button = lv_btn_create(par, x, y, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE, cb, id);
   lv_obj_t *label = lv_label_create_empty(button);
@@ -476,79 +485,47 @@ void MixwareUI::ScreenBottomButton(lv_obj_t *par, const char *text, lv_coord_t x
   lv_obj_align(label, button, LV_ALIGN_CENTER, 0, 0);
 }
 
-void MixwareUI::ScreenBottomLeftButton(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id)
+void MixwareUI::screen_bottom_button_left(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id)
 {
-  ScreenBottomButton(par, text, BOTTOMBTN_P_LX, BOTTOMBTN_P_Y, cb, id);
+  page_bottom_button(par, text, BOTTOMBTN_P_LX, BOTTOMBTN_P_Y, cb, id);
 }
 
-void MixwareUI::ScreenBottomMiddleButton(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id)
+void MixwareUI::page_bottom_button_middle(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id)
 {
-  ScreenBottomButton(par, text, BOTTOMBTN_P_MX, BOTTOMBTN_P_Y, cb, id);
+  page_bottom_button(par, text, BOTTOMBTN_P_MX, BOTTOMBTN_P_Y, cb, id);
 }
 
-void MixwareUI::ScreenBottomRightButton(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id)
+void MixwareUI::page_bottom_button_right(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id)
 {
-  ScreenBottomButton(par, text, BOTTOMBTN_P_RX, BOTTOMBTN_P_Y, cb, id);
+  page_bottom_button(par, text, BOTTOMBTN_P_RX, BOTTOMBTN_P_Y, cb, id);
 }
 
-void MixwareUI::ScreenReturnButton(lv_obj_t *par, lv_event_cb_t cb, const int id)
+void MixwareUI::page_button_return(lv_obj_t *par, lv_event_cb_t cb, const int id)
 {
-  ScreenBottomRightButton(par, MTR.back, cb, id);
+  page_bottom_button_right(par, MTR.back, cb, id);
 }
 
-lv_obj_t *MixwareUI::ScreenToolButton(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id)
+lv_obj_t *MixwareUI::page_push_button(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id)
 {
   lv_obj_t *btn = lv_btn_create(par, x, y, TOOLBTN_WIDTH, TOOLBTN_HEIGHT, cb, id);
   lv_obj_t *label = lv_label_create_empty(btn);
-  lv_btn_set_style_both(btn, &style_para_button);
+  lv_btn_set_style_both(btn, &page_button_style);
   lv_label_set_text(label, text);
   lv_obj_align(label, btn, LV_ALIGN_CENTER, 0, 0);
 
   return btn;
 }
 
-lv_obj_t* MixwareUI::ScreenEnabledButton(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const bool curValue)
+lv_obj_t* MixwareUI::page_button_enabled(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const bool curValue)
 {
   lv_screen_menu_item(par, text, x, y, cb, -1, index, false);
   lv_obj_t *btnValue = lv_imgbtn_create(par, curValue ? MIMG.enable : MIMG.disable, PARA_UI_BACK_POS_X + 25, y + PARA_UI_STATE_V, cb, id);
   return btnValue;
 }
 
-void MixwareUI::updateEnabledButton(lv_obj_t *btn, const bool curValue)
+void MixwareUI::update_button_enabled(lv_obj_t *btn, const bool curValue)
 {
   lv_imgbtn_set_src_both(btn, curValue ? MIMG.enable : MIMG.disable);
-}
-
-#define DEBUG_LABEL_POS_X   (250)
-#define DEBUG_LABEL_POS_Y(n) (32+26*n)
-#define DEBUG_LABEL_SIZE_W  (50)
-#define DEBUG_LABEL_SIZE_H  (24)
-
-static void l_selfc_reset_label() {
-  lv_label_set_text(l_temp_nozzle, "--");
-  lv_label_set_text(l_heat_nozzle, "--");
-  lv_label_set_text(l_fan, "--");
-  lv_label_set_text(l_axis_x_motor, "--");
-  lv_label_set_text(l_axis_y_motor, "--");
-  lv_label_set_text(l_axis_z_motor, "--");
-  lv_label_set_text(l_axis_e_motor, "--");
-  lv_label_set_text(l_servo, "--");
-
-  lv_obj_set_style(l_temp_nozzle, &tft_style_label_rel);
-  lv_obj_set_style(l_heat_nozzle, &tft_style_label_rel);
-  lv_obj_set_style(l_fan, &tft_style_label_rel);
-  lv_obj_set_style(l_axis_x_motor, &tft_style_label_rel);
-  lv_obj_set_style(l_axis_y_motor, &tft_style_label_rel);
-  lv_obj_set_style(l_axis_z_motor, &tft_style_label_rel);
-  lv_obj_set_style(l_axis_e_motor, &tft_style_label_rel);
-  lv_obj_set_style(l_servo, &tft_style_label_rel);
-
-  #if HAS_HEATED_BED
-    lv_label_set_text(l_temp_bed, "--");
-    lv_label_set_text(l_heat_bed, "--");
-    lv_obj_set_style(l_temp_bed, &tft_style_label_rel);
-    lv_obj_set_style(l_heat_bed, &tft_style_label_rel);
-  #endif
 }
 
 static void eventHandler(lv_obj_t *obj, lv_event_t event)
@@ -562,28 +539,28 @@ static void eventHandler(lv_obj_t *obj, lv_event_t event)
     break;
   case ID_LEVEL_SELECT:
     uiCfg.para_ui_page = true;
-    MUI.clearPage();
-    MUI.drawPage_level();
+    MUI.page_clear();
+    MUI.page_draw_leveling();
     break;
   case ID_LEVEL_AUTO:
     uiCfg.para_ui_page = false;
 #if HAS_ABL_NOT_UBL
-    MUI.clearPage();
+    MUI.page_clear();
     lv_draw_dialog(DIALOG_AUTO_LEVEL_COMPLETED);
 #endif
     break;
   case ID_LEVEL_MANUAL:
-    uiCfg.leveling_first_time = 1;
+    uiCfg.leveling_first_time = true;
     uiCfg.para_ui_page = 0;
-    MUI.clearPage();
+    MUI.page_clear();
     lv_draw_manualLevel();
     break;
   case ID_LEVEL_REBACK:
-    MUI.clearPage();
+    MUI.page_clear();
     if (uiCfg.para_ui_page)
     {
       uiCfg.para_ui_page = 0;
-      MUI.drawPage_level();
+      MUI.page_draw_leveling();
     }
     else
     {
@@ -592,9 +569,9 @@ static void eventHandler(lv_obj_t *obj, lv_event_t event)
     }
     break;
   case ID_ZOFFSET:
-    uiCfg.leveling_first_time = 1;
+    uiCfg.leveling_first_time = true;
     uiCfg.move_dist = 0.1;
-    MUI.clearPage();
+    MUI.page_clear();
     lv_draw_dialog(DIALOG_ADJUST_Z_HEIGHT_WAIT_START);
     break;
   case ID_ZOFFSET_ADD:
@@ -605,7 +582,7 @@ static void eventHandler(lv_obj_t *obj, lv_event_t event)
         if (!all_axes_trusted())
           queue.enqueue_now_P(PSTR("G28"));
         queue.enqueue_now_P(PSTR("G1 X150 Y150\nG1 Z0"));
-        uiCfg.leveling_first_time = 0;
+        uiCfg.leveling_first_time = false;
       }
       else
       {
@@ -615,7 +592,7 @@ static void eventHandler(lv_obj_t *obj, lv_event_t event)
         queue.enqueue_one_now(public_buf_l);
         queue.enqueue_now_P(PSTR("G90"));
         probe.offset[Z_AXIS] += uiCfg.move_dist;
-        MUI.zOffsetUpdate();
+        MUI.update_offset();
       }
     }
     break;
@@ -627,7 +604,7 @@ static void eventHandler(lv_obj_t *obj, lv_event_t event)
         if (!all_axes_trusted())
           queue.enqueue_now_P(PSTR("G28"));
         queue.enqueue_now_P(PSTR("G1 X150 Y150\nG1 Z0"));
-        uiCfg.leveling_first_time = 0;
+        uiCfg.leveling_first_time = false;
       }
       else
       {
@@ -637,7 +614,7 @@ static void eventHandler(lv_obj_t *obj, lv_event_t event)
         queue.enqueue_one_now(public_buf_l);
         queue.enqueue_now_P(PSTR("G90"));
         probe.offset[Z_AXIS] -= uiCfg.move_dist;
-        MUI.zOffsetUpdate();
+        MUI.update_offset();
       }
     }
     break;
@@ -647,104 +624,107 @@ static void eventHandler(lv_obj_t *obj, lv_event_t event)
     else
       uiCfg.move_dist = 0.05;
 
-    MUI.moveDistanceUpdate();
+    MUI.update_move_distance();
     break;
   case ID_ZOFFSET_SAVE:
-    MUI.clearPage();
+    MUI.page_clear();
     lv_draw_dialog(DIALOG_STORE_EEPROM_TIPS);
     break;
   case ID_ZOFFSET_REBACK:
-    if (!MPRE.zOffsetChanged)
+    if (!MPRE.is_z_offset_changed)
       probe.offset.z = bak_zOffset;
 
     queue.inject_P(PSTR("G91\nG1 Z10 F300\nG90\nM84"));
-    MUI.clearPage();
-    MUI.drawPage_level();
+    MUI.page_clear();
+    MUI.page_draw_leveling();
     break;
   case ID_ZAXISDEBUG_SLOW:
-    MUI.clearPage();
-    uiCfg.leveling_first_time = 1;
-    MPRE.zAxisDebugFastMode = false;
+    MUI.page_clear();
+    uiCfg.leveling_first_time = true;
+    MPRE.is_z_axis_debug_fast_mode = false;
     lv_draw_dialog(DIALOG_AXIS_Z_TEST_WAIT_START);
     break;
   case ID_ZAXISDEBUG_FAST:
-    MUI.clearPage();
-    uiCfg.leveling_first_time = 1;
-    MPRE.zAxisDebugFastMode = true;
+    MUI.page_clear();
+    uiCfg.leveling_first_time = true;
+    MPRE.is_z_axis_debug_fast_mode = true;
     lv_draw_dialog(DIALOG_AXIS_Z_TEST_WAIT_START);
     break;
   case ID_ZAXISDEBUG_REBACK:
-    MUI.clearPage();
-    MUI.drawPage_deviceDebug();
+    MUI.page_clear();
+    MUI.page_draw_device_debug();
     break;
   case ID_DEVICEDEBUG_WORK:
-    if (debugState_n == MDEVICEDEBUGNULL) {
-      l_selfc_reset_label();
+    if (device_debug_state_next == MDEVICEDEBUGNULL) {
+      if (bak_thermal_protection)
+        MUI.set_thermal_protection(false);
+      MUI.page_device_debug_reset_label();
       gcode.process_subcommands_now(PSTR("M107"));
-      debugState_n = MDEVICEDEBUGTEMP_E;
+      device_debug_state_next = MDEVICEDEBUGTEMP_E;
       lv_label_set_text(l_debug, MTR.debugDevWorking);
     }
     break;
   case ID_DEVICEDEBUG_TO_Z:
-    MUI.clearPage();
-    MUI.drawPage_zAxisDebug();
+    MUI.page_clear();
+    MUI.page_draw_z_axis_debug();
     break;
   case ID_DEVICEDEBUG_REBACK:
-    if (debugState == MDEVICEDEBUGHEAT_E) {
+    if (device_debug_state == MDEVICEDEBUGHEAT_E) {
       thermalManager.setTargetHotend(0, uiCfg.hotendTargetTempBak);
     }
     #if HAS_HEATED_BED
-      else if (debugState == MDEVICEDEBUGHEAT_B) {
+      else if (device_debug_state == MDEVICEDEBUGHEAT_B) {
         thermalManager.setTargetBed(uiCfg.hotendTargetTempBak);
       }
     #endif
-    else if (debugState == MDEVICEDEBUGHOME_X || debugState == MDEVICEDEBUGHOME_Y || debugState == MDEVICEDEBUGHOME_Z) {
+    else if (device_debug_state == MDEVICEDEBUGHOME_X || device_debug_state == MDEVICEDEBUGHOME_Y || device_debug_state == MDEVICEDEBUGHOME_Z) {
       break;
     }
 
     b_motor_ok = false;
     gcode.process_subcommands_now(PSTR("M107"));
+    MUI.set_thermal_protection(bak_thermal_protection);
 
-    MUI.clearPage();
+    MUI.page_clear();
     lv_draw_set();
     break;
-  case ID_EHEATINGMODE_NORMAL:
-    if (MUI.getEHeatingMode())
+  case ID_HEATINGMODE_NORMAL:
+    if (MUI.get_heating_mode())
       break;
-    MUI.clearPage();
+    MUI.page_clear();
     lv_draw_dialog(DIALOG_EHEATINGMODE_NORMAL);
     break;
-  case ID_EHEATINGMODE_HIGH:
-    if (!MUI.getEHeatingMode())
+  case ID_HEATINGMODE_HIGH:
+    if (!MUI.get_heating_mode())
       break;
-    MUI.clearPage();
+    MUI.page_clear();
     lv_draw_dialog(DIALOG_EHEATINGMODE_HIGH);
     break;
-  case ID_EHEATINGMODE_REBACK:
-    MUI.clearPage();
+  case ID_HEATINGMODE_REBACK:
+    MUI.page_clear();
     lv_draw_advance_settings();
     break;
 
   case ID_EHEATINGTEMP_PAGE_SW:
     uiCfg.para_ui_page ^= true;
-    MUI.clearPage();
-    MUI.drawPage_eHeatingTemperature();
+    MUI.page_clear();
+    MUI.page_draw_temperature_adjust();
     break;
   case ID_EHEATINGTEMP_REBACK:
     uiCfg.filament_load_heat_flg = 0;
     uiCfg.filament_unload_heat_flg = 0;
-    MUI.clearPage();
+    MUI.page_clear();
     lv_draw_filament_change();
     break;
   case ID_EHEATINGTEMP_170c ... ID_EHEATINGTEMP_350c:
     celsius_t t = obj->mks_obj_id;
     thermalManager.setTargetHotend(t, uiCfg.extruderIndex);
-    MUI.setEHeating(t);
+    MUI.set_heating_mode_temperature(t);
 
-    MUI.clearPage();
+    MUI.page_clear();
     if (uiCfg.print_state == IDLE)
     {
-      uiCfg.leveling_first_time = 1;
+      uiCfg.leveling_first_time = true;
       lv_draw_dialog(DIALOG_TYPE_FILAMENT_WAIT_START);
     }
     else if (uiCfg.print_state == WORKING)
@@ -772,27 +752,27 @@ static void eventHandler(lv_obj_t *obj, lv_event_t event)
   }
 }
 
-void MixwareUI::updateAxis(lv_obj_t *btn, lv_obj_t *lbl) {
-  switch (MPRE.moveAxis) {
+void MixwareUI::update_move_axis(lv_obj_t *btn, lv_obj_t *lbl) {
+  switch (MPRE.move_axis) {
     case X_AXIS:
-      MPRE.moveAxis = Y_AXIS;
+      MPRE.move_axis = Y_AXIS;
       lv_imgbtn_set_src_both(btn, MIMG.axisY);
       lv_label_set_text(lbl, MTR.y);
     break;
     case Y_AXIS:
-      MPRE.moveAxis = Z_AXIS;
+      MPRE.move_axis = Z_AXIS;
       lv_imgbtn_set_src_both(btn, MIMG.axisZ);
       lv_label_set_text(lbl, MTR.z);
     break;
     case Z_AXIS:
-      MPRE.moveAxis = X_AXIS;
+      MPRE.move_axis = X_AXIS;
       lv_imgbtn_set_src_both(btn, MIMG.axisX);
       lv_label_set_text(lbl, MTR.x);
     break;
   }
 }
 
-void MixwareUI::updateZAxisDebug() {
+void MixwareUI::update_z_axis_debug() {
   if(temps_update_flag) {
     if (DIALOG_IS(AXIS_Z_TEST_WAIT_START)) {
       if (uiCfg.leveling_first_time) {
@@ -803,48 +783,44 @@ void MixwareUI::updateZAxisDebug() {
       else {
         if (!planner.has_blocks_queued()) {
           lv_clear_dialog();
-          uiCfg.leveling_first_time = 1;
           lv_draw_dialog(DIALOG_AXIS_Z_TEST);
+          uiCfg.leveling_first_time = true;
         }
       }
       temps_update_flag = false;
     }
     else if (DIALOG_IS(AXIS_Z_TEST)) {
       if (uiCfg.leveling_first_time) {
-        uiCfg.leveling_first_time = false;
 
-        if (MPRE.zAxisDebugFastMode) {
-          // planner.synchronize();
-          gcode.process_subcommands_now("G1 X150 Y100 F2000\nG1 Z399 F1500\nG1 Z1 F1500");
-          // queue.inject(PSTR("G1 X150 Y100 F2000\nG1 Z399 F1500\nG1 Z1 F1500"));
+        if (MPRE.is_z_axis_debug_fast_mode) {
+          gcode.process_subcommands_now_P("G1 X150 Y100 F2000\nG1 Z399 F1500\nG1 Z1 F1500");
         } else {
-          // planner.synchronize();
-          gcode.process_subcommands_now("G1 X150 Y100 F2000\nG1 Z399 F200\nG1 Z1 F200");
-          // queue.inject(PSTR("G1 X150 Y100 F2000\nG1 Z399 F200\nG1 Z1 F200"));
+          gcode.process_subcommands_now_P("G1 X150 Y100 F2000\nG1 Z399 F200\nG1 Z1 F200");
         }
+        uiCfg.leveling_first_time = false;
       }
       else {
         if (planner.has_blocks_queued())
           return;
 
-        uiCfg.leveling_first_time = 1;
+        uiCfg.leveling_first_time = true;
       }
       temps_update_flag = false;
     }
   }
 }
 
-void MixwareUI::updateAutoLeveling() {
+void MixwareUI::update_auto_leveling() {
   if (DIALOG_IS(AUTO_LEVELING)) {
-    if (MUI.getAutoLevelingState() == LEVEL_STATE_NULL) {
+    if (MUI.get_auto_leveling_state() == LEVEL_STATE_NULL) {
       queue.inject_P(PSTR("G28\nG29"));
-      MUI.setAutoLevelingState(LEVEL_STATE_LEVELING);
+      MUI.set_auto_leveling_state(LEVEL_STATE_LEVELING);
     }
-    else if (MUI.getAutoLevelingState() == LEVEL_STATE_LEVELERR) {
+    else if (MUI.get_auto_leveling_state() == LEVEL_STATE_LEVELERR) {
       lv_clear_dialog();
       lv_draw_dialog(DIALOG_AUTO_LEVEL_LEVELERR);
     }
-    else if (MUI.getAutoLevelingState() == LEVEL_STATE_FINISHED) {
+    else if (MUI.get_auto_leveling_state() == LEVEL_STATE_FINISHED) {
       lv_clear_dialog();
       lv_draw_dialog(DIALOG_AUTO_LEVEL_FINISHED);
     }
@@ -861,23 +837,23 @@ void MixwareUI::updateAutoLeveling() {
     else {
       if (current_position.z == 0) {
         lv_clear_dialog();
-        MUI.drawPage_zOffsetSetting();
+        MUI.page_draw_offset_setup();
       }
     }
   }
 }
 
-void MixwareUI::updateRunout() {
+void MixwareUI::update_filament_detector() {
   if (DIALOG_IS(RUNOUT_UNLOAD) && (abs(thermalManager.temp_hotend[0].target - thermalManager.temp_hotend[0].celsius) <= 2)) {
     if (uiCfg.filament_heat_completed_unload) {
       uiCfg.filament_heat_completed_unload = 0;
-      if (thermalManager.temp_hotend[0].target >= 210 &&  MPRE.extrusionVolume == 1.0)
-         MPRE.extrusionVolume = 0.8;
+      if (thermalManager.temp_hotend[0].target >= 210 &&  MPRE.extrusion_volume == 1.0)
+         MPRE.extrusion_volume = 0.8;
       planner.synchronize();
       uiCfg.filament_unloading_time_flg = 1;
       uiCfg.filament_unloading_time_cnt = 0;
       ZERO(public_buf_m);
-      sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E10 F%d\nG1 E-%d F%d\nG90"), uiCfg.extruderIndex, (int)(100* MPRE.extrusionVolume), gCfgItems.filamentchange_unload_length, (int)(gCfgItems.filamentchange_unload_speed* MPRE.extrusionVolume));
+      sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E10 F%d\nG1 E-%d F%d\nG90"), uiCfg.extruderIndex, (int)(100* MPRE.extrusion_volume), gCfgItems.filamentchange_unload_length, (int)(gCfgItems.filamentchange_unload_speed* MPRE.extrusion_volume));
       queue.inject_P(PSTR(public_buf_m));
     }
     if (uiCfg.filament_unloading_completed) {
@@ -891,13 +867,13 @@ void MixwareUI::updateRunout() {
   if (DIALOG_IS(RUNOUT_LOAD) && (abs(thermalManager.temp_hotend[0].target - thermalManager.temp_hotend[0].celsius) <= 2)) {
     if (uiCfg.filament_heat_completed_load) {
       uiCfg.filament_heat_completed_load = 0;
-      if (thermalManager.temp_hotend[0].target >= 210 &&  MPRE.extrusionVolume == 1.0)
-         MPRE.extrusionVolume = 0.8;
+      if (thermalManager.temp_hotend[0].target >= 210 &&  MPRE.extrusion_volume == 1.0)
+         MPRE.extrusion_volume = 0.8;
       planner.synchronize();
       uiCfg.filament_loading_time_flg = 1;
       uiCfg.filament_loading_time_cnt = 0;
       ZERO(public_buf_m);
-      sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E%d F%d\nG90"), uiCfg.extruderIndex, gCfgItems.filamentchange_load_length, (int)(gCfgItems.filamentchange_load_speed* MPRE.extrusionVolume));
+      sprintf_P(public_buf_m, PSTR("T%d\nG91\nG1 E%d F%d\nG90"), uiCfg.extruderIndex, gCfgItems.filamentchange_load_length, (int)(gCfgItems.filamentchange_load_speed* MPRE.extrusion_volume));
       queue.inject_P(PSTR(public_buf_m));
     }
 
@@ -915,65 +891,65 @@ void MixwareUI::updateRunout() {
 //
 // level mode page
 //
-void MixwareUI::drawPage_level()
+void MixwareUI::page_draw_leveling()
 {
-  scr = lv_screen_create(AUROLEVEL_UI, MTR.leveling);
+  page_scr = lv_screen_create(AUROLEVEL_UI, MTR.leveling);
 
   if (!uiCfg.para_ui_page)
   {
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR) && defined(Z_MIN_PROBE_PIN)
     if (READ(Z_MIN_PROBE_PIN) == false)
-      lv_big_button_create(scr, MIMG.level2, MTR.leveling, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_LEVEL_SELECT);
+      lv_big_button_create(page_scr, MIMG.level2, MTR.leveling, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_LEVEL_SELECT);
     else
 #endif
-      lv_big_button_create(scr, MIMG.levelManual, MTR.levelingManual, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_LEVEL_MANUAL);
+      lv_big_button_create(page_scr, MIMG.levelManual, MTR.levelingManual, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_LEVEL_MANUAL);
 
-    lv_big_button_create(scr, MIMG.zOffset, MTR.offsetZ, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), eventHandler, ID_ZOFFSET);
+    lv_big_button_create(page_scr, MIMG.zOffset, MTR.offsetZ, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), eventHandler, ID_ZOFFSET);
   }
   else
   {
-    lv_big_button_create(scr, MIMG.levelManual, MTR.levelingManual, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_LEVEL_MANUAL);
-    lv_big_button_create(scr, MIMG.levelAuto, MTR.levelingAuto, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), eventHandler, ID_LEVEL_AUTO);
+    lv_big_button_create(page_scr, MIMG.levelManual, MTR.levelingManual, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_LEVEL_MANUAL);
+    lv_big_button_create(page_scr, MIMG.levelAuto, MTR.levelingAuto, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), eventHandler, ID_LEVEL_AUTO);
   }
 
-  ScreenReturnButton(scr, eventHandler, ID_LEVEL_REBACK);
+  page_button_return(page_scr, eventHandler, ID_LEVEL_REBACK);
 }
 
 //
 //  Nozzle heating mode page
 //
-void MixwareUI::drawPage_eHeatingModeSetting()
+void MixwareUI::page_draw_heating_mode_setup()
 {
-  scr = lv_screen_create(EHEATINGMODE_SETTING_UI, MTR.ADVSeteHeatingMode);
+  page_scr = lv_screen_create(EHEATINGMODE_SETTING_UI, MTR.ADVSeteHeatingMode);
 
-  lv_big_button_create(scr, MIMG.eHeatingModeNormal, MTR.eHeatingModeNormal, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_EHEATINGMODE_NORMAL);
-  lv_big_button_create(scr, MIMG.eHeatingModeHigh, MTR.eHeatingModeHigh, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), eventHandler, ID_EHEATINGMODE_HIGH);
+  lv_big_button_create(page_scr, MIMG.heating_mode_mormal, MTR.heating_mode_mormal, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_HEATINGMODE_NORMAL);
+  lv_big_button_create(page_scr, MIMG.heating_mode_high, MTR.heating_mode_high, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), eventHandler, ID_HEATINGMODE_HIGH);
 
-  lv_obj_t *labelTips = lv_label_create(scr, getEHeatingMode() ? MTR.eHeatingModeCurNormal : MTR.eHeatingModeCurHigh);
+  lv_obj_t *labelTips = lv_label_create(page_scr, get_heating_mode() ? MTR.eHeatingModeCurNormal : MTR.eHeatingModeCurHigh);
   lv_obj_align(labelTips, nullptr, LV_ALIGN_CENTER, 0, -130);
 
-  ScreenReturnButton(scr, eventHandler, ID_EHEATINGMODE_REBACK);
+  page_button_return(page_scr, eventHandler, ID_HEATINGMODE_REBACK);
 }
 
 //
 // Nozzle heating temperature page
 //
-void MixwareUI::drawPage_eHeatingTemperature()
+void MixwareUI::page_draw_temperature_adjust()
 {
-  scr = lv_obj_create(nullptr, nullptr);
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  page_scr = lv_obj_create(nullptr, nullptr);
+  lv_obj_set_style(page_scr, &tft_style_scr);
+  lv_scr_load(page_scr);
+  lv_obj_clean(page_scr);
 
   disp_state = EHEATINGTEMP_SETTING_UI;
 
   // title
-  lv_obj_t *titleLabel = lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, MTR.temp);
+  lv_obj_t *titleLabel = lv_label_create(page_scr, TITLE_XPOS, TITLE_YPOS, MTR.temp);
   lv_obj_set_style(titleLabel, &tft_style_label_rel);
 
-  if (!getEHeatingMode())
+  if (!get_heating_mode())
   {
-    lv_obj_t *mode = lv_label_create(scr, "");
+    lv_obj_t *mode = lv_label_create(page_scr, "");
     lv_label_set_text(mode, "HIGH");
     lv_obj_align(mode, nullptr, LV_ALIGN_IN_TOP_RIGHT, 0, 0);
   }
@@ -984,41 +960,73 @@ void MixwareUI::drawPage_eHeatingTemperature()
     for (int i = 0; i < 10; i++)
     {
       celsius_t id = ID_EHEATINGTEMP_170c + i * 10;
-      if (getEHeating() >= id)
-        ScreenToolButton(scr, std::to_string(id).c_str(), TOOLBTN_P_X(i), TOOLBTN_P_Y(i), eventHandler, id);
+      if (get_heating_mode_temperature() >= id)
+        page_push_button(page_scr, std::to_string(id).c_str(), TOOLBTN_P_X(i), TOOLBTN_P_Y(i), eventHandler, id);
     }
-    if (getEHeating() >= ID_EHEATINGTEMP_270c)
-      ScreenBottomMiddleButton(scr, machine_menu.next, eventHandler, ID_EHEATINGTEMP_PAGE_SW);
+    if (get_heating_mode_temperature() >= ID_EHEATINGTEMP_270c)
+      page_bottom_button_middle(page_scr, machine_menu.next, eventHandler, ID_EHEATINGTEMP_PAGE_SW);
   }
   else
   {
     for (int i = 0; i < 9; i++)
     {
       celsius_t id = ID_EHEATINGTEMP_270c + i * 10;
-      if (getEHeating() >= id)
-        ScreenToolButton(scr, std::to_string(id).c_str(), TOOLBTN_P_X(i), TOOLBTN_P_Y(i), eventHandler, id);
+      if (get_heating_mode_temperature() >= id)
+        page_push_button(page_scr, std::to_string(id).c_str(), TOOLBTN_P_X(i), TOOLBTN_P_Y(i), eventHandler, id);
     }
-    ScreenBottomMiddleButton(scr, machine_menu.previous, eventHandler, ID_EHEATINGTEMP_PAGE_SW);
+    page_bottom_button_middle(page_scr, machine_menu.previous, eventHandler, ID_EHEATINGTEMP_PAGE_SW);
   }
 
-  ScreenReturnButton(scr, eventHandler, ID_EHEATINGTEMP_REBACK);
+  page_button_return(page_scr, eventHandler, ID_EHEATINGTEMP_REBACK);
 }
 
 //
 //  z device debug page
 //
-void MixwareUI::l_selfc_label_create(lv_coord_t y, const char *text) {
-  lv_obj_t *l_tips = lv_label_create(scr, 40, y, text);
+#define DEBUG_LABEL_POS_X   (250)
+#define DEBUG_LABEL_POS_Y(n) (32+26*n)
+#define DEBUG_LABEL_SIZE_W  (50)
+#define DEBUG_LABEL_SIZE_H  (24)
+
+void MixwareUI::page_device_debug_reset_label() {
+  lv_label_set_text(l_temp_nozzle, "--");
+  lv_label_set_text(l_heat_nozzle, "--");
+  lv_label_set_text(l_fan, "--");
+  lv_label_set_text(l_axis_x_motor, "--");
+  lv_label_set_text(l_axis_y_motor, "--");
+  lv_label_set_text(l_axis_z_motor, "--");
+  lv_label_set_text(l_axis_e_motor, "--");
+  lv_label_set_text(l_servo, "--");
+
+  lv_obj_set_style(l_temp_nozzle, &tft_style_label_rel);
+  lv_obj_set_style(l_heat_nozzle, &tft_style_label_rel);
+  lv_obj_set_style(l_fan, &tft_style_label_rel);
+  lv_obj_set_style(l_axis_x_motor, &tft_style_label_rel);
+  lv_obj_set_style(l_axis_y_motor, &tft_style_label_rel);
+  lv_obj_set_style(l_axis_z_motor, &tft_style_label_rel);
+  lv_obj_set_style(l_axis_e_motor, &tft_style_label_rel);
+  lv_obj_set_style(l_servo, &tft_style_label_rel);
+
+  #if HAS_HEATED_BED
+    lv_label_set_text(l_temp_bed, "--");
+    lv_label_set_text(l_heat_bed, "--");
+    lv_obj_set_style(l_temp_bed, &tft_style_label_rel);
+    lv_obj_set_style(l_heat_bed, &tft_style_label_rel);
+  #endif
+}
+
+void MixwareUI::page_device_debug_label(lv_coord_t y, const char *text) {
+  lv_obj_t *l_tips = lv_label_create(page_scr, 40, y, text);
   lv_obj_set_size(l_tips, 200, DEBUG_LABEL_SIZE_H);
 }
 
-void MixwareUI::updateDeviceDebug() {
+void MixwareUI::update_device_debug() {
   static float cur_temp;
   static bool b_bitouch;
 
-  if (debugState != debugState_n) {
-    debugState = debugState_n;
-    switch (debugState) {
+  if (device_debug_state != device_debug_state_next) {
+    device_debug_state = device_debug_state_next;
+    switch (device_debug_state) {
       case MDEVICEDEBUGNULL:
         break;
       case MDEVICEDEBUGTEMP_E:
@@ -1027,19 +1035,19 @@ void MixwareUI::updateDeviceDebug() {
         }
         else {
           lv_label_set_text(l_temp_nozzle, PSTR("NG"));
-          lv_obj_set_style(l_temp_nozzle, &tft_style_label);
+          lv_obj_set_style(l_temp_nozzle, &page_label_style);
         }
 
-        debugState_n++;
+        device_debug_state_next++;
         break;
       case MDEVICEDEBUGHEAT_E:
         cur_temp = thermalManager.degHotend(0);
 
         if (cur_temp < -10) {
           lv_label_set_text(l_heat_nozzle, PSTR("NG"));
-          lv_obj_set_style(l_heat_nozzle, &tft_style_label);
+          lv_obj_set_style(l_heat_nozzle, &page_label_style);
 
-          debugState_n++;
+          device_debug_state_next++;
         }
         else {
           uiCfg.hotendTargetTempBak = thermalManager.degTargetHotend(0);
@@ -1068,19 +1076,19 @@ void MixwareUI::updateDeviceDebug() {
           }
           else {
             lv_label_set_text(l_temp_bed, PSTR("NG"));
-            lv_obj_set_style(l_temp_bed, &tft_style_label);
+            lv_obj_set_style(l_temp_bed, &page_label_style);
           }
 
-          debugState_n++;
+          device_debug_state_next++;
           break;
         case MDEVICEDEBUGHEAT_B:
           cur_temp = thermalManager.degBed();
 
           if (cur_temp < -10) {
             lv_label_set_text(l_heat_bed, PSTR("NG"));
-            lv_obj_set_style(l_heat_bed, &tft_style_label);
+            lv_obj_set_style(l_heat_bed, &page_label_style);
 
-            debugState_n++;
+            device_debug_state_next++;
           }
           else {
             uiCfg.hotendTargetTempBak = thermalManager.degTargetBed();
@@ -1098,7 +1106,7 @@ void MixwareUI::updateDeviceDebug() {
         while(planner.has_blocks_queued())
           watchdog_refresh();
         lv_label_set_text(l_fan, PSTR("ON"));
-        debugState_n++;
+        device_debug_state_next++;
         break;
       case MDEVICEDEBUGHOME_X:
         gcode.process_subcommands_now(PSTR("G91\nG1 X10 F1200\nG90"));
@@ -1106,8 +1114,8 @@ void MixwareUI::updateDeviceDebug() {
           watchdog_refresh();
         if (READ(X_MIN_PIN) == !X_MIN_ENDSTOP_INVERTING) {
           lv_label_set_text(l_axis_x_motor, PSTR("NG"));
-          lv_obj_set_style(l_axis_x_motor, &tft_style_label);
-          debugState_n++;
+          lv_obj_set_style(l_axis_x_motor, &page_label_style);
+          device_debug_state_next++;
           break;
         }
 
@@ -1116,8 +1124,8 @@ void MixwareUI::updateDeviceDebug() {
           watchdog_refresh();
         if (READ(X_MIN_PIN) == X_MIN_ENDSTOP_INVERTING) {
           lv_label_set_text(l_axis_x_motor, PSTR("NG"));
-          lv_obj_set_style(l_axis_x_motor, &tft_style_label);
-          debugState_n++;
+          lv_obj_set_style(l_axis_x_motor, &page_label_style);
+          device_debug_state_next++;
           break;
         }
 
@@ -1126,8 +1134,8 @@ void MixwareUI::updateDeviceDebug() {
           watchdog_refresh();
         if (READ(X_MIN_PIN) == !X_MIN_ENDSTOP_INVERTING) {
           lv_label_set_text(l_axis_x_motor, PSTR("NG"));
-          lv_obj_set_style(l_axis_x_motor, &tft_style_label);
-          debugState_n++;
+          lv_obj_set_style(l_axis_x_motor, &page_label_style);
+          device_debug_state_next++;
           break;
         }
 
@@ -1143,8 +1151,8 @@ void MixwareUI::updateDeviceDebug() {
           watchdog_refresh();
         if (READ(Y_MIN_PIN) == !Y_MIN_ENDSTOP_INVERTING) {
           lv_label_set_text(l_axis_y_motor, PSTR("NG"));
-          lv_obj_set_style(l_axis_y_motor, &tft_style_label);
-          debugState_n++;
+          lv_obj_set_style(l_axis_y_motor, &page_label_style);
+          device_debug_state_next++;
           break;
         }
 
@@ -1153,8 +1161,8 @@ void MixwareUI::updateDeviceDebug() {
           watchdog_refresh();
         if (READ(Y_MIN_PIN) == Y_MIN_ENDSTOP_INVERTING) {
           lv_label_set_text(l_axis_y_motor, PSTR("NG"));
-          lv_obj_set_style(l_axis_y_motor, &tft_style_label);
-          debugState_n++;
+          lv_obj_set_style(l_axis_y_motor, &page_label_style);
+          device_debug_state_next++;
           break;
         }
 
@@ -1163,8 +1171,8 @@ void MixwareUI::updateDeviceDebug() {
           watchdog_refresh();
         if (READ(Y_MIN_PIN) == !Y_MIN_ENDSTOP_INVERTING) {
           lv_label_set_text(l_axis_y_motor, PSTR("NG"));
-          lv_obj_set_style(l_axis_y_motor, &tft_style_label);
-          debugState_n++;
+          lv_obj_set_style(l_axis_y_motor, &page_label_style);
+          device_debug_state_next++;
           break;
         }
 
@@ -1180,8 +1188,8 @@ void MixwareUI::updateDeviceDebug() {
           watchdog_refresh();
         if (READ(Z_MIN_PIN) == !Z_MIN_ENDSTOP_INVERTING) {
           lv_label_set_text(l_axis_z_motor, PSTR("NG"));
-          lv_obj_set_style(l_axis_z_motor, &tft_style_label);
-          debugState_n++;
+          lv_obj_set_style(l_axis_z_motor, &page_label_style);
+          device_debug_state_next++;
           break;
         }
 
@@ -1190,8 +1198,8 @@ void MixwareUI::updateDeviceDebug() {
           watchdog_refresh();
         if (READ(Z_MIN_PIN) == Z_MIN_ENDSTOP_INVERTING) {
           lv_label_set_text(l_axis_z_motor, PSTR("NG"));
-          lv_obj_set_style(l_axis_z_motor, &tft_style_label);
-          debugState_n++;
+          lv_obj_set_style(l_axis_z_motor, &page_label_style);
+          device_debug_state_next++;
           break;
         }
 
@@ -1200,8 +1208,8 @@ void MixwareUI::updateDeviceDebug() {
           watchdog_refresh();
         if (READ(Z_MIN_PIN) == !Z_MIN_ENDSTOP_INVERTING) {
           lv_label_set_text(l_axis_z_motor, PSTR("NG"));
-          lv_obj_set_style(l_axis_z_motor, &tft_style_label);
-          debugState_n++;
+          lv_obj_set_style(l_axis_z_motor, &page_label_style);
+          device_debug_state_next++;
           break;
         }
 
@@ -1231,7 +1239,7 @@ void MixwareUI::updateDeviceDebug() {
         }
         else {
           lv_label_set_text(l_servo, PSTR("NG"));
-          lv_obj_set_style(l_servo, &tft_style_label);
+          lv_obj_set_style(l_servo, &page_label_style);
         }
 
         if (!bltouch.stow() && b_bitouch) {
@@ -1239,10 +1247,10 @@ void MixwareUI::updateDeviceDebug() {
         }
         else {
           lv_label_set_text(l_servo, PSTR("NG"));
-          lv_obj_set_style(l_servo, &tft_style_label);
+          lv_obj_set_style(l_servo, &page_label_style);
         }
 
-        debugState = debugState_n = MDEVICEDEBUGNULL;
+        device_debug_state = device_debug_state_next = MDEVICEDEBUGNULL;
         lv_label_set_text(l_debug, MTR.debugDevConfirm);
         gcode.process_subcommands_now(PSTR("M107\nM84"));
 
@@ -1252,7 +1260,7 @@ void MixwareUI::updateDeviceDebug() {
     }
   }
 
-  if (debugState != MDEVICEDEBUGNULL && debugState_n != MDEVICEDEBUGNULL) {
+  if (device_debug_state != MDEVICEDEBUGNULL && device_debug_state_next != MDEVICEDEBUGNULL) {
     static char debug_buf[30] = { 0 };
     const char MDEVDEBUGing_buf[3][8] = { ".", "..", "..."};
     static uint8_t index = 0;
@@ -1261,8 +1269,8 @@ void MixwareUI::updateDeviceDebug() {
       index = 0;
     lv_label_set_text(l_debug, debug_buf);
 
-    if (debugState == debugState_n) {
-      if (debugState == MDEVICEDEBUGHEAT_E) {
+    if (device_debug_state == device_debug_state_next) {
+      if (device_debug_state == MDEVICEDEBUGHEAT_E) {
         if (millis() < h_timer)
           return;
 
@@ -1271,15 +1279,15 @@ void MixwareUI::updateDeviceDebug() {
         }
         else {
           lv_label_set_text(l_heat_nozzle, PSTR("NG"));
-          lv_obj_set_style(l_heat_nozzle, &tft_style_label);
+          lv_obj_set_style(l_heat_nozzle, &page_label_style);
         }
 
         thermalManager.temp_hotend[0].target = 200;
         thermalManager.start_watching_hotend(0);
-        debugState_n++;
+        device_debug_state_next++;
       }
       #if HAS_HEATED_BED
-        else if (debugState == MDEVICEDEBUGHEAT_B) {
+        else if (device_debug_state == MDEVICEDEBUGHEAT_B) {
           if (millis() < h_timer)
             return;
 
@@ -1288,24 +1296,24 @@ void MixwareUI::updateDeviceDebug() {
           }
           else {
             lv_label_set_text(l_heat_bed, PSTR("NG"));
-            lv_obj_set_style(l_heat_bed, &tft_style_label);
+            lv_obj_set_style(l_heat_bed, &page_label_style);
           }
 
-          debugState_n++;
+          device_debug_state_next++;
         }
       #endif
-      else if (debugState == MDEVICEDEBUGHOME_X || debugState == MDEVICEDEBUGHOME_Y || debugState == MDEVICEDEBUGHOME_Z || debugState == MDEVICEDEBUGHOME_E) {
+      else if (device_debug_state == MDEVICEDEBUGHOME_X || device_debug_state == MDEVICEDEBUGHOME_Y || device_debug_state == MDEVICEDEBUGHOME_Z || device_debug_state == MDEVICEDEBUGHOME_E) {
         if (millis() < h_timer)
           return;
 
         if (!planner.has_blocks_queued()) {
           if (b_motor_ok) {
             b_motor_ok = false;
-            if (debugState == MDEVICEDEBUGHOME_X) lv_label_set_text(l_axis_x_motor, PSTR("OK"));
-            if (debugState == MDEVICEDEBUGHOME_Y) lv_label_set_text(l_axis_y_motor, PSTR("OK"));
-            if (debugState == MDEVICEDEBUGHOME_Z) lv_label_set_text(l_axis_z_motor, PSTR("OK"));
-            if (debugState == MDEVICEDEBUGHOME_E) lv_label_set_text(l_axis_e_motor, PSTR("OK"));
-            debugState_n++;
+            if (device_debug_state == MDEVICEDEBUGHOME_X) lv_label_set_text(l_axis_x_motor, PSTR("OK"));
+            if (device_debug_state == MDEVICEDEBUGHOME_Y) lv_label_set_text(l_axis_y_motor, PSTR("OK"));
+            if (device_debug_state == MDEVICEDEBUGHOME_Z) lv_label_set_text(l_axis_z_motor, PSTR("OK"));
+            if (device_debug_state == MDEVICEDEBUGHOME_E) lv_label_set_text(l_axis_e_motor, PSTR("OK"));
+            device_debug_state_next++;
           }
         }
       }
@@ -1313,165 +1321,159 @@ void MixwareUI::updateDeviceDebug() {
   }
 }
 
-void MixwareUI::drawPage_deviceDebug()
+void MixwareUI::page_draw_device_debug()
 {
-  scr = lv_screen_create(DEBUG_SELFC_UI, MTR.debugDevTitle);
+  page_scr = lv_screen_create(DEBUG_SELFC_UI, MTR.debugDevTitle);
 
-  debugState = debugState_n = MDEVICEDEBUGNULL;
+  device_debug_state = device_debug_state_next = MDEVICEDEBUGNULL;
+  bak_thermal_protection = get_thermal_protection();
 
   uint8_t index = 0;
   b_motor_ok = false;
   // Create an Image button
-  l_temp_nozzle = lv_label_create(scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
-  l_selfc_label_create(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsETemp);
+  l_temp_nozzle = lv_label_create(page_scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
+  page_device_debug_label(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsETemp);
   lv_obj_set_size(l_temp_nozzle,  DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
 
   #if HAS_HEATED_BED
-    l_temp_bed = lv_label_create(scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
-    l_selfc_label_create(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsBTemp);
+    l_temp_bed = lv_label_create(page_scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
+    page_device_debug_label(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsBTemp);
     lv_obj_set_size(l_temp_bed,   DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
   #endif
 
-  l_heat_nozzle = lv_label_create(scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
-  l_selfc_label_create(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsEHeat);
+  l_heat_nozzle = lv_label_create(page_scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
+  page_device_debug_label(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsEHeat);
   lv_obj_set_size(l_heat_nozzle,  DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
 
   #if HAS_HEATED_BED
-    l_heat_bed = lv_label_create(scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
-    l_selfc_label_create(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsBHeat);
+    l_heat_bed = lv_label_create(page_scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
+    page_device_debug_label(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsBHeat);
     lv_obj_set_size(l_heat_bed,   DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
   #endif
 
-  l_fan = lv_label_create(scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
-  l_selfc_label_create(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsFan);
-  lv_obj_set_size(l_fan,          DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
+  l_fan = lv_label_create(page_scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
+  page_device_debug_label(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsFan);
+  lv_obj_set_size(l_fan,   DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
 
-  l_axis_x_motor  = lv_label_create(scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
-  l_selfc_label_create(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsX);
+  l_axis_x_motor  = lv_label_create(page_scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
+  page_device_debug_label(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsX);
   lv_obj_set_size(l_axis_x_motor, DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
 
-  l_axis_y_motor  = lv_label_create(scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
-  l_selfc_label_create(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsY);
+  l_axis_y_motor  = lv_label_create(page_scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
+  page_device_debug_label(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsY);
   lv_obj_set_size(l_axis_y_motor, DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
 
-  l_axis_z_motor  = lv_label_create(scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
-  l_selfc_label_create(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsZ);
+  l_axis_z_motor  = lv_label_create(page_scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
+  page_device_debug_label(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsZ);
   lv_obj_set_size(l_axis_z_motor, DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
 
-  l_axis_e_motor  = lv_label_create(scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
-  l_selfc_label_create(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsE);
+  l_axis_e_motor  = lv_label_create(page_scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
+  page_device_debug_label(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsE);
   lv_obj_set_size(l_axis_e_motor, DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
 
-  l_servo         = lv_label_create(scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
-  l_selfc_label_create(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsServo);
+  l_servo         = lv_label_create(page_scr, DEBUG_LABEL_POS_X, DEBUG_LABEL_POS_Y(index), nullptr);
+  page_device_debug_label(DEBUG_LABEL_POS_Y(index++), MTR.debugDevTipsServo);
   lv_obj_set_size(l_servo,        DEBUG_LABEL_SIZE_W, DEBUG_LABEL_SIZE_H);
 
-  l_selfc_reset_label();
+  page_device_debug_reset_label();
 
-  lv_obj_t* btn_check = lv_btn_create(scr, 20, 290, 280, 64, eventHandler, ID_DEVICEDEBUG_WORK);
+  lv_obj_t* btn_check = lv_btn_create(page_scr, 20, 290, 280, 64, eventHandler, ID_DEVICEDEBUG_WORK);
   l_debug = lv_label_create(btn_check, MTR.debugDevConfirm);
-  lv_btn_set_style_both(btn_check, &style_para_button);
+  lv_btn_set_style_both(btn_check, &page_button_style);
   lv_obj_align(l_debug, btn_check, LV_ALIGN_CENTER, 0, 0);
 
-  lv_obj_t* btn_zaxis = lv_btn_create(scr, 20, 290+69, 280, 64, eventHandler, ID_DEVICEDEBUG_TO_Z);
+  lv_obj_t* btn_zaxis = lv_btn_create(page_scr, 20, 290+69, 280, 64, eventHandler, ID_DEVICEDEBUG_TO_Z);
   lv_obj_t* l_zaxis = lv_label_create(btn_zaxis, MTR.debugZTitle);
-  lv_btn_set_style_both(btn_zaxis, &style_para_button);
+  lv_btn_set_style_both(btn_zaxis, &page_button_style);
   lv_obj_align(l_zaxis, btn_zaxis, LV_ALIGN_CENTER, 0, 0);
 
-  ScreenReturnButton(scr, eventHandler, ID_DEVICEDEBUG_REBACK);
-}
-
-//
-//  axis move page
-//
-void MixwareUI::drawPage_move()
-{
+  page_button_return(page_scr, eventHandler, ID_DEVICEDEBUG_REBACK);
 }
 
 //
 //  z axis debug page
 //
-void MixwareUI::drawPage_zAxisDebug()
+void MixwareUI::page_draw_z_axis_debug()
 {
-  scr = lv_screen_create(ZAXISDEBUG_UI, MTR.debugZTitle);
+  page_scr = lv_screen_create(ZAXISDEBUG_UI, MTR.debugZTitle);
 
   // Create an Image button
-  lv_big_button_create(scr, MIMG.zAxisDebugSlow, MTR.debugZSlowMode, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_ZAXISDEBUG_SLOW);
-  lv_big_button_create(scr, MIMG.zAxisDebugFast, MTR.debugZFastMode, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), eventHandler, ID_ZAXISDEBUG_FAST);
+  lv_big_button_create(page_scr, MIMG.zAxisDebugSlow, MTR.debugZSlowMode, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_ZAXISDEBUG_SLOW);
+  lv_big_button_create(page_scr, MIMG.zAxisDebugFast, MTR.debugZFastMode, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), eventHandler, ID_ZAXISDEBUG_FAST);
 
-  ScreenReturnButton(scr, eventHandler, ID_ZAXISDEBUG_REBACK);
+  page_button_return(page_scr, eventHandler, ID_ZAXISDEBUG_REBACK);
 }
 
 //
 // Z Axis offset page
 //
-void MixwareUI::moveDistanceUpdate()
+void MixwareUI::update_move_distance()
 {
   if ((int)(100 * uiCfg.move_dist) == 5)
   {
-    lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_REL, MIMG.moveDistance_1_mm);
-    lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_PR, MIMG.moveDistance_1_mm);
+    lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_REL, MIMG.move_distance_mm_1);
+    lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_PR, MIMG.move_distance_mm_1);
   }
   else if ((int)(100 * uiCfg.move_dist) == 10)
   {
-    lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_REL, MIMG.moveDistance_10_mm);
-    lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_PR, MIMG.moveDistance_10_mm);
+    lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_REL, MIMG.move_distance_mm_10);
+    lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_PR, MIMG.move_distance_mm_10);
   }
   if (gCfgItems.multiple_language != 0)
   {
     if ((int)(100 * uiCfg.move_dist) == 5)
     {
-      lv_label_set_text(labelStep, MTR.moveDistanceMM005);
+      lv_label_set_text(labelStep, MTR.move_distance_mm_0_0_5);
     }
     else if ((int)(100 * uiCfg.move_dist) == 10)
     {
-      lv_label_set_text(labelStep, MTR.moveDistanceMM01);
+      lv_label_set_text(labelStep, MTR.move_distance_mm_0_1);
     }
     lv_obj_align(labelStep, buttonStep, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET-10);
   }
 }
 
-void MixwareUI::zOffsetUpdate()
+void MixwareUI::update_offset()
 {
   char str_1[16];
   sprintf_P(public_buf_l, PSTR("%s mm"), dtostrf(probe.offset.z, 1, 2, str_1));
   lv_label_set_text(labelZOffset, public_buf_l);
 }
 
-void MixwareUI::drawPage_zOffsetSetting()
+void MixwareUI::page_draw_offset_setup()
 {
-  scr = lv_screen_create(ZOFFSET_SETTING_UI, MTR.offsetZ);
+  page_scr = lv_screen_create(ZOFFSET_SETTING_UI, MTR.offsetZ);
   bak_zOffset = probe.offset.z;
-  MPRE.zOffsetChanged = false;
+  MPRE.is_z_offset_changed = false;
 
-  lv_big_button_create(scr, MIMG.save, MTR.save, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_ZOFFSET_SAVE);
-  buttonStep = lv_imgbtn_create(scr, nullptr, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), eventHandler, ID_ZOFFSET_STEP);
-  lv_big_button_create(scr, MIMG.add, MTR.offsetZAdd, IMAGEBTN_P_X(4), IMAGEBTN_P_Y(4), eventHandler, ID_ZOFFSET_ADD);
-  lv_big_button_create(scr, MIMG.dec, MTR.offsetZDec, IMAGEBTN_P_X(5), IMAGEBTN_P_Y(5), eventHandler, ID_ZOFFSET_DEC);
+  lv_big_button_create(page_scr, MIMG.save, MTR.save, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_ZOFFSET_SAVE);
+  buttonStep = lv_imgbtn_create(page_scr, nullptr, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), eventHandler, ID_ZOFFSET_STEP);
+  lv_big_button_create(page_scr, MIMG.add, MTR.offsetZAdd, IMAGEBTN_P_X(4), IMAGEBTN_P_Y(4), eventHandler, ID_ZOFFSET_ADD);
+  lv_big_button_create(page_scr, MIMG.dec, MTR.offsetZDec, IMAGEBTN_P_X(5), IMAGEBTN_P_Y(5), eventHandler, ID_ZOFFSET_DEC);
 
-  ScreenReturnButton(scr, eventHandler, ID_ZOFFSET_REBACK);
+  page_button_return(page_scr, eventHandler, ID_ZOFFSET_REBACK);
 
   labelStep = lv_label_create_empty(buttonStep);
 
   /*Create an Image button*/
-  lv_obj_t *buttonZ_offset = lv_img_create(scr, NULL);
+  lv_obj_t *buttonZ_offset = lv_img_create(page_scr, NULL);
   lv_img_set_src(buttonZ_offset, MIMG.stateZ);
   lv_obj_set_pos(buttonZ_offset, 125, 85);
 
-  labelZOffset = lv_label_create(scr, 170, 95, nullptr);
+  labelZOffset = lv_label_create(page_scr, 170, 95, nullptr);
 
-  moveDistanceUpdate();
-  zOffsetUpdate();
+  update_move_distance();
+  update_offset();
 
-  ButtonAddClickTips(buttonStep);
+  page_button_add_tips(buttonStep);
 }
 
-void MixwareUI::clearPage()
+void MixwareUI::page_clear()
 {
-  lv_obj_del(scr);
+  lv_obj_del(page_scr);
 }
 
-void MixwareUI::printPauseUIForFilament()
+void MixwareUI::update_pause_print_ui()
 {
   // planner.synchronize();  //can not add.
   if (uiCfg.dialogType == DIALOG_RUNOUT_PAUSING) {
@@ -1530,7 +1532,7 @@ millis_t FilamentDetector::update_time;
 void FilamentDetector::reset()
 {
   WRITE(BEEPER_PIN, LOW);
-  MPRE.filamentIsBroken = false;
+  MPRE.is_filament_broken = false;
   last_pos = block_count = 0;
   last_time = millis();
   alarm_gap = planner.settings.axis_steps_per_mm[E_AXIS] * FILAMENT_DETECTOR_ALARM_GAP;
@@ -1539,7 +1541,7 @@ void FilamentDetector::reset()
 
 void FilamentDetector::update()
 {
-  if (!MUI.getEHeatingMode() || card.getIndex() < FILAMENT_DETECTOR_FILE_START_POS || stepper.position(E_AXIS) < FILAMENT_DETECTOR_EFFECTIVE_GAP) // || current_position[Z_AXIS] < 0.5
+  if ((MUI.get_filament_detector_state() == false) || (card.getIndex() < FILAMENT_DETECTOR_FILE_START_POS) || (stepper.position(E_AXIS) < FILAMENT_DETECTOR_EFFECTIVE_GAP)) // || current_position[Z_AXIS] < 0.5
     return;
 
   static uint8_t last_state = 0;
@@ -1571,13 +1573,13 @@ void FilamentDetector::update()
     alarm();
 }
 
-void FilamentDetector::updateUI()
+void FilamentDetector::check()
 {
   update();
 
   if (detector.has_break()) {
     uiCfg.moveSpeed_bak = feedrate_mm_s;
-    MPRE.filamentIsBroken = true;
+    MPRE.is_filament_broken = true;
 
     card.pauseSDPrint();
     stop_print_time();
@@ -1589,7 +1591,7 @@ void FilamentDetector::updateUI()
       lv_draw_dialog(DIALOG_TYPE_FILAMENT_CLOG);
     }
     else {
-      uiCfg.filament_heat_completed_unload = 1;
+      uiCfg.filament_heat_completed_unload = true;
       lv_draw_dialog(DIALOG_RUNOUT_PAUSING);
     }
   }
@@ -1597,7 +1599,7 @@ void FilamentDetector::updateUI()
 
 void FilamentDetector::alarm()
 {
-  const bool a = (MUI.getEHeatingMode() && stepper.axis_is_moving(E_AXIS) && last_pos && stepper.position(E_AXIS)) ? (bool)(cur_gap >= alarm_gap) : false;
+  const bool a = (MUI.get_filament_detector_state() && stepper.axis_is_moving(E_AXIS) && last_pos && stepper.position(E_AXIS)) ? (bool)(cur_gap >= alarm_gap) : false;
 
   if (a)
     WRITE(BEEPER_PIN, HIGH);
@@ -1607,12 +1609,12 @@ void FilamentDetector::alarm()
 
 bool FilamentDetector::has_break()
 {
-  return (MUI.getEHeatingMode() && stepper.axis_is_moving(E_AXIS) && last_pos && stepper.position(E_AXIS)) ? (bool)(cur_gap >= stop_gap) : false;
+  return (MUI.get_filament_detector_state() && stepper.axis_is_moving(E_AXIS) && last_pos && stepper.position(E_AXIS)) ? (bool)(cur_gap >= stop_gap) : false;
 }
 
 bool FilamentDetector::has_block()
 {
-  return (bool)(MUI.getEHeatingMode() && block_count > FILAMENT_DETECTOR_BLOCK_NUMBER);
+  return (bool)(MUI.get_filament_detector_state() && block_count > FILAMENT_DETECTOR_BLOCK_NUMBER);
 }
 
 Printing_Babystep p_babystep;
@@ -1637,7 +1639,7 @@ void Printing_Babystep::update()
   end_probe = probe.offset.z;
 }
 
-bool Printing_Babystep::isChanged()
+bool Printing_Babystep::is_changed()
 {
   return (bool)(!(start_probe == end_probe && save_probe == end_probe));
 }

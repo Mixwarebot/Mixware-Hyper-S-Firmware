@@ -91,10 +91,13 @@ void printer_state_polling() {
         uiCfg.current_e_position_bak = current_position.e;
         uiCfg.moveSpeed_bak = feedrate_mm_s;
 
-        // #if ENABLED(POWER_LOSS_RECOVERY)
-        //   recovery.info.print_paused = gCfgItems.pausePosZ;
-        //   recovery.save();
-        // #endif
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          // Power off when printing is paused.
+          recovery.info.print_paused_raised = gCfgItems.pausePosZ;
+          if (uiCfg.current_z_position_bak + gCfgItems.pausePosZ > Z_MAX_POS)
+            recovery.info.print_paused_raised = Z_MAX_POS - uiCfg.current_z_position_bak;
+          recovery.save();
+        #endif
       #endif
 
         gCfgItems.pause_reprint = true;
@@ -106,7 +109,7 @@ void printer_state_polling() {
     uiCfg.waitEndMoves = 0;
 
   if (uiCfg.print_state == PAUSED) {
-    TERN_(TFT_MIXWARE_LVGL_UI, MUI.printPauseUIForFilament());
+    TERN_(TFT_MIXWARE_LVGL_UI, MUI.update_pause_print_ui());
   }
 
   if (uiCfg.print_state == RESUMING) {
@@ -131,10 +134,11 @@ void printer_state_polling() {
 
       #if ENABLED(TFT_MIXWARE_LVGL_UI)
         detector.reset();
-        // #if ENABLED(POWER_LOSS_RECOVERY)
-        //   recovery.info.print_paused = 0;
-        //   recovery.save();
-        // #endif
+
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          recovery.info.print_paused_raised = 0;
+          recovery.save();
+        #endif
       #endif
 
       gCfgItems.pause_reprint = false;
@@ -272,7 +276,7 @@ void filament_check() {
     lv_draw_printing();
   }
   #else
-    detector.updateUI();
+    detector.check();
   #endif
 }
 

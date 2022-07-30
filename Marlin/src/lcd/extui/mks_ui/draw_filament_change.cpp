@@ -40,7 +40,9 @@ static lv_obj_t *scr;
 #endif
 
 static lv_obj_t *buttonType;
-static lv_obj_t *buttonIn, *buttonOut;
+#if DISABLED(TFT_MIXWARE_LVGL_UI)
+  static lv_obj_t *buttonIn, *buttonOut;
+#endif
 
 
 static lv_obj_t *labelType;
@@ -218,17 +220,18 @@ void lv_draw_filament_change() {
   #else
     scr = lv_screen_create(FILAMENTCHANGE_UI);
     // Create an Image button
-    lv_big_button_create(scr, MIMG.filamentIn,  MTR.filIn,  IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), event_handler, ID_FILAMNT_IN);
+    lv_obj_t *buttonIn = lv_big_button_create(scr, MIMG.filamentIn,  MTR.filIn,  IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), event_handler, ID_FILAMNT_IN);
+    lv_obj_clear_protect(buttonIn, LV_PROTECT_FOLLOW);
     lv_big_button_create(scr, MIMG.filamentOut, MTR.filOut, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), event_handler, ID_FILAMNT_OUT);
 
     if (uiCfg.print_state == PAUSED || uiCfg.print_state == REPRINTING) {
-      lv_obj_t *button_f_resume = lv_imgbtn_create(scr, MIMG.printResume, 5, 400, event_handler, ID_FILAMNT_TYPE);
+      lv_obj_t *button_f_resume = lv_imgbtn_create(scr, MIMG.printResume, 4, 395, event_handler, ID_FILAMNT_TYPE);
       lv_obj_t *label_f_resume = lv_label_create_empty(button_f_resume);
 
       lv_label_set_text(label_f_resume, printing_menu.resume);
-      lv_obj_align(label_f_resume, button_f_resume, LV_ALIGN_CENTER, 20, 0);
+      lv_obj_align(label_f_resume, button_f_resume, LV_ALIGN_IN_BOTTOM_MID, 0, -10);
     }
-    MUI.ScreenReturnButton(scr, event_handler, ID_FILAMNT_RETURN);
+    MUI.page_button_return(scr, event_handler, ID_FILAMNT_RETURN);
   #endif
 }
 

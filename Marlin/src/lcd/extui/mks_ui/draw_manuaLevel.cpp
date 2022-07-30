@@ -94,7 +94,7 @@ void lv_draw_manualLevel() {
     lv_big_button_create(scr, MIMG.levelPos4, MTR.levelingManualBL, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), event_handler, ID_M_POINT4);
     lv_big_button_create(scr, MIMG.levelPos5, MTR.levelingManualBR, IMAGEBTN_P_X(4), IMAGEBTN_P_Y(4), event_handler, ID_M_POINT5);
     lv_big_button_create(scr, MIMG.motorOff, MTR.axisDisabled,  IMAGEBTN_P_X(5), IMAGEBTN_P_Y(5), event_handler, ID_M_OFF);
-    MUI.ScreenReturnButton(scr, event_handler, ID_MANUAL_RETURN);
+    MUI.page_button_return(scr, event_handler, ID_MANUAL_RETURN);
   #endif
 }
 

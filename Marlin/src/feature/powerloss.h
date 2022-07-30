@@ -48,7 +48,7 @@
 
 //#define DEBUG_POWER_LOSS_RECOVERY
 //#define SAVE_EACH_CMD_MODE
-//#define SAVE_INFO_INTERVAL_MS 0
+#define SAVE_INFO_INTERVAL_MS 3000
 
 typedef struct {
   uint8_t valid_head;
@@ -131,6 +131,10 @@ typedef struct {
   uint8_t valid_foot;
 
   bool valid() { return valid_head && valid_head == valid_foot; }
+
+  #if ENABLED(TFT_MIXWARE_LVGL_UI)
+    float print_paused_raised;
+  #endif
 
 } job_recovery_info_t;
 

@@ -52,7 +52,11 @@ extern lv_group_t*  g;
 #ifndef USE_NEW_LVGL_CONF
   static lv_obj_t *scr;
 #endif
-static lv_obj_t *buttonExt1, *labelExt1, *buttonFanstate, *labelFan;
+static lv_obj_t *buttonExt1, *labelExt1
+                #if DISABLED(TFT_MIXWARE_LVGL_UI)
+                  , *buttonFanstate, *labelFan
+                #endif
+                ;
 
 #if HAS_MULTI_HOTEND
   static lv_obj_t *labelExt2;
@@ -146,16 +150,18 @@ void set_main_screen(void) {
 }
 
 void lv_draw_ready_print() {
-  
-  char buf[30] = {0};
-  lv_obj_t *buttonTool;
+
+  #if DISABLED(TFT_MIXWARE_LVGL_UI)
+    char buf[30] = {0};
+    lv_obj_t *buttonTool;
+  #endif
 
   disp_state_stack._disp_index = 0;
   ZERO(disp_state_stack._disp_state);
-  
+
 #ifdef USE_NEW_LVGL_CONF
   mks_ui.src_main = lv_set_scr_id_title(mks_ui.src_main, PRINT_READY_UI, "");
-#else 
+#else
   scr = lv_screen_create(PRINT_READY_UI, "");
 #endif
 
@@ -171,7 +177,7 @@ void lv_draw_ready_print() {
     lv_obj_set_pos(buttonTool, 360, 180);
 
     lv_obj_t *label_tool = lv_label_create_empty(buttonTool);
-    
+
     if (gCfgItems.multiple_language) {
       lv_label_set_text(label_tool, main_menu.tool);
       lv_obj_align(label_tool, buttonTool, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
@@ -219,7 +225,7 @@ void lv_draw_ready_print() {
 
 #ifdef USE_NEW_LVGL_CONF
     det_info = lv_label_create_empty(mks_ui.src_main);
-#else 
+#else
     det_info = lv_label_create_empty(scr);
 #endif
     lv_style_copy(&det_style, &lv_style_scr);
@@ -282,16 +288,16 @@ void lv_draw_ready_print() {
     }
   #endif
   #else
-    MUI.ScreenMainTips(scr);
-    MUI.ScreenMainLogo(scr);
+    MUI.page_tips_main(scr);
+    MUI.page_logo_main(scr);
 
     #if HAS_HEATED_BED
-      buttonExt1 = lv_big_button_create(scr, MIMG_HM(stateExtruct), " ", 30, 92, event_handler, ID_INFO_EXT);
+      buttonExt1 = lv_big_button_create(scr, MIMG_HM(state_extruct), " ", 30, 92, event_handler, ID_INFO_EXT);
       buttonBedstate = lv_big_button_create(scr, MIMG.stateBed, " ", 165, 92, event_handler, ID_INFO_BED);
       labelExt1 = lv_label_create_empty(scr);
       labelBed = lv_label_create_empty(scr);
     #else
-      buttonExt1 = lv_big_button_create(scr, MIMG_HM(stateExtruct), " ", 103, 92, event_handler, ID_INFO_EXT);
+      buttonExt1 = lv_big_button_create(scr, MIMG_HM(state_extruct), " ", 103, 92, event_handler, ID_INFO_EXT);
       labelExt1 = lv_label_create_empty(scr);
     #endif
 

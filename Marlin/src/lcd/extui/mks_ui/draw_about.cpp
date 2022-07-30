@@ -54,7 +54,7 @@ void lv_draw_about() {
   #else
     scr = lv_screen_create(ABOUT_UI, MTR.about);
 
-    MUI.ScreenReturnButton(scr, event_handler, ID_A_RETURN);
+    MUI.page_button_return(scr, event_handler, ID_A_RETURN);
     fw_type = lv_label_create(scr, "Firmware: Hyper S for Marlin " SHORT_BUILD_VERSION);
   #endif
 

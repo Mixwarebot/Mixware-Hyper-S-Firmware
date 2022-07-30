@@ -59,7 +59,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 
   thermalManager.set_fan_speed(0, map(fanPercent, 0, 100, 0, 255));
-  
+
   if (obj->mks_obj_id != ID_F_RETURN) disp_fan_value();
 }
 
@@ -83,7 +83,7 @@ void lv_draw_fan() {
     lv_big_button_create(scr, MIMG.speedHigh, MTR.fanOn, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), event_handler, ID_F_HIGH);
     lv_big_button_create(scr, MIMG.add, MTR.add, IMAGEBTN_P_X(4), IMAGEBTN_P_Y(4), event_handler, ID_F_ADD);
     lv_big_button_create(scr, MIMG.dec, MTR.dec, IMAGEBTN_P_X(5), IMAGEBTN_P_Y(5), event_handler, ID_F_DEC);
-    MUI.ScreenReturnButton(scr, event_handler, ID_F_RETURN);
+    MUI.page_button_return(scr, event_handler, ID_F_RETURN);
   #endif
 
   fanText = lv_label_create_empty(scr);

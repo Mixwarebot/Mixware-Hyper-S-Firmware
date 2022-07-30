@@ -128,7 +128,7 @@ void lv_draw_max_feedrate_settings() {
     M_SCREEN_EDITITEM(MTR.ADVSetMaxSpeedE, ID_FEED_E0, index);
     index++;
 
-    MUI.ScreenReturnButton(scr, event_handler, ID_FEED_RETURN);
+    MUI.page_button_return(scr, event_handler, ID_FEED_RETURN);
   #endif
 }
 

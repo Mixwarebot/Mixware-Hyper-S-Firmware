@@ -27,7 +27,7 @@
 #include <lv_conf.h>
 
 #ifdef TFT_MIXWARE_LVGL_UI
-#include "image_def.h"
+#include "mixware_ui_def.h"
 // namespace MixwareUI
 // {
 //
@@ -56,9 +56,9 @@ enum
   ID_DEVICEDEBUG_TO_Z,
   ID_DEVICEDEBUG_REBACK,
 
-  ID_EHEATINGMODE_NORMAL,
-  ID_EHEATINGMODE_HIGH,
-  ID_EHEATINGMODE_REBACK,
+  ID_HEATINGMODE_NORMAL,
+  ID_HEATINGMODE_HIGH,
+  ID_HEATINGMODE_REBACK,
   ID_EHEATINGTEMP_PAGE_SW,
   ID_EHEATINGTEMP_REBACK,
   ID_EHEATINGTEMP_170c = 170,
@@ -124,11 +124,11 @@ typedef struct
   const char *y;
   const char *z;
   const char *e;
-  const char *moveDistanceMM005;
-  const char *moveDistanceMM01;
-  const char *moveDistanceMM1;
-  const char *moveDistanceMM5;
-  const char *moveDistanceMM10;
+  const char *move_distance_mm_0_0_5;
+  const char *move_distance_mm_0_1;
+  const char *move_distance_mm_1;
+  const char *move_distance_mm_5;
+  const char *move_distance_mm_10;
   const char *print;
   const char *tool;
   const char *set;
@@ -221,8 +221,8 @@ typedef struct
   const char *ADVSetFilOutLength;
   const char *ADVSetFilOutSpeed;
   const char *ADVSeteHeatingMode;
-  const char *eHeatingModeNormal;
-  const char *eHeatingModeHigh;
+  const char *heating_mode_mormal;
+  const char *heating_mode_high;
   const char *eHeatingModeCurNormal;
   const char *eHeatingModeCurHigh;
   const char *eHeatingModeTipsNormal;
@@ -257,7 +257,7 @@ typedef struct
   const char *debugZSlowMode;
   const char *debugZFastMode;
   const char *debugZWorking;
-  const char *printAgain;
+  const char *print_again;
   const char *printTipsSaveOffset;
   const char *printTipsSave;
   const char *printPause;
@@ -265,26 +265,26 @@ typedef struct
   const char *printStop;
   const char *previous;
   const char *next;
-  const char *keyBack;
-  const char *keyReset;
-  const char *keyConfirm;
-  const char *printNoFileTips;
+  const char *key_back;
+  const char *key_reset;
+  const char *key_confirm;
+  const char *no_file_tips;
   const char *operation;
   const char *speed;
   const char *babystep;
-  const char *thermalProtection;
-  const char *key1;
-  const char *key2;
-  const char *key3;
-  const char *key4;
-  const char *key5;
-  const char *key6;
-  const char *key7;
-  const char *key8;
-  const char *key9;
-  const char *key0;
-  const char *keyPoint;
-  const char *keyNegative;
+  const char *thermal_protection;
+  const char *key_1;
+  const char *key_2;
+  const char *key_3;
+  const char *key_4;
+  const char *key_5;
+  const char *key_6;
+  const char *key_7;
+  const char *key_8;
+  const char *key_9;
+  const char *key_0;
+  const char *key_point;
+  const char *key_negative;
 } MixwareUIText;
 
 typedef struct
@@ -319,9 +319,9 @@ typedef struct
   const char *speedHigh;
   const char *speedSlow;
   const char *speedNormal;
-  const char *moveDistance_1_mm;
-  const char *moveDistance_5_mm;
-  const char *moveDistance_10_mm;
+  const char *move_distance_mm_1;
+  const char *move_distance_mm_5;
+  const char *move_distance_mm_10;
 
   const char *dir;
   const char *file;
@@ -329,7 +329,7 @@ typedef struct
   const char *axisX;
   const char *axisY;
   const char *axisZ;
-  const char *moveDistance_0_1_mm;
+  const char *move_distance_mm_0_1;
 
   const char *speed;
 
@@ -339,7 +339,7 @@ typedef struct
   const char *stateX;
   const char *stateY;
   const char *stateZ;
-  const char *stateExtruct;
+  const char *state_extruct;
   const char *stateBed;
   const char *stateFan;
   const char *stateTime;
@@ -390,151 +390,155 @@ typedef struct
   const char *arrow;
   const char *placeholder;
 
-  const char *eHeatingModeNormal;
-  const char *eHeatingModeHigh;
-  const char *printHM;
-  const char *preheatHM;
-  const char *extructHM;
-  const char *stateExtructHM;
-  const char *eHeatingModeTip;
+  const char *heating_mode_mormal;
+  const char *heating_mode_high;
+  const char *heating_mode_print;
+  const char *heating_mode_preheat;
+  const char *heating_mode_extruct;
+  const char *heating_mode_state_extruct;
+  const char *heating_mode_tips;
 
   const char *preview;
   const char *logo;
-  const char *mainLogo;
+  const char *logo_main;
 
   const char *enable;
   const char *disable;
-} MixwareUIImage;
+} mui_image_path_t;
 
 typedef struct
 {
-  celsius_t eHeatingMaxTemp;                // normal mode: 260c high mode: 350c
-  bool filamentDetectorEnabled;             // Enabled: true
-  bool thermalProtectionEnabled;            // Enabled: true
-}MixwareUIFalshParam;
+  celsius_t max_heating_mode_temp;                // normal mode: 260c high mode: 350c
+  bool enabled_filament_detector;             // Enabled: true
+  bool enabled_thermal_protection;            // Enabled: true
+}mui_falsh_param_t;
 
 typedef struct
 {
-  bool zOffsetChanged;                      // babystep changed: true
-  bool zAxisDebugFastMode;
-  bool filamentIsBroken;
-  int16_t moveAxis;
-  float extrusionVolume;
+  bool is_z_offset_changed;                      // babystep changed: true
+  bool is_z_axis_debug_fast_mode;
+  bool is_filament_broken;
+  int16_t move_axis;
+  float extrusion_volume;
 
-  MixwareUIFalshParam param;
-} MixwareUIPreference;
+  mui_falsh_param_t param;
+} mui_preference_t;
 
 typedef struct
 {
   MixwareUIText tr;
-  MixwareUIImage image;
-  MixwareUIPreference preference;
-  MixwareAutoLevelState autoLevelStatus;
-} MixwareUIInfo;
-
-extern lv_point_t line_points_2[8][2];
+  mui_image_path_t image;
+  mui_preference_t preference;
+  MixwareAutoLevelState auto_leveling_state;
+} MixwareUI_Info;
 
 class MixwareUI
 {
-private:
-  lv_obj_t *scr;
-
-  lv_style_t tft_style_label;
-  lv_style_t style_para_button;
-  lv_style_t style_para_tips;
-
-  void ScreenBottomButton(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id);
-  void l_selfc_label_create(lv_coord_t y, const char *text);
-
 public:
-  MixwareUIInfo info;
+  lv_obj_t *page_scr;
 
-  inline void setAutoLevelingState(MixwareAutoLevelState s) { info.autoLevelStatus = s; }
-  inline MixwareAutoLevelState getAutoLevelingState() { return info.autoLevelStatus; }
+  lv_style_t page_label_style;
+  lv_style_t page_button_style;
+  lv_style_t page_tips_style;
 
-  inline void setEHeating(celsius_t t) { info.preference.param.eHeatingMaxTemp = t; }
-  inline celsius_t getEHeating() { return info.preference.param.eHeatingMaxTemp; }
-  inline bool getEHeatingMode() { return (getEHeating() < 300); }
-  inline const char *getEHeatingModeString() { return (getEHeatingMode() ? info.tr.eHeatingModeNormal : info.tr.eHeatingModeHigh); }
-  inline const char *getEHeatingModeImage() { return (getEHeatingMode() ? info.image.eHeatingModeNormal : info.image.eHeatingModeHigh); }
+  static char HEATINGMODE_NORMAL_CMD[], HEATINGMODE_HIGH_CMD[];
 
-  inline bool getFilamentDetectorstate() { return (info.preference.param.filamentDetectorEnabled); }
-  inline void toggleFilamentDetector() { info.preference.param.filamentDetectorEnabled ^= true; }
-  inline const char *getFilamentDetectorString() { return (getFilamentDetectorstate() ? info.tr.filamentDetectorOn : info.tr.filamentDetectorOff); }
-  inline const char *getFilamentDetectorImage() { return (getFilamentDetectorstate() ? info.image.filamentDetectorOn : info.image.filamentDetectorOff); }
+  static lv_point_t page_line_pos[8][2];
 
-  inline void setThermalProtection(bool b) { info.preference.param.thermalProtectionEnabled = b; }
-  inline void toggleThermalProtection() { info.preference.param.thermalProtectionEnabled ^= true; }
-  inline bool getThermalProtection() { return info.preference.param.thermalProtectionEnabled; }
+  void page_bottom_button(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id);
 
-  void translatorInit();
-  void textRevisionInit();
-  void imagePathInit();
-  void preferenceInit();
-  void styleInit();
+  MixwareUI_Info info;
+
+  static inline lv_point_t *get_page_line_pos(const int index) { return page_line_pos[index]; }
+
+  inline void set_auto_leveling_state(MixwareAutoLevelState state) { info.auto_leveling_state = state; }
+  inline MixwareAutoLevelState get_auto_leveling_state() { return info.auto_leveling_state; }
+
+  inline void set_heating_mode_temperature(celsius_t temp) { info.preference.param.max_heating_mode_temp = temp; }
+  inline celsius_t get_heating_mode_temperature() { return info.preference.param.max_heating_mode_temp; }
+  inline bool get_heating_mode() { return (get_heating_mode_temperature() < 300); }
+  inline const char *get_heating_mode_tr() { return (get_heating_mode() ? info.tr.heating_mode_mormal : info.tr.heating_mode_high); }
+  inline const char *get_heating_mode_image_path() { return (get_heating_mode() ? info.image.heating_mode_mormal : info.image.heating_mode_high); }
+
+  inline bool get_filament_detector_state() { return (info.preference.param.enabled_filament_detector); }
+  inline void toggle_filament_detector() { info.preference.param.enabled_filament_detector ^= true; }
+  inline const char *get_filament_detector_tr() { return (get_filament_detector_state() ? info.tr.filamentDetectorOn : info.tr.filamentDetectorOff); }
+  inline const char *get_filament_detector_image_path() { return (get_filament_detector_state() ? info.image.filamentDetectorOn : info.image.filamentDetectorOff); }
+
+  inline void set_thermal_protection(bool en) { info.preference.param.enabled_thermal_protection = en; }
+  inline void toggle_thermal_protection() { info.preference.param.enabled_thermal_protection ^= true; }
+  inline bool get_thermal_protection() { return info.preference.param.enabled_thermal_protection; }
+
+  void translator_init();
+  void text_revision_init();
+  void image_path_init();
+  void preference_init();
+  void style_init();
 
   //
   //  page button
   //
-  void ButtonAddClickTips(lv_obj_t *button);
-  void ScreenPlaceholder();
-  void ScreenMainLogo(lv_obj_t *par);
-  void ScreenMainTips(lv_obj_t *par);
-  lv_obj_t *ScreenLabel(lv_obj_t *par, const char *text);
-  void ScreenBottomLeftButton(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id);
-  void ScreenBottomMiddleButton(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id);
-  void ScreenBottomRightButton(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id);
-  void ScreenReturnButton(lv_obj_t *par, lv_event_cb_t cb, const int id);
-  lv_obj_t *ScreenToolButton(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id);
+  void page_button_add_tips(lv_obj_t *button);
 
-  lv_obj_t *ScreenEnabledButton(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const bool curValue);
-  void updateEnabledButton(lv_obj_t *btn, const bool curValue);
-  void updateAxis(lv_obj_t *btn, lv_obj_t *lbl);
+  void page_placeholder(lv_obj_t *par, lv_coord_t x, lv_coord_t y);
 
-  void updateZAxisDebug();
-  void updateAutoLeveling();
-  void updateRunout();
+  void page_logo_main(lv_obj_t *par);
+  void page_tips_main(lv_obj_t *par);
+
+  lv_obj_t *page_label(lv_obj_t *par, const char *text);
+
+  void screen_bottom_button_left(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id);
+  void page_bottom_button_middle(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id);
+  void page_bottom_button_right(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id);
+  void page_button_return(lv_obj_t *par, lv_event_cb_t cb, const int id);
+
+  lv_obj_t *page_push_button(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id);
+
+  void update_button_enabled(lv_obj_t *btn, const bool curValue);
+  lv_obj_t *page_button_enabled(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const bool curValue);
+
   //
   // level mode page
   //
-  void drawPage_level();
+  void update_auto_leveling();
+  void page_draw_leveling();
 
   //
   //  Nozzle heating mode page
   //
-  void drawPage_eHeatingModeSetting();
+  void page_draw_heating_mode_setup();
 
   //
   // Nozzle heating temperature page
   //
-  void drawPage_eHeatingTemperature();
+  void page_draw_temperature_adjust();
 
   //
-  //  z device debug page
+  //  device debug page
   //
-  void updateDeviceDebug();
-  void drawPage_deviceDebug();
-
-  //
-  //  axis move page
-  //
-  void drawPage_move();
+  void page_device_debug_reset_label();
+  void page_device_debug_label(lv_coord_t y, const char *text);
+  void update_device_debug();
+  void page_draw_device_debug();
 
   //
   //  z axis debug page
   //
-  void drawPage_zAxisDebug();
+  void update_z_axis_debug();
+  void page_draw_z_axis_debug();
 
   //
   // Z Axis offset page
   //
-  void moveDistanceUpdate();
-  void zOffsetUpdate();
-  void drawPage_zOffsetSetting();
+  void update_move_axis(lv_obj_t *btn, lv_obj_t *lbl);
+  void update_move_distance();
+  void update_offset();
+  void page_draw_offset_setup();
 
-  void clearPage();
+  void page_clear();
 
-  void printPauseUIForFilament();
+  void update_filament_detector();
+  void update_pause_print_ui();
 };
 extern MixwareUI mixware_ui;
 
@@ -557,7 +561,7 @@ public:
   static bool has_block();
 
   static void update();
-  static void updateUI();
+  static void check();
 };
 
 extern FilamentDetector detector;
@@ -575,7 +579,7 @@ public:
   void init();
   void reset();
   void update();
-  bool isChanged();
+  bool is_changed();
 };
 
 extern Printing_Babystep p_babystep;

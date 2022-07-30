@@ -86,7 +86,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           lv_draw_manualLevel();
         #endif
       #else
-        MUI.drawPage_level();
+        MUI.page_draw_leveling();
       #endif
       break;
     case ID_T_FILAMENT:
@@ -137,7 +137,7 @@ void lv_draw_tool() {
     lv_big_button_create(scr, MIMG.move,        MTR.move,     IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), event_handler, ID_T_MOV);
     lv_big_button_create(scr, MIMG.level,       MTR.leveling, IMAGEBTN_P_X(4), IMAGEBTN_P_Y(4), event_handler, ID_T_LEVELING);
     lv_big_button_create(scr, MIMG.home,        MTR.home,     IMAGEBTN_P_X(5), IMAGEBTN_P_Y(5), event_handler, ID_T_HOME);
-    MUI.ScreenReturnButton(scr, event_handler, ID_T_RETURN);
+    MUI.page_button_return(scr, event_handler, ID_T_RETURN);
   #endif
 #endif
 }

@@ -137,7 +137,7 @@ void lv_draw_filament_settings() {
     M_SCREEN_EDITITEM(MTR.ADVSetFilOutSpeed,  ID_FILAMENT_SET_OUT_SPEED, index);
     index++;
 
-    MUI.ScreenReturnButton(scr, event_handler, ID_FILAMENT_SET_RETURN);
+    MUI.page_button_return(scr, event_handler, ID_FILAMENT_SET_RETURN);
   #endif
 }
 

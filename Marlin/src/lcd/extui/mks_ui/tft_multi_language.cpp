@@ -2884,7 +2884,7 @@ void disp_language_init() {
       break;
   }
 
-  TERN_(TFT_MIXWARE_LVGL_UI, MUI.textRevisionInit());
+  TERN_(TFT_MIXWARE_LVGL_UI, MUI.text_revision_init());
 }
 
 #endif // HAS_TFT_LVGL_UI

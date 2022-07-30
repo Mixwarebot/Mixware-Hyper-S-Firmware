@@ -61,18 +61,41 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_pause_position() {
-  scr = lv_screen_create(PAUSE_POS_UI, machine_menu.PausePosText);
+  #if DISABLED(TFT_MIXWARE_LVGL_UI)
+    scr = lv_screen_create(PAUSE_POS_UI, machine_menu.PausePosText);
 
-  dtostrf(gCfgItems.pausePosX, 1, 1, public_buf_l);
-  lv_screen_menu_item_1_edit(scr, machine_menu.xPos, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_PAUSE_X, 0, public_buf_l);
+    dtostrf(gCfgItems.pausePosX, 1, 1, public_buf_l);
+    lv_screen_menu_item_1_edit(scr, machine_menu.xPos, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_PAUSE_X, 0, public_buf_l);
 
-  dtostrf(gCfgItems.pausePosY, 1, 1, public_buf_l);
-  lv_screen_menu_item_1_edit(scr, machine_menu.yPos, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_PAUSE_Y, 1, public_buf_l);
+    dtostrf(gCfgItems.pausePosY, 1, 1, public_buf_l);
+    lv_screen_menu_item_1_edit(scr, machine_menu.yPos, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_PAUSE_Y, 1, public_buf_l);
 
-  dtostrf(gCfgItems.pausePosZ, 1, 1, public_buf_l);
-  lv_screen_menu_item_1_edit(scr, machine_menu.zPos, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_PAUSE_Z, 2, public_buf_l);
+    dtostrf(gCfgItems.pausePosZ, 1, 1, public_buf_l);
+    lv_screen_menu_item_1_edit(scr, machine_menu.zPos, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_PAUSE_Z, 2, public_buf_l);
 
-  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_PAUSE_RETURN, true);
+    lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_PAUSE_RETURN, true);
+  #else
+    int index = 0;
+
+    scr = lv_screen_create(PAUSE_POS_UI, MTR.ADVSetPausePos);
+
+    dtostrf(gCfgItems.pausePosX, 1, 1, public_buf_l);
+    M_SCREEN_EDITITEM(MTR.ADVSetPausePosX, ID_PAUSE_X, index);
+    index++;
+
+    dtostrf(gCfgItems.pausePosY, 1, 1, public_buf_l);
+    M_SCREEN_EDITITEM(MTR.ADVSetPausePosY, ID_PAUSE_Y, index);
+    index++;
+
+    dtostrf(gCfgItems.pausePosZ, 1, 1, public_buf_l);
+    M_SCREEN_EDITITEM(MTR.ADVSetPausePosZ, ID_PAUSE_Z, index);
+    index++;
+
+    lv_obj_t *labelTips = lv_label_create(scr, MTR.ADVSetPausePosTips);
+    lv_obj_align(labelTips, nullptr, LV_ALIGN_CENTER, 0, -20);
+
+    MUI.page_button_return(scr, event_handler, ID_PAUSE_RETURN);
+  #endif
 }
 
 void lv_clear_pause_position() {

@@ -181,7 +181,7 @@
 #endif // ifdef TFT35
 
 #ifdef TFT_MIXWARE_LVGL_UI
-#include "mixware_ui/Mixware_LVGL_UI.h"
+#include "mixware_ui/mixware_ui.h"
 // using namespace MixwareUI;
 #endif
 

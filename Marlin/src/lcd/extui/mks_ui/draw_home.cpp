@@ -124,7 +124,7 @@ void lv_draw_home() {
     lv_big_button_create(scr, MIMG.homeY,    MTR.y,   IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), event_handler, ID_H_Y);
     lv_big_button_create(scr, MIMG.homeZ,    MTR.z,   IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), event_handler, ID_H_Z);
     lv_big_button_create(scr, MIMG.motorOff, MTR.axisDisabled,  IMAGEBTN_P_X(4), IMAGEBTN_P_Y(4), event_handler, ID_H_OFF_ALL);
-    MUI.ScreenReturnButton(scr, event_handler, ID_H_RETURN);
+    MUI.page_button_return(scr, event_handler, ID_H_RETURN);
   #endif
 #endif
 

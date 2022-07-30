@@ -32,7 +32,7 @@ typedef struct {
 } DIR_OFFSET;
 extern DIR_OFFSET dir_offset[10];
 
-#define FILE_NUM 6
+#define FILE_NUM 5
 #define SHORT_NAME_LEN 13
 #define NAME_CUT_LEN 23
 
@@ -41,7 +41,7 @@ extern DIR_OFFSET dir_offset[10];
 typedef struct {
   char file_name[FILE_NUM][SHORT_NAME_LEN * MAX_DIR_LEVEL + 1];
   char curDirPath[SHORT_NAME_LEN * MAX_DIR_LEVEL + 1];
-  char long_name[FILE_NUM][SHORT_NAME_LEN * 2 + 1];
+  char long_name[FILE_NUM][SHORT_NAME_LEN * 4 + 1];
   bool IsFolder[FILE_NUM];
   char Sd_file_cnt;
   char sd_file_index;

@@ -76,7 +76,7 @@ void lv_draw_eeprom_settings() {
     scr = lv_screen_create(EEPROM_SETTINGS_UI, MTR.flash);
     lv_screen_menu_item(scr, MTR.flashReset, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_EEPROM_REVERT, 0);
     lv_screen_menu_item(scr, MTR.flashSave, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_EEPROM_STORE, 1);
-    MUI.ScreenReturnButton(scr, event_handler, ID_EEPROM_RETURN);
+    MUI.page_button_return(scr, event_handler, ID_EEPROM_RETURN);
   #endif
 }
 

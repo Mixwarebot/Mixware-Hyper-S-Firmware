@@ -706,8 +706,8 @@ void disp_string(uint16_t x, uint16_t y, const char * string, uint16_t charColor
 }
 
 void disp_assets_update() {
-  SPI_TFT.LCD_clear(0x0000);
-  disp_string(100, 140, "Assets Updating...", 0xFFFF, 0x0000);
+  // SPI_TFT.LCD_clear(0x0000);
+  disp_string(5, 430, "Assets Updating...", 0xFFFF, 0X18C3);
 }
 
 void disp_assets_update_progress(const char *msg) {
@@ -715,7 +715,7 @@ void disp_assets_update_progress(const char *msg) {
   memset(buf, ' ', COUNT(buf));
   strncpy(buf, msg, strlen(msg));
   buf[COUNT(buf) - 1] = '\0';
-  disp_string(100, 165, buf, 0xFFFF, 0x0000);
+  disp_string(5, 455, buf, 0xFFFF, 0X18C3);
 }
 
 #if BOTH(MKS_TEST, SDSUPPORT)

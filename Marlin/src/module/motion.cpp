@@ -995,6 +995,31 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
 
 #else // !IS_KINEMATIC
 
+  #if ENABLED(SEGMENT_LEVELED_MOVES)
+
+    // #define MIXWARE_SHAPPING
+    #if ENABLED(MIXWARE_SHAPPING)
+      static bool mixware_buffer_line(const xyze_pos_t &cur, const xyze_pos_t &cart, float fr_mm_s) {
+        #define SHAPPER1 (0.706321)
+        #define SHAPPER2 (0.906321)
+
+        const float shap1 = (float)SHAPPER1;
+        const float shap2 = (float)SHAPPER2;
+        const xyze_float_t s = cart - cur;
+        const xyze_float_t d1 = cart - s * (1.0f - shap1);
+        const xyze_float_t d2 = cart - s * (1.0f - shap2);
+        const float f1 = (2.0f * fr_mm_s / (1.0f + (shap1 + shap2) / 2));
+        const float f2 = (shap1 * f1);
+        const float f3 = f2 / 2;
+
+        bool ref = false;
+        // if (s.x == 0 || s.y == 0)
+        ref = planner.buffer_line(d1, f1);
+        ref = planner.buffer_line(d2, f2);
+        ref = planner.buffer_line(cart, f3);
+        return ref;
+      }
+    #endif
     /**
      * Prepare a segmented move on a CARTESIAN setup.
      *
@@ -1045,13 +1070,17 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
       while (--segments) {
         segment_idle(next_idle_ms);
         raw += segment_distance;
-
         if (!planner.buffer_line(raw, fr_mm_s, active_extruder, cartesian_segment_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration))) break;
       }
 
-      // Since segment_distance is only approximate,
-      // the final move must be to the exact destination.
-      planner.buffer_line(destination, fr_mm_s, active_extruder, cartesian_segment_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration));
+
+      #if ENABLED(MIXWARE_SHAPPING)
+        mixware_buffer_line(raw, destination, fr_mm_s);
+      #else
+        // Since segment_distance is only approximate,
+        // the final move must be to the exact destination.
+        planner.buffer_line(destination, fr_mm_s, active_extruder, cartesian_segment_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration));
+      #endif
     }
 
   #endif // SEGMENT_LEVELED_MOVES
@@ -1091,7 +1120,11 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
       }
     #endif // HAS_MESH
 
-    planner.buffer_line(destination, scaled_fr_mm_s);
+    #if ENABLED(MIXWARE_SHAPPING)
+      mixware_buffer_line(current_position, destination, scaled_fr_mm_s);
+    #else
+      planner.buffer_line(destination, scaled_fr_mm_s);
+    #endif
     return false; // caller will update current_position
   }
 

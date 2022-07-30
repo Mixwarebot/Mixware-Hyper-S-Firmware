@@ -37,7 +37,11 @@ extern lv_group_t *g;
 static lv_obj_t *scr;
 #endif
 
-static lv_obj_t *labelV, *buttonV, *labelP;
+static lv_obj_t *labelV, *buttonV
+                #if DISABLED(TFT_MIXWARE_LVGL_UI)
+                , *labelP
+                #endif
+                ;
 static lv_task_t *updatePosTask;
 static char cur_label = 'Z';
 static float cur_pos = 0;
@@ -119,7 +123,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       return;
     #if ENABLED(TFT_MIXWARE_LVGL_UI)
       case ID_M_AXIS:
-        MUI.updateAxis(buttonAxis, labelAxis);
+        MUI.update_move_axis(buttonAxis, labelAxis);
         break;
       case ID_M_STEP2:
         if (     (int)(10 * uiCfg.move_dist) == 1)   uiCfg.move_dist = 1;
@@ -130,7 +134,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         break;
       case ID_M_ADD:
         if (queue.ring_buffer.length <= (BUFSIZE - 3)) {
-          switch (MPRE.moveAxis) {
+          switch (MPRE.move_axis) {
             case X_AXIS:
               if ((cur_pos = current_position[X_AXIS] + uiCfg.move_dist) > X_MAX_POS) cur_pos = X_MAX_POS;
               sprintf_P(public_buf_l, PSTR("G1 X%s F%d"), dtostrf(cur_pos, 1, 3, str_1), uiCfg.moveSpeed);
@@ -150,7 +154,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         break;
       case ID_M_DEC:
         if (queue.ring_buffer.length <= (BUFSIZE - 3)) {
-          switch (MPRE.moveAxis) {
+          switch (MPRE.move_axis) {
             case X_AXIS:
               if ((cur_pos = current_position[X_AXIS] - uiCfg.move_dist) < X_MIN_POS) cur_pos = X_MIN_POS;
               sprintf_P(public_buf_l, PSTR("G1 X%s F%d"), dtostrf(cur_pos, 1, 3, str_1), uiCfg.moveSpeed);
@@ -221,14 +225,14 @@ void lv_draw_move_motor() {
     disp_cur_pos();
   #else
     if (!uiCfg.para_ui_page) {
-      MPRE.moveAxis = X_AXIS;
+      MPRE.move_axis = X_AXIS;
       buttonAxis = lv_imgbtn_create(scr, MIMG.axisX, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), event_handler, ID_M_AXIS);
       buttonV    = lv_imgbtn_create(scr, nullptr,    IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), event_handler, ID_M_STEP2);
 
       lv_big_button_create(scr, MIMG.add, MTR.add, IMAGEBTN_P_X(4), IMAGEBTN_P_Y(4), event_handler, ID_M_ADD);
       lv_big_button_create(scr, MIMG.dec, MTR.dec, IMAGEBTN_P_X(5), IMAGEBTN_P_Y(5), event_handler, ID_M_DEC);
       if (uiCfg.print_state == IDLE) {
-        MUI.ScreenBottomMiddleButton(scr, MTR.more, event_handler, ID_M_PAGE_SW);
+        MUI.page_bottom_button_middle(scr, MTR.more, event_handler, ID_M_PAGE_SW);
       }
 
       labelAxis = lv_label_create_empty(buttonAxis);
@@ -237,14 +241,14 @@ void lv_draw_move_motor() {
       lv_obj_align(labelAxis, buttonAxis, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET-10);
 
       disp_move_dist();
-      MUI.ButtonAddClickTips(buttonAxis);
-      MUI.ButtonAddClickTips(buttonV);
+      MUI.page_button_add_tips(buttonAxis);
+      MUI.page_button_add_tips(buttonV);
     }
     else{
       lv_big_button_create(scr, MIMG.motorOff, MTR.axisDisabled,  IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), event_handler, ID_M_OFF);
-      MUI.ScreenBottomMiddleButton(scr, MTR.previous, event_handler, ID_M_PAGE_SW);
+      MUI.page_bottom_button_middle(scr, MTR.previous, event_handler, ID_M_PAGE_SW);
     }
-    MUI.ScreenReturnButton(scr, event_handler, ID_M_RETURN);
+    MUI.page_button_return(scr, event_handler, ID_M_RETURN);
 
     lv_obj_t *buttonPosX = lv_img_create(scr, nullptr);
     lv_obj_t *buttonPosY = lv_img_create(scr, nullptr);
@@ -292,22 +296,22 @@ void disp_move_dist() {
   }
 #else
   if ((int)(10 * uiCfg.move_dist) == 1)
-    lv_imgbtn_set_src_both(buttonV, MIMG.moveDistance_0_1_mm);
+    lv_imgbtn_set_src_both(buttonV, MIMG.move_distance_mm_0_1);
   else if ((int)(10 * uiCfg.move_dist) == 10)
-    lv_imgbtn_set_src_both(buttonV, MIMG.moveDistance_1_mm);
+    lv_imgbtn_set_src_both(buttonV, MIMG.move_distance_mm_1);
   else if ((int)(10 * uiCfg.move_dist) == 50)
-    lv_imgbtn_set_src_both(buttonV, MIMG.moveDistance_5_mm);
+    lv_imgbtn_set_src_both(buttonV, MIMG.move_distance_mm_5);
   else if ((int)(10 * uiCfg.move_dist) == 100)
-    lv_imgbtn_set_src_both(buttonV, MIMG.moveDistance_10_mm);
+    lv_imgbtn_set_src_both(buttonV, MIMG.move_distance_mm_10);
 
   if ((int)(10 * uiCfg.move_dist) == 1)
-    lv_label_set_text(labelV, MTR.moveDistanceMM01);
+    lv_label_set_text(labelV, MTR.move_distance_mm_0_1);
   else if ((int)(10 * uiCfg.move_dist) == 10)
-    lv_label_set_text(labelV, MTR.moveDistanceMM1);
+    lv_label_set_text(labelV, MTR.move_distance_mm_1);
   else if ((int)(10 * uiCfg.move_dist) == 50)
-    lv_label_set_text(labelV, MTR.moveDistanceMM5);
+    lv_label_set_text(labelV, MTR.move_distance_mm_5);
   else if ((int)(10 * uiCfg.move_dist) == 100)
-    lv_label_set_text(labelV, MTR.moveDistanceMM10);
+    lv_label_set_text(labelV, MTR.move_distance_mm_10);
 
   lv_obj_align(labelV, buttonV, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET-10);
 #endif
