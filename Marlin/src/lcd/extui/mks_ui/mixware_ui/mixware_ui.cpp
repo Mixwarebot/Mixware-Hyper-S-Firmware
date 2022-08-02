@@ -444,9 +444,9 @@ void MixwareUI::page_button_add_tips(lv_obj_t *button)
 //
 void MixwareUI::page_placeholder(lv_obj_t *par, lv_coord_t x, lv_coord_t y)
 {
-  lv_obj_t *placeholder = lv_img_create(par, nullptr); // Empty picture.
-  lv_img_set_src(placeholder, MIMG.placeholder);
-  lv_obj_set_pos(placeholder, x, y);
+  lv_obj_t *_placeholder = lv_img_create(par, nullptr); // Empty picture.
+  lv_img_set_src(_placeholder, MIMG.placeholder);
+  lv_obj_set_pos(_placeholder, x, y);
 }
 
 void MixwareUI::page_logo_main(lv_obj_t *par) {
@@ -922,6 +922,8 @@ void MixwareUI::page_draw_heating_mode_setup()
 {
   page_scr = lv_screen_create(EHEATINGMODE_SETTING_UI, MTR.ADVSeteHeatingMode);
 
+  lv_obj_t *button = lv_big_button_create(page_scr, MIMG.placeholder,  " ",  0, 340, eventHandler, -1);
+  lv_obj_clear_protect(button, LV_PROTECT_FOLLOW);
   lv_big_button_create(page_scr, MIMG.heating_mode_mormal, MTR.heating_mode_mormal, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_HEATINGMODE_NORMAL);
   lv_big_button_create(page_scr, MIMG.heating_mode_high, MTR.heating_mode_high, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), eventHandler, ID_HEATINGMODE_HIGH);
 
@@ -1398,6 +1400,8 @@ void MixwareUI::page_draw_z_axis_debug()
   page_scr = lv_screen_create(ZAXISDEBUG_UI, MTR.debugZTitle);
 
   // Create an Image button
+  lv_obj_t *button = lv_big_button_create(page_scr, MIMG.placeholder,  " ",  0, 340, eventHandler, -1);
+  lv_obj_clear_protect(button, LV_PROTECT_FOLLOW);
   lv_big_button_create(page_scr, MIMG.zAxisDebugSlow, MTR.debugZSlowMode, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_ZAXISDEBUG_SLOW);
   lv_big_button_create(page_scr, MIMG.zAxisDebugFast, MTR.debugZFastMode, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), eventHandler, ID_ZAXISDEBUG_FAST);
 
@@ -1446,6 +1450,8 @@ void MixwareUI::page_draw_offset_setup()
   bak_zOffset = probe.offset.z;
   MPRE.is_z_offset_changed = false;
 
+  lv_obj_t *button = lv_big_button_create(page_scr, MIMG.placeholder,  " ",  0, 430, eventHandler, -1);
+  lv_obj_clear_protect(button, LV_PROTECT_FOLLOW);
   lv_big_button_create(page_scr, MIMG.save, MTR.save, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_ZOFFSET_SAVE);
   buttonStep = lv_imgbtn_create(page_scr, nullptr, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), eventHandler, ID_ZOFFSET_STEP);
   lv_big_button_create(page_scr, MIMG.add, MTR.offsetZAdd, IMAGEBTN_P_X(4), IMAGEBTN_P_Y(4), eventHandler, ID_ZOFFSET_ADD);

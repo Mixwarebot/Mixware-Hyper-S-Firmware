@@ -1071,8 +1071,8 @@ void clear_cur_ui() {
       case MEDIA_SELECT_UI:           lv_clear_media_select(); break;
     #endif
     #if ENABLED(TFT_MIXWARE_LVGL_UI)
-      // case AUROLEVEL_UI: break;
-      // case DEBUG_SELFC_UI: break;
+      case AUROLEVEL_UI:
+      case DEBUG_SELFC_UI:
       case ZOFFSET_SETTING_UI:
       case EHEATINGMODE_SETTING_UI:
       case EHEATINGTEMP_SETTING_UI:
@@ -1184,8 +1184,8 @@ void draw_return_ui() {
         case ENCODER_SETTINGS_UI:       lv_draw_encoder_settings(); break;
       #endif
       #if ENABLED(TFT_MIXWARE_LVGL_UI)
-        case AUROLEVEL_UI: break;
-        case DEBUG_SELFC_UI: break;
+        case AUROLEVEL_UI:              MUI.page_draw_leveling(); break;
+        case DEBUG_SELFC_UI:            MUI.page_draw_device_debug(); break;
         case ZOFFSET_SETTING_UI:        MUI.page_draw_offset_setup(); break;
         case EHEATINGMODE_SETTING_UI:   MUI.page_draw_heating_mode_setup(); break;
         case EHEATINGTEMP_SETTING_UI:   MUI.page_draw_temperature_adjust(); break;

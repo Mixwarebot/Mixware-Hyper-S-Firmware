@@ -137,15 +137,15 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           switch (MPRE.move_axis) {
             case X_AXIS:
               if ((cur_pos = current_position[X_AXIS] + uiCfg.move_dist) > X_MAX_POS) cur_pos = X_MAX_POS;
-              sprintf_P(public_buf_l, PSTR("G1 X%s F%d"), dtostrf(cur_pos, 1, 3, str_1), uiCfg.moveSpeed);
+              sprintf_P(public_buf_l, PSTR("G1 X%s F%d"), dtostrf(cur_pos, 1, 3, str_1), XY_PROBE_FEEDRATE / 2);
               break;
             case Y_AXIS:
               if ((cur_pos = current_position[Y_AXIS] + uiCfg.move_dist) > Y_MAX_POS) cur_pos = Y_MAX_POS;
-              sprintf_P(public_buf_l, PSTR("G1 Y%s F%d"), dtostrf(cur_pos, 1, 3, str_1), uiCfg.moveSpeed);
+              sprintf_P(public_buf_l, PSTR("G1 Y%s F%d"), dtostrf(cur_pos, 1, 3, str_1), XY_PROBE_FEEDRATE / 2);
               break;
             case Z_AXIS:
               if ((cur_pos = current_position[Z_AXIS] + uiCfg.move_dist) > Z_MAX_POS) cur_pos = Z_MAX_POS;
-              sprintf_P(public_buf_l, PSTR("G1 Z%s F%d"), dtostrf(cur_pos, 1, 3, str_1), uiCfg.moveSpeed/10);
+              sprintf_P(public_buf_l, PSTR("G1 Z%s F%d"), dtostrf(cur_pos, 1, 3, str_1), Z_PROBE_FEEDRATE_FAST);
               break;
             default: break;
           }
@@ -157,15 +157,15 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           switch (MPRE.move_axis) {
             case X_AXIS:
               if ((cur_pos = current_position[X_AXIS] - uiCfg.move_dist) < X_MIN_POS) cur_pos = X_MIN_POS;
-              sprintf_P(public_buf_l, PSTR("G1 X%s F%d"), dtostrf(cur_pos, 1, 3, str_1), uiCfg.moveSpeed);
+              sprintf_P(public_buf_l, PSTR("G1 X%s F%d"), dtostrf(cur_pos, 1, 3, str_1), XY_PROBE_FEEDRATE / 2);
               break;
             case Y_AXIS:
               if ((cur_pos = current_position[Y_AXIS] - uiCfg.move_dist) < Y_MIN_POS) cur_pos = Y_MIN_POS;
-              sprintf_P(public_buf_l, PSTR("G1 Y%s F%d"), dtostrf(cur_pos, 1, 3, str_1), uiCfg.moveSpeed);
+              sprintf_P(public_buf_l, PSTR("G1 Y%s F%d"), dtostrf(cur_pos, 1, 3, str_1), XY_PROBE_FEEDRATE / 2);
               break;
             case Z_AXIS:
               if ((cur_pos = current_position[Z_AXIS] - uiCfg.move_dist) < Z_MIN_POS) cur_pos = Z_MIN_POS;
-              sprintf_P(public_buf_l, PSTR("G1 Z%s F%d"), dtostrf(cur_pos, 1, 3, str_1), uiCfg.moveSpeed/10);
+              sprintf_P(public_buf_l, PSTR("G1 Z%s F%d"), dtostrf(cur_pos, 1, 3, str_1), Z_PROBE_FEEDRATE_FAST);
               break;
           }
           queue.enqueue_one_now(public_buf_l);

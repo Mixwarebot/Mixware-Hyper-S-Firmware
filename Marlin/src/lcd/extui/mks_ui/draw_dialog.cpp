@@ -414,6 +414,10 @@ static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
     }
   }
   #if HAS_ABL_NOT_UBL
+    else if (DIALOG_IS(AUTO_LEVEL_COMPLETED)) {
+      clear_cur_ui();
+      MUI.page_draw_leveling();
+    }
     else if (DIALOG_IS(AUTO_LEVELING)) {
 
     }
@@ -555,7 +559,7 @@ void lv_draw_dialog(uint8_t type) {
     if (p_babystep.is_changed()) {
         lv_obj_t *btnReturn = lv_button_btn_create(scr, BTN_RIGHT_X, BTN_POS_Y+100, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_return_event_cb);
         lv_obj_t *labelReturn = lv_label_create_empty(btnReturn);
-        lv_label_set_text(labelReturn, MTR.printTipsSaveOffset);
+        lv_label_set_text(labelReturn, MTR.printTipsSave);
     }
   }
   else if (DIALOG_IS(PAUSE_MESSAGE_RESUME)) {
@@ -754,7 +758,7 @@ void lv_draw_dialog(uint8_t type) {
 
       lv_obj_t * labelTips = lv_label_create(scr, "");
       lv_obj_set_style(labelTips, &tft_style_label_rel);
-      lv_label_set_text(labelTips, MTR.printTipsSave);
+      lv_label_set_text(labelTips, MTR.printTipsSaveOffset);
       lv_obj_align(labelTips, nullptr, LV_ALIGN_CENTER, 0, -10);
     }
     else {

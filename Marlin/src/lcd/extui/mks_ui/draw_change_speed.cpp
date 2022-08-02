@@ -153,6 +153,9 @@ void lv_draw_change_speed() {
       lv_group_add_obj(g, buttonStep);
     }
   #endif
+
+  disp_speed_type();
+  disp_speed_step();
 #else
   // Create an Image button
   buttonMov = lv_imgbtn_create(scr,  nullptr, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), event_handler, ID_C_MOVE);
@@ -165,12 +168,12 @@ void lv_draw_change_speed() {
   labelMov = lv_label_create_empty(buttonMov);
   labelStep = lv_label_create_empty(buttonStep);
 
+  disp_speed_type();
+  disp_speed_step();
+
   MUI.page_button_add_tips(buttonMov);
   MUI.page_button_add_tips(buttonStep);
 #endif
-
-  disp_speed_type();
-  disp_speed_step();
 
   printSpeedText = lv_label_create_empty(scr);
   lv_obj_set_style(printSpeedText, &tft_style_label_rel);

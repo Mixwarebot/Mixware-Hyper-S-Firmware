@@ -132,10 +132,6 @@ typedef struct {
 
   bool valid() { return valid_head && valid_head == valid_foot; }
 
-  #if ENABLED(TFT_MIXWARE_LVGL_UI)
-    float print_paused_raised;
-  #endif
-
 } job_recovery_info_t;
 
 class PrintJobRecovery {

@@ -93,10 +93,12 @@ void printer_state_polling() {
 
         #if ENABLED(POWER_LOSS_RECOVERY)
           // Power off when printing is paused.
-          recovery.info.print_paused_raised = gCfgItems.pausePosZ;
-          if (uiCfg.current_z_position_bak + gCfgItems.pausePosZ > Z_MAX_POS)
-            recovery.info.print_paused_raised = Z_MAX_POS - uiCfg.current_z_position_bak;
-          recovery.save();
+          if (recovery.enabled) {
+            float print_paused_raised = gCfgItems.pausePosZ;
+            if (uiCfg.current_z_position_bak + gCfgItems.pausePosZ > Z_MAX_POS)
+              print_paused_raised = Z_MAX_POS - uiCfg.current_z_position_bak;
+            recovery.save(true, print_paused_raised, true);
+          }
         #endif
       #endif
 
@@ -135,10 +137,7 @@ void printer_state_polling() {
       #if ENABLED(TFT_MIXWARE_LVGL_UI)
         detector.reset();
 
-        #if ENABLED(POWER_LOSS_RECOVERY)
-          recovery.info.print_paused_raised = 0;
-          recovery.save();
-        #endif
+        TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
       #endif
 
       gCfgItems.pause_reprint = false;
