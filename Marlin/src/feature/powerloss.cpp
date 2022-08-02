@@ -140,7 +140,7 @@ void PrintJobRecovery::prepare() {
   card.getAbsFilenameInCWD(info.sd_filename);  // SD filename
   cmd_sdpos = 0;
 
-  TERN_(TFT_MIXWARE_LVGL_UI, info.print_paused_raised = 0);
+  // TERN_(TFT_MIXWARE_LVGL_UI, info.print_paused_raised = 0);
 }
 
 /**
@@ -579,14 +579,14 @@ void PrintJobRecovery::resume() {
   sprintf_P(cmd, M23_STR, fn);
   gcode.process_subcommands_now(cmd);
 
-  #if ENABLED(TFT_MIXWARE_LVGL_UI)
-    if (info.print_paused_raised != (float)0) {
-      gcode.process_subcommands_now_P(PSTR("G91"));
-      sprintf_P(cmd, PSTR("G1 Z%s F1000"), dtostrf((-info.print_paused_raised), 1, 3, str_1));
-      gcode.process_subcommands_now(cmd);
-      gcode.process_subcommands_now_P(PSTR("G90"));
-    }
-  #endif
+  // #if ENABLED(TFT_MIXWARE_LVGL_UI)
+  //   if (info.print_paused_raised != (float)0) {
+  //     gcode.process_subcommands_now_P(PSTR("G91"));
+  //     sprintf_P(cmd, PSTR("G1 Z%s F1000"), dtostrf((-info.print_paused_raised), 1, 3, str_1));
+  //     gcode.process_subcommands_now(cmd);
+  //     gcode.process_subcommands_now_P(PSTR("G90"));
+  //   }
+  // #endif
 
   sprintf_P(cmd, PSTR("M24S%ldT%ld"), resume_sdpos, info.print_job_elapsed);
   gcode.process_subcommands_now(cmd);
