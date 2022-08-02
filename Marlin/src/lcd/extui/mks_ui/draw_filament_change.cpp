@@ -220,8 +220,9 @@ void lv_draw_filament_change() {
   #else
     scr = lv_screen_create(FILAMENTCHANGE_UI);
     // Create an Image button
-    lv_obj_t *buttonIn = lv_big_button_create(scr, MIMG.filamentIn,  MTR.filIn,  IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), event_handler, ID_FILAMNT_IN);
+    lv_obj_t *buttonIn = lv_big_button_create(scr, MIMG.placeholder,  " ",  0, 340, event_handler, -1);
     lv_obj_clear_protect(buttonIn, LV_PROTECT_FOLLOW);
+    lv_big_button_create(scr, MIMG.filamentIn,  MTR.filIn,  IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), event_handler, ID_FILAMNT_IN);
     lv_big_button_create(scr, MIMG.filamentOut, MTR.filOut, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), event_handler, ID_FILAMNT_OUT);
 
     if (uiCfg.print_state == PAUSED || uiCfg.print_state == REPRINTING) {
