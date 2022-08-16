@@ -1025,7 +1025,6 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
   #elif defined(BOGUS_TEMPERATURE_GRACE_PERIOD)
     UNUSED(killed);
   #else
-    TERN_(TFT_MIXWARE_LVGL_UI, if (MUI.get_thermal_protection()))
     if (!killed) { killed = 1; loud_kill(lcd_msg, heater_id); }
   #endif
 }
@@ -1328,6 +1327,7 @@ void Temperature::manage_heater() {
 
     HOTEND_LOOP() {
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
+        TERN_(TFT_MIXWARE_LVGL_UI, if (MUI.get_thermal_protection()))
         if (degHotend(e) > temp_range[e].maxtemp) max_temp_error((heater_id_t)e);
       #endif
 
@@ -1335,6 +1335,7 @@ void Temperature::manage_heater() {
 
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
         // Check for thermal runaway
+        TERN_(TFT_MIXWARE_LVGL_UI, if (MUI.get_thermal_protection()))
         tr_state_machine[e].run(temp_hotend[e].celsius, temp_hotend[e].target, (heater_id_t)e, THERMAL_PROTECTION_PERIOD, THERMAL_PROTECTION_HYSTERESIS);
       #endif
 
@@ -1380,6 +1381,7 @@ void Temperature::manage_heater() {
   #if HAS_HEATED_BED
 
     #if ENABLED(THERMAL_PROTECTION_BED)
+      TERN_(TFT_MIXWARE_LVGL_UI, if (MUI.get_thermal_protection()))
       if (degBed() > BED_MAXTEMP) max_temp_error(H_BED);
     #endif
 
@@ -1416,6 +1418,7 @@ void Temperature::manage_heater() {
       TERN_(HEATER_IDLE_HANDLER, heater_idle[IDLE_INDEX_BED].update(ms));
 
       #if HAS_THERMALLY_PROTECTED_BED
+        TERN_(TFT_MIXWARE_LVGL_UI, if (MUI.get_thermal_protection()))
         tr_state_machine[RUNAWAY_IND_BED].run(temp_bed.celsius, temp_bed.target, H_BED, THERMAL_PROTECTION_BED_PERIOD, THERMAL_PROTECTION_BED_HYSTERESIS);
       #endif
 

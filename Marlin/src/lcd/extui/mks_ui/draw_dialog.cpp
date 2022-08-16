@@ -55,6 +55,10 @@
   #include "draw_touch_calibration.h"
 #endif
 
+#if HAS_LEVELING
+  #include "../../../feature/bedlevel/bedlevel.h"
+#endif
+
 extern lv_group_t *g;
 static lv_obj_t *scr, *tempText1, *filament_bar;
 
@@ -84,7 +88,7 @@ extern bool flash_preview_begin, default_preview_flg;
 
 static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
-  if (DIALOG_IS(TYPE_PRINT_FILE)) {
+  if (DIALOG_IS(TYPE_PRINT_FILE, TYPE_FINISH_PRINT)) {
     #if HAS_GCODE_PREVIEW
       preview_gcode_prehandle(list_file.file_name[sel_id]);
     #endif
@@ -158,22 +162,22 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     //   }
     // #endif
   }
-  else if (DIALOG_IS(TYPE_FINISH_PRINT)) {
-    clear_cur_ui();
-    lv_draw_ready_print();
-    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      // if (uiCfg.adjustZoffset) {
-      //   #if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-      //     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-      //       for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-      //         z_values[x][y] = z_values[x][y] + uiCfg.babyStepZoffsetDiff;
-      //   #endif
-      //   TERN_(EEPROM_SETTINGS, (void)settings.save());
-      //   uiCfg.babyStepZoffsetDiff = 0;
-      //   uiCfg.adjustZoffset       = 0;
-      // }
-    #endif
-  }
+  // else if (DIALOG_IS(TYPE_FINISH_PRINT)) {
+  //   clear_cur_ui();
+  //   lv_draw_ready_print();
+  //   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+  //     // if (uiCfg.adjustZoffset) {
+  //     //   #if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+  //     //     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+  //     //       for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+  //     //         z_values[x][y] = z_values[x][y] + uiCfg.babyStepZoffsetDiff;
+  //     //   #endif
+  //     //   TERN_(EEPROM_SETTINGS, (void)settings.save());
+  //     //   uiCfg.babyStepZoffsetDiff = 0;
+  //     //   uiCfg.adjustZoffset       = 0;
+  //     // }
+  //   #endif
+  // }
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     else if (DIALOG_IS(PAUSE_MESSAGE_WAITING, PAUSE_MESSAGE_INSERT, PAUSE_MESSAGE_HEAT))
       wait_for_user = false;
@@ -286,11 +290,19 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
       clear_cur_ui();
       lv_draw_dialog(DIALOG_AUTO_LEVELING);
     }
-    else if (DIALOG_IS(AUTO_LEVEL_FINISHED, AUTO_LEVEL_LEVELERR)) {
+    else if (DIALOG_IS(AUTO_LEVEL_FINISHED)) {
       MUI.set_auto_leveling_state(LEVEL_STATE_NULL);
       lv_clear_dialog();
       MUI.page_draw_leveling();
     }
+    else if (DIALOG_IS(AUTO_LEVEL_LEVELERR)) {
+      MUI.set_auto_leveling_state(LEVEL_STATE_NULL);
+      TERN_(HAS_LEVELING, reset_bed_level());
+      TERN_(ENABLE_LEVELING_FADE_HEIGHT, set_z_fade_height(DEFAULT_LEVELING_FADE_HEIGHT, false));
+      lv_clear_dialog();
+      MUI.page_draw_leveling();
+    }
+
   #endif
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT, TYPE_FILAMENT_UNLOAD_HEAT)) {
     if (uiCfg.filament_load_heat_flg == 1 || uiCfg.filament_unload_heat_flg == 1 ) {
