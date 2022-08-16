@@ -90,9 +90,9 @@ void lv_draw_manualLevel() {
     lv_obj_t *buttonPoint1 = lv_big_button_create(scr, MIMG.levelPos1, MTR.levelingManualFL, IMAGEBTN_P_X(0), IMAGEBTN_P_Y(0), event_handler, ID_M_POINT1);
     lv_obj_clear_protect(buttonPoint1, LV_PROTECT_FOLLOW);
     lv_big_button_create(scr, MIMG.levelPos2, MTR.levelingManualFR, IMAGEBTN_P_X(1), IMAGEBTN_P_Y(1), event_handler, ID_M_POINT2);
-    lv_big_button_create(scr, MIMG.levelPos3, MTR.levelingManualC, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), event_handler, ID_M_POINT3);
-    lv_big_button_create(scr, MIMG.levelPos4, MTR.levelingManualBL, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), event_handler, ID_M_POINT4);
-    lv_big_button_create(scr, MIMG.levelPos5, MTR.levelingManualBR, IMAGEBTN_P_X(4), IMAGEBTN_P_Y(4), event_handler, ID_M_POINT5);
+    lv_big_button_create(scr, MIMG.levelPos3, MTR.levelingManualBR, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), event_handler, ID_M_POINT3);
+    lv_big_button_create(scr, MIMG.levelPos4, MTR.levelingManualBL, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), event_handler, ID_M_POINT4);
+    lv_big_button_create(scr, MIMG.levelPos5, MTR.levelingManualC, IMAGEBTN_P_X(4), IMAGEBTN_P_Y(4), event_handler, ID_M_POINT5);
     lv_big_button_create(scr, MIMG.motorOff, MTR.axisDisabled,  IMAGEBTN_P_X(5), IMAGEBTN_P_Y(5), event_handler, ID_M_OFF);
     MUI.page_button_return(scr, event_handler, ID_MANUAL_RETURN);
   #endif

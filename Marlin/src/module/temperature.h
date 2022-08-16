@@ -37,6 +37,10 @@
   #include "../libs/autoreport.h"
 #endif
 
+#if ENABLED(TFT_MIXWARE_LVGL_UI)
+  #include "../lcd/extui/mks_ui/mixware_ui/mixware_ui.h"
+#endif
+
 #ifndef SOFT_PWM_SCALE
   #define SOFT_PWM_SCALE 0
 #endif
@@ -691,6 +695,7 @@ class Temperature {
         #endif
         TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
         temp_hotend[ee].target = _MIN(celsius, hotend_max_target(ee));
+        TERN_(TFT_MIXWARE_LVGL_UI, temp_hotend[ee].target = _MIN(celsius, MUI.get_heating_mode_temperature()));
         start_watching_hotend(ee);
       }
 

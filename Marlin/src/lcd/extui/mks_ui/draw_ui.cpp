@@ -183,6 +183,11 @@ void gCfgItems_init() {
   uiCfg.F[3] = 'O';
   W25QXX.SPI_FLASH_BlockErase(REFLSHE_FLGA_ADD + 32 - 64*1024);
   W25QXX.SPI_FLASH_BufferWrite(uiCfg.F,REFLSHE_FLGA_ADD,4);
+
+  #if ENABLED(TFT_MIXWARE_LVGL_UI)
+    if (!MUI.get_heating_mode())
+      gcode.process_subcommands_now(mixware_ui.HEATINGMODE_HIGH_CMD);
+  #endif
 }
 
 void ui_cfg_init() {
@@ -547,8 +552,7 @@ char *creat_title_text() {
     titleText_cat(public_buf_m, sizeof(public_buf_m), (char *)":");
     titleText_cat(public_buf_m, sizeof(public_buf_m), tmpCurFileStr);
   }
-
-  if (strlen(public_buf_m) > MAX_TITLE_LEN) {
+  else if (strlen(public_buf_m) > MAX_TITLE_LEN) {
     ZERO(public_buf_m);
     tmpText = 0;
     for (index = 0; index <= disp_state_stack._disp_index && (!tmpText || *tmpText == 0); index++)
@@ -769,22 +773,26 @@ void print_dis_status() {
 
         case MODE_DISP_EXT_TEMP:
           disp_ext_temp();
-          print_disp_mode = MODE_DISP_BED_TEMP;
-        break;
-
-        case MODE_DISP_BED_TEMP:
+          // print_disp_mode = MODE_DISP_BED_TEMP;
           disp_bed_temp();
           print_disp_mode = MODE_DISP_FAN_TEMP;
         break;
 
+        case MODE_DISP_BED_TEMP:
+          // disp_bed_temp();
+          // print_disp_mode = MODE_DISP_FAN_TEMP;
+        break;
+
         case MODE_DISP_FAN_TEMP:
           disp_fan_speed();
-          print_disp_mode = MODE_DISP_PRINT_TEMP;
+          // print_disp_mode = MODE_DISP_PRINT_TEMP;
+          disp_print_time();
+          print_disp_mode = MODE_DISP_FANZ_ZPOS;
         break;
 
         case MODE_DISP_PRINT_TEMP:
-          disp_print_time();
-          print_disp_mode = MODE_DISP_FANZ_ZPOS;
+          // disp_print_time();
+          // print_disp_mode = MODE_DISP_FANZ_ZPOS;
         break;
 
         case MODE_DISP_FANZ_ZPOS:
