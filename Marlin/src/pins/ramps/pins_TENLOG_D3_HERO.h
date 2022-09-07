@@ -25,10 +25,9 @@
  * Tenlog pin assignments
  */
 
-#define REQUIRE_MEGA2560
-#include "env_validate.h"
-
-#if HOTENDS > 2 || E_STEPPERS > 2
+#if NOT_TARGET(__AVR_ATmega2560__)
+  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
+#elif HOTENDS > 2 || E_STEPPERS > 2
   #error "Tenlog supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
@@ -123,11 +122,11 @@
 #define TEMP_1_PIN                            15  // Analog Input
 #define TEMP_BED_PIN                          14  // Analog Input
 
-// SPI for MAX Thermocouple
+// SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define TEMP_0_CS_PIN                       -1  // Don't use 53 if using Display/SD card
+  #define MAX6675_SS_PIN                      -1  // Don't use 53 if using Display/SD card
 #else
-  #define TEMP_0_CS_PIN                       -1  // Don't use 49 (SD_DETECT_PIN)
+  #define MAX6675_SS_PIN                      -1  // Don't use 49 (SD_DETECT_PIN)
 #endif
 
 //
@@ -138,7 +137,7 @@
 #define HEATER_BED_PIN                         8
 
 #define FAN_PIN                                9
-#define FAN1_PIN                               5  // Normally this would be a servo pin
+#define FAN1_PIN                               5  // Normall this would be a servo pin
 
 // XXX Runout support unknown?
 //#define NUM_RUNOUT_SENSORS                   0

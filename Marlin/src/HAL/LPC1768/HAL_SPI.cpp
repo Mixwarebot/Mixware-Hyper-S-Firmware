@@ -66,7 +66,11 @@
 
   #include <SoftwareSPI.h>
 
-  static uint8_t SPI_speed = SPI_FULL_SPEED;
+  #ifndef HAL_SPI_SPEED
+    #define HAL_SPI_SPEED SPI_FULL_SPEED
+  #endif
+
+  static uint8_t SPI_speed = HAL_SPI_SPEED;
 
   static uint8_t spiTransfer(uint8_t b) {
     return swSpiTransfer(b, SPI_speed, SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN);
@@ -89,12 +93,12 @@
 
   void spiSend(uint8_t b) { (void)spiTransfer(b); }
 
-  void spiSend(const uint8_t *buf, size_t nbyte) {
+  void spiSend(const uint8_t* buf, size_t nbyte) {
     for (uint16_t i = 0; i < nbyte; i++)
       (void)spiTransfer(buf[i]);
   }
 
-  void spiSendBlock(uint8_t token, const uint8_t *buf) {
+  void spiSendBlock(uint8_t token, const uint8_t* buf) {
     (void)spiTransfer(token);
     for (uint16_t i = 0; i < 512; i++)
       (void)spiTransfer(buf[i]);
@@ -102,13 +106,15 @@
 
 #else
 
-  #ifdef SD_SPI_SPEED
-    #define INIT_SPI_SPEED SD_SPI_SPEED
-  #else
-    #define INIT_SPI_SPEED SPI_FULL_SPEED
+  #ifndef HAL_SPI_SPEED
+    #ifdef SD_SPI_SPEED
+      #define HAL_SPI_SPEED SD_SPI_SPEED
+    #else
+      #define HAL_SPI_SPEED SPI_FULL_SPEED
+    #endif
   #endif
 
-  void spiBegin() { spiInit(INIT_SPI_SPEED); } // Set up SCK, MOSI & MISO pins for SSP0
+  void spiBegin() { spiInit(HAL_SPI_SPEED); } // Set up SCK, MOSI & MISO pins for SSP0
 
   void spiInit(uint8_t spiRate) {
     #if SD_MISO_PIN == BOARD_SPI1_MISO_PIN
@@ -129,13 +135,13 @@
 
   void spiSend(uint8_t b) { doio(b); }
 
-  void spiSend(const uint8_t *buf, size_t nbyte) {
+  void spiSend(const uint8_t* buf, size_t nbyte) {
     for (uint16_t i = 0; i < nbyte; i++) doio(buf[i]);
   }
 
   void spiSend(uint32_t chan, byte b) {}
 
-  void spiSend(uint32_t chan, const uint8_t *buf, size_t nbyte) {}
+  void spiSend(uint32_t chan, const uint8_t* buf, size_t nbyte) {}
 
   // Read single byte from SPI
   uint8_t spiRec() { return doio(0xFF); }
@@ -150,7 +156,7 @@
   uint8_t spiTransfer(uint8_t b) { return doio(b); }
 
   // Write from buffer to SPI
-  void spiSendBlock(uint8_t token, const uint8_t *buf) {
+  void spiSendBlock(uint8_t token, const uint8_t* buf) {
    (void)spiTransfer(token);
     for (uint16_t i = 0; i < 512; i++)
       (void)spiTransfer(buf[i]);

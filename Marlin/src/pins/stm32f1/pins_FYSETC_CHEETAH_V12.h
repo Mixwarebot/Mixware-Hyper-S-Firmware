@@ -21,7 +21,9 @@
  */
 #pragma once
 
-#include "env_validate.h"
+#if NOT_TARGET(__STM32F1__)
+  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
+#endif
 
 #include "pins_FYSETC_CHEETAH.h"
 
@@ -42,6 +44,9 @@
    * TMC2208/TMC2209 stepper drivers
    */
 
+  //
+  // Software serial
+  //
   #define X_SERIAL_TX_PIN                   PA11
   #define X_SERIAL_RX_PIN                   PA12
 

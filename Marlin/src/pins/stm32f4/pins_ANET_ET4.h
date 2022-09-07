@@ -19,11 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #pragma once
 
-#include "env_validate.h"
-
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if NOT_TARGET(STM32F4)
+  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
+#elif HOTENDS > 1 || E_STEPPERS > 1
   #error "Anet ET4 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
@@ -133,18 +134,14 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_TFT || HAS_FSMC_TFT
-  #define TFT_RESET_PIN                     PE6
-  #define TFT_CS_PIN                        PD7
-  #define TFT_RS_PIN                        PD13
+#define TFT_RESET_PIN                       PE6
+#define TFT_CS_PIN                          PD7
+#define TFT_RS_PIN                          PD13
+#define TFT_INTERFACE_FSMC_8BIT
 
-  #if HAS_FSMC_TFT
-    #define LCD_USE_DMA_FSMC                      // Use DMA transfers to send data to the TFT
-    #define FSMC_CS_PIN               TFT_CS_PIN
-    #define FSMC_RS_PIN               TFT_RS_PIN
-    #define TFT_INTERFACE_FSMC_8BIT
-  #endif
-#endif
+#define LCD_USE_DMA_FSMC                          // Use DMA transfers to send data to the TFT
+#define FSMC_CS_PIN                   TFT_CS_PIN
+#define FSMC_RS_PIN                   TFT_RS_PIN
 
 //
 // Touch Screen

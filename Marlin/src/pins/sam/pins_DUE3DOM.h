@@ -25,7 +25,9 @@
  * DUE3DOM pin assignments
  */
 
-#include "env_validate.h"
+#if NOT_TARGET(__SAM3X8E__)
+  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
+#endif
 
 #define BOARD_INFO_NAME "DUE3DOM"
 
@@ -82,11 +84,11 @@
 #define TEMP_2_PIN                             5  // Analog Input (unused)
 #define TEMP_BED_PIN                           1  // Analog Input (BED thermistor)
 
-// SPI for MAX Thermocouple
+// SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define TEMP_0_CS_PIN                       -1
+  #define MAX6675_SS_PIN                      -1
 #else
-  #define TEMP_0_CS_PIN                       -1
+  #define MAX6675_SS_PIN                      -1
 #endif
 
 //
@@ -128,6 +130,7 @@
     #define BTN_EN2                           52
     #define BTN_ENC                           48
 
+    #define SDSS                               4
     #define SD_DETECT_PIN                     14
 
   #elif ENABLED(RADDS_DISPLAY)
@@ -140,6 +143,8 @@
 
     #define BTN_BACK                          71
 
+    #undef SDSS
+    #define SDSS                               4
     #define SD_DETECT_PIN                     14
 
   #elif HAS_U8GLIB_I2C_OLED
