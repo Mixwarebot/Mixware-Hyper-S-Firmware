@@ -92,44 +92,88 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     #if HAS_GCODE_PREVIEW
       preview_gcode_prehandle(list_file.file_name[sel_id]);
     #endif
-    reset_print_time();
-    start_print_time();
 
-    uiCfg.print_state = WORKING;
-    lv_clear_dialog();
-    lv_draw_printing();
+    #if DISABLED(TFT_MIXWARE_LVGL_UI)
+      reset_print_time();
+      start_print_time();
 
-    #if ENABLED(SDSUPPORT)
-      if (!gcode_preview_over) {
-        char *cur_name;
-        cur_name = strrchr(list_file.file_name[sel_id], '/');
+      uiCfg.print_state = WORKING;
+      lv_clear_dialog();
+      lv_draw_printing();
 
-        SdFile file, *curDir;
-        card.abortFilePrintNow();
-        const char * const fname = card.diveToFile(false, curDir, cur_name);
-        if (!fname) return;
-        if (file.open(curDir, fname, O_READ)) {
-          gCfgItems.curFilesize = file.fileSize();
-          file.close();
-          update_spi_flash();
+      #if ENABLED(SDSUPPORT)
+        if (!gcode_preview_over) {
+          char *cur_name;
+          cur_name = strrchr(list_file.file_name[sel_id], '/');
+
+          SdFile file, *curDir;
+          card.abortFilePrintNow();
+          const char * const fname = card.diveToFile(false, curDir, cur_name);
+          if (!fname) return;
+          if (file.open(curDir, fname, O_READ)) {
+            gCfgItems.curFilesize = file.fileSize();
+            file.close();
+            update_spi_flash();
+          }
+          card.openFileRead(cur_name);
+          if (card.isFileOpen()) {
+            feedrate_percentage = 100;
+            planner.flow_percentage[0] = 100;
+            planner.e_factor[0] = planner.flow_percentage[0] * 0.01f;
+            #if HAS_MULTI_EXTRUDER
+              planner.flow_percentage[1] = 100;
+              planner.e_factor[1] = planner.flow_percentage[1] * 0.01f;
+            #endif
+            card.startOrResumeFilePrinting();
+            TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
+            once_flag = false;
+
+            detector.reset();
+            p_babystep.reset();
+          }
         }
-        card.openFileRead(cur_name);
-        if (card.isFileOpen()) {
-          feedrate_percentage = 100;
-          planner.flow_percentage[0] = 100;
-          planner.e_factor[0] = planner.flow_percentage[0] * 0.01f;
-          #if HAS_MULTI_EXTRUDER
-            planner.flow_percentage[1] = 100;
-            planner.e_factor[1] = planner.flow_percentage[1] * 0.01f;
-          #endif
-          card.startOrResumeFilePrinting();
-          TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
-          once_flag = false;
+      #endif
+    #else
+      #if ENABLED(SDSUPPORT)
+        if (!gcode_preview_over) {
+          card.endFilePrintNow();
+          card.openFileRead(list_file.file_name[sel_id]);
+          if (card.isFileOpen()) {
+            gCfgItems.curFilesize = card.getFileSize();
+            update_spi_flash();
+            feedrate_percentage = 100;
+            planner.flow_percentage[0] = 100;
+            planner.e_factor[0]        = planner.flow_percentage[0] * 0.01f;
+            card.startOrResumeFilePrinting();
+            #if ENABLED(POWER_LOSS_RECOVERY)
+              if (recovery.enabled) {
+                recovery.prepare();
+              }
+            #endif
+            once_flag = false;
+          }
+          else {
+            flash_preview_begin = false;
+            default_preview_flg = false;
+            lv_clear_dialog();
+            lv_draw_dialog(DIALOG_TYPE_REPRINT_NO_FILE);
+            return;
+          }
 
+          gcode.process_subcommands_now(PSTR("M140 S50"));//TEST
+          gcode.process_subcommands_now(PSTR("M104 S170"));//TEST
+
+          reset_print_time();
+          start_print_time();
+          planner.set_e_position_mm(destination.e = current_position.e = 0);
           detector.reset();
           p_babystep.reset();
+          uiCfg.print_state = WORKING;
+
+          lv_clear_dialog();
+          lv_draw_printing();
         }
-      }
+      #endif
     #endif
   }
   else if (DIALOG_IS(TYPE_STOP)) {
@@ -148,36 +192,8 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
       uiCfg.print_state = IDLE;
       card.abortFilePrintSoon();
     #endif
-
-    // #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-    //   if (uiCfg.adjustZoffset) {
-    //     #if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-    //       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-    //         for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-    //           z_values[x][y] = z_values[x][y] + uiCfg.babyStepZoffsetDiff;
-    //     #endif
-    //     TERN_(EEPROM_SETTINGS, (void)settings.save());
-    //     uiCfg.babyStepZoffsetDiff = 0;
-    //     uiCfg.adjustZoffset       = 0;
-    //   }
-    // #endif
   }
-  // else if (DIALOG_IS(TYPE_FINISH_PRINT)) {
-  //   clear_cur_ui();
-  //   lv_draw_ready_print();
-  //   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  //     // if (uiCfg.adjustZoffset) {
-  //     //   #if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-  //     //     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-  //     //       for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-  //     //         z_values[x][y] = z_values[x][y] + uiCfg.babyStepZoffsetDiff;
-  //     //   #endif
-  //     //   TERN_(EEPROM_SETTINGS, (void)settings.save());
-  //     //   uiCfg.babyStepZoffsetDiff = 0;
-  //     //   uiCfg.adjustZoffset       = 0;
-  //     // }
-  //   #endif
-  // }
+
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     else if (DIALOG_IS(PAUSE_MESSAGE_WAITING, PAUSE_MESSAGE_INSERT, PAUSE_MESSAGE_HEAT))
       wait_for_user = false;
@@ -225,7 +241,7 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_COMPLETED, TYPE_FILAMENT_UNLOAD_COMPLETED)) {
     thermalManager.setTargetHotend(uiCfg.hotendTargetTempBak, uiCfg.extruderIndex);
     clear_cur_ui();
-    draw_return_ui();
+    lv_draw_filament_change();
   }
   else if (DIALOG_IS(TYPE_REPRINT_NO_FILE)) {
     clear_cur_ui();

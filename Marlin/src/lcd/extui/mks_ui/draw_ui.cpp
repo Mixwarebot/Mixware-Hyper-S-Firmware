@@ -576,11 +576,16 @@ char *creat_title_text() {
     #if ENABLED(SDSUPPORT)
       uintptr_t pre_read_cnt = 0;
       uint32_t *p1;
-      char *cur_name;
+      #if DISABLED(TFT_MIXWARE_LVGL_UI)
+        char *cur_name;
 
-      gPicturePreviewStart = 0;
-      cur_name             = strrchr(path, '/');
-      card.openFileRead(cur_name);
+        gPicturePreviewStart = 0;
+        cur_name             = strrchr(path, '/');
+        card.openFileRead(cur_name);
+      #else
+        gPicturePreviewStart = 0;
+        card.openFileRead(path);
+      #endif
       card.read(public_buf, 512);
       p1 = (uint32_t *)strstr((char *)public_buf, ";simage:");
 
@@ -606,10 +611,14 @@ char *creat_title_text() {
     #if ENABLED(SDSUPPORT)
       volatile uint32_t i, j;
       volatile uint16_t *p_index;
-      char *cur_name;
+      #if DISABLED(TFT_MIXWARE_LVGL_UI)
+        char *cur_name;
 
-      cur_name = strrchr(path, '/');
-      card.openFileRead(cur_name);
+        cur_name = strrchr(path, '/');
+        card.openFileRead(cur_name);
+      #else
+        card.openFileRead(path);
+      #endif
 
       if (gPicturePreviewStart <= 0) {
         while (1) {
@@ -644,7 +653,6 @@ char *creat_title_text() {
       }
 
       SPI_TFT.tftio.WriteSequence((uint16_t*)bmp_public_buf, 200);
-      // SPI_TFT.tftio.WriteSequenceIT((uint16_t*)bmp_public_buf, 200);
 
       #if HAS_BAK_VIEW_IN_FLASH
         W25QXX.init(SPI_FULL_SPEED);
@@ -707,7 +715,7 @@ char *creat_title_text() {
 
       SPI_TFT.setWindow(xpos_pixel, y_off * 20 + ypos_pixel, TERN(TFT_MIXWARE_LVGL_UI, 160, 200), 20); // 200*200
       SPI_TFT.tftio.WriteSequence((uint16_t*)(bmp_public_buf), DEFAULT_VIEW_MAX_SIZE / 20);
-      // SPI_TFT.tftio.WriteSequenceIT((uint16_t*)(bmp_public_buf), DEFAULT_VIEW_MAX_SIZE / 20);
+
       y_off++;
     }
     W25QXX.init(SPI_FULL_SPEED);
@@ -834,14 +842,6 @@ void GUI_RefreshPage() {
     break;
 
     case PRINTING_UI:
-      // if (temps_update_flag) {
-        // temps_update_flag = false;
-      //   disp_ext_temp();
-      //   disp_bed_temp();
-      //   disp_fan_speed();
-      //   disp_print_time();
-      //   disp_fan_Zpos();
-      // }
       print_dis_status();
 
       if (printing_rate_update_flag || marlin_state == MF_SD_COMPLETE) {
