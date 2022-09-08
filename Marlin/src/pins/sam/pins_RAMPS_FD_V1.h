@@ -28,7 +28,9 @@
  * Use 4k7 thermistor tables
  */
 
-#include "env_validate.h"
+#if NOT_TARGET(__SAM3X8E__)
+  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
+#endif
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "RAMPS-FD v1"
@@ -109,11 +111,11 @@
 #define TEMP_2_PIN                             3  // Analog Input
 #define TEMP_BED_PIN                           0  // Analog Input
 
-// SPI for MAX Thermocouple
+// SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define TEMP_0_CS_PIN                       53
+  #define MAX6675_SS_PIN                      53
 #else
-  #define TEMP_0_CS_PIN                       49
+  #define MAX6675_SS_PIN                      49
 #endif
 
 //

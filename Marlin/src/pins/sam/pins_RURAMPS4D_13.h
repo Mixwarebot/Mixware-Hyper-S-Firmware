@@ -20,7 +20,6 @@
  *
  * Ported sys0724 & Vynt
  */
-#pragma once
 
 /**
  * Arduino Mega? or Due with RuRAMPS4DUE pin assignments
@@ -33,7 +32,9 @@
  *           |
  */
 
-#include "env_validate.h"
+#if NOT_TARGET(__SAM3X8E__)
+  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
+#endif
 
 #define BOARD_INFO_NAME "RuRAMPS4Due v1.3"
 
@@ -105,7 +106,7 @@
   #define E2_CS_PIN                           61
 #endif
 
-#if USES_Z_MIN_PROBE_PIN
+#if HAS_CUSTOM_PROBE_PIN
   #define Z_MIN_PROBE_PIN                     49
 #endif
 
@@ -142,12 +143,12 @@
   #define TEMP_5_PIN                           6  // A6 (Marlin 2.0 not support)
 #endif
 
-// SPI for MAX Thermocouple
+// SPI for Max6675 or Max31855 Thermocouple
 /*
 #if DISABLED(SDSUPPORT)
-  #define TEMP_0_CS_PIN                       53
+  #define MAX6675_SS_PIN                      53
 #else
-  #define TEMP_0_CS_PIN                       49
+  #define MAX6675_SS_PIN                      49
 #endif
 */
 
@@ -176,11 +177,11 @@
 //#define EEPROM_SD                               // EEPROM on SDCARD
 //#define SPI_EEPROM                              // EEPROM on SPI-0
 //#define SPI_CHAN_EEPROM1        ?
-//#define SPI_EEPROM1_CS_PIN      ?
+//#define SPI_EEPROM1_CS          ?
 // 2K EEPROM
-//#define SPI_EEPROM2_CS_PIN      ?
+//#define SPI_EEPROM2_CS          ?
 // 32Mb FLASH
-//#define SPI_FLASH_CS_PIN        ?
+//#define SPI_FLASH_CS            ?
 
 //
 // LCD / Controller

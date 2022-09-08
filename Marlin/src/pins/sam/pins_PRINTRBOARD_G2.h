@@ -25,7 +25,9 @@
  * PRINTRBOARD_G2
  */
 
-#include "env_validate.h"
+#if NOT_TARGET(__SAM3X8E__)
+  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
+#endif
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "Printrboard G2"
@@ -40,9 +42,9 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN                            22  // PB26
-#define Y_STOP_PIN                            18  // PA11
-#define Z_STOP_PIN                            19  // PA10
+#define X_MIN_PIN                             22  // PB26
+#define Y_MAX_PIN                             18  // PA11
+#define Z_MIN_PIN                             19  // PA10
 
 //
 // Z Probe (when not Z_MIN_PIN)

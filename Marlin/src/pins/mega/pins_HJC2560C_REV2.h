@@ -22,10 +22,12 @@
 #pragma once
 
 /**
- * Geeetech HJC2560-C Rev 2.x board pin assignments
+ * HJC2560-C Rev2.x pin assignments
  */
 
-#include "env_validate.h"
+#if NOT_TARGET(__AVR_ATmega2560__)
+  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
+#endif
 
 #define DEFAULT_MACHINE_NAME "ADIMLab Gantry v2"
 #define BOARD_INFO_NAME      "HJC2560-C"
@@ -112,9 +114,9 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
+#if ENABLED(SPINDLE_LASER_ENABLE)
   #define SPINDLE_DIR_PIN                     16
-  #define SPINDLE_LASER_ENA_PIN               17  // Pin should have a pullup!
+  #define SPINDLE_LASER_ENABLE_PIN            17  // Pin should have a pullup!
   #define SPINDLE_LASER_PWM_PIN                9  // Hardware PWM
 #endif
 

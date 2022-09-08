@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /**
  * Arduino Mega with PICA pin assignments
@@ -29,8 +28,6 @@
  *
  * Applies to PICA, PICA_REVB
  */
-
-#include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "PICA"
@@ -44,6 +41,10 @@
   AD8 = 62;   AD9 = 63;   AD10 = 64;  AD11 = 65;
   AD12 = 66;  AD13 = 67;  AD14 = 68;  AD15 = 69;
 */
+
+#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
+  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
+#endif
 
 //
 // Servos
@@ -118,11 +119,11 @@
 
 #define SSR_PIN                                6
 
-// SPI for MAX Thermocouple
+// SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define TEMP_0_CS_PIN                       66  // Don't use 53 if using Display/SD card
+  #define MAX6675_SS_PIN                      66  // Don't use 53 if using Display/SD card
 #else
-  #define TEMP_0_CS_PIN                       66  // Don't use 49 (SD_DETECT_PIN)
+  #define MAX6675_SS_PIN                      66  // Don't use 49 (SD_DETECT_PIN)
 #endif
 
 //

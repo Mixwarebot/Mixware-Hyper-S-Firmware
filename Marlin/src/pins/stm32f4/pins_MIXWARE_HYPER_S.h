@@ -113,7 +113,10 @@
 #define HEATER_0_PIN                        PB9   // HEATER1
 #define HEATER_BED_PIN                      PD12   // HOT BED
 
-#define FAN_PIN                             PA3  // FAN
+#define FAN_PIN                              PA3   // FAN
+#define FAN1_PIN                             PB6   // FAN1(LED)
+#define FAN2_PIN                             PB7   // FAN2(LED)
+#define FAN3_PIN                             PB10  // FAN3(LED)
 
 //
 // Misc. Functions
@@ -292,7 +295,7 @@
 
 
 #define ALLOW_STM32DUINO
-#include "env_validate.h"
+// #include "env_validate.h"
 
 #define USES_DIAG_JUMPERS
 
