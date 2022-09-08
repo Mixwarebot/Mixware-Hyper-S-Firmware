@@ -55,7 +55,7 @@ void lv_draw_about(void) {
     scr = lv_screen_create(ABOUT_UI, MTR.about);
 
     MUI.page_button_return(scr, event_handler, ID_A_RETURN);
-    fw_type = lv_label_create(scr, "Firmware: Mixware Hyper S V1.1.08F");
+    fw_type = lv_label_create(scr, "Firmware: Mixware Hyper S " MIXWARE_UI_VERSION );
     lv_obj_t *fw_type_2 = lv_label_create(scr, "(Based on Marlin " SHORT_BUILD_VERSION ")");
     lv_obj_align(fw_type_2, nullptr, LV_ALIGN_CENTER, 0, -4);
   #endif
