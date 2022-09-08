@@ -130,6 +130,11 @@ void tft_lvgl_init() {
     OUT_WRITE(PB0, LOW);  // HE1
   #endif
 
+  #if PIN_EXISTS(USB_POWER)
+    OUT_WRITE(USB_POWER_PIN, LOW);
+    OUT_WRITE(USB_POWER_PIN, HIGH);
+  #endif
+
   // Init TFT first!
   TERN_(TFT_MIXWARE_LVGL_UI, MUI.image_path_init());
   SPI_TFT.spi_init(SPI_FULL_SPEED);
