@@ -29,6 +29,10 @@
 #include "../../../../inc/MarlinConfig.h"
 #include <string.h>
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../../../feature/powerloss.h"
+#endif
+
 enum {
   ID_CN = 1,
   ID_T_CN,
@@ -49,6 +53,11 @@ extern lv_group_t *g;
 static lv_obj_t *scr;
 static lv_obj_t *buttonCN, *buttonT_CN, *buttonEN, *buttonRU;
 static lv_obj_t *buttonES, *buttonFR, *buttonIT;
+
+#if ENABLED(TFT_MIXWARE_LVGL_UI)
+extern uint8_t sel_id;
+extern bool flash_preview_begin, default_preview_flg;
+#endif
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
@@ -119,7 +128,40 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       buttonFR   = nullptr;
       buttonIT   = nullptr;
       lv_clear_language();
-      lv_draw_set();
+
+      #if DISABLED(TFT_MIXWARE_LVGL_UI)
+          lv_draw_set();
+      #else
+        if (disp_state_stack._disp_index < 2) {
+          #if ENABLED(POWER_LOSS_RECOVERY)
+            recovery.load();
+            if (recovery.valid()) {
+              if (gCfgItems.from_flash_pic)
+                flash_preview_begin = true;
+              else
+                default_preview_flg = true;
+
+              uiCfg.print_state = REPRINTING;
+
+              #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+                strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
+                card.printLongPath(public_buf_m);
+                strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[0]));
+              #else
+                strncpy(list_file.long_name[sel_id], recovery.info.sd_filename, sizeof(list_file.long_name[0]));
+              #endif
+              strncpy(list_file.file_name[sel_id], card.longFilename, sizeof(list_file.file_name[0]));
+              lv_draw_printing();
+            }
+            else
+          #endif
+          lv_draw_ready_print();
+        }
+        else {
+          lv_draw_set();
+        }
+      #endif
+
       break;
   }
 }
@@ -179,13 +221,15 @@ static void disp_language(uint8_t language, uint8_t state) {
       obj = buttonIT;
       break;
     default:
-      id = ID_CN;
       #if DISABLED(TFT_MIXWARE_LVGL_UI)
+        id = ID_CN;
         strcpy_P(public_buf_l, PSTR("F:/bmp_simplified_cn"));
+        obj = buttonCN;
       #else
-        strcpy_P(public_buf_l, PSTR("F:/img_language_zh_CN"));
+        id = ID_EN;
+        strcpy_P(public_buf_l, PSTR("F:/img_language_En"));
+        obj = buttonEN;
       #endif
-      obj = buttonCN;
       break;
   }
 

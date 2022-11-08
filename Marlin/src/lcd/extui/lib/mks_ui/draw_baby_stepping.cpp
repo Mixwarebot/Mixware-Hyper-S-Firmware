@@ -144,7 +144,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
         default: break;
         }
-        gcode.process_subcommands_now(PSTR(baby_buf));
+        gcode.process_subcommands_now_P(PSTR(baby_buf));
         break;
       case ID_BABYSTEP_DEC:
         switch (MPRE.move_axis)
@@ -155,7 +155,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
         default: break;
         }
-        gcode.process_subcommands_now(PSTR(baby_buf));
+        gcode.process_subcommands_now_P(PSTR(baby_buf));
         break;
     #endif
   }

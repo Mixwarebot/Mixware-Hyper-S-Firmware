@@ -32,7 +32,7 @@ typedef struct {
 } DIR_OFFSET;
 extern DIR_OFFSET dir_offset[10];
 
-#define FILE_NUM 6
+#define FILE_NUM 5
 #define SHORT_NAME_LEN 13
 #define NAME_CUT_LEN 23
 

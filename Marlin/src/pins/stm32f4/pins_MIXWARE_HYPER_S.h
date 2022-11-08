@@ -40,8 +40,8 @@
 // Use Flash-based EEPROM emulation
 #define FLASH_EEPROM_EMULATION
 #define FLASH_EEPROM_LEVELING
-#define FLASH_ADDRESS_START                 0x08070000
-#define MARLIN_EEPROM_SIZE                  0x1000  // 4K
+// #define FLASH_ADDRESS_START                 0x08070000
+// #define MARLIN_EEPROM_SIZE                  0x1000  // 4K
 
 //
 // Servos

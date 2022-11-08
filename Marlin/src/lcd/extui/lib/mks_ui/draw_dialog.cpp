@@ -72,7 +72,6 @@ extern int upload_result;
 extern uint32_t upload_time;
 extern uint32_t upload_size;
 extern bool temps_update_flag;
-extern char public_buf_t[30];
 
 extern bool flash_preview_begin, default_preview_flg;
 
@@ -159,8 +158,8 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
             return;
           }
 
-          gcode.process_subcommands_now(PSTR("M140 S50"));//TEST
-          gcode.process_subcommands_now(PSTR("M104 S170"));//TEST
+          gcode.process_subcommands_now_P(PSTR("M140 S50"));//TEST
+          gcode.process_subcommands_now_P(PSTR("M104 S170"));//TEST
 
           reset_print_time();
           start_print_time();
@@ -329,14 +328,14 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
       }
     }
     else if (DIALOG_IS(EHEATINGMODE_NORMAL)) {
-      gcode.process_subcommands_now(mixware_ui.HEATINGMODE_NORMAL_CMD);
+      gcode.process_subcommands_now_P(mixware_ui.HEATINGMODE_NORMAL_CMD);
       MUI.set_heating_mode_temperature(M_EHEATING_MODE_NORMAL_TEMP);
       update_spi_flash();
       lv_clear_cur_ui();
       lv_draw_return_ui();
     }
     else if (DIALOG_IS(EHEATINGMODE_HIGH)) {
-      gcode.process_subcommands_now(mixware_ui.HEATINGMODE_HIGH_CMD);
+      gcode.process_subcommands_now_P(mixware_ui.HEATINGMODE_HIGH_CMD);
       MUI.set_heating_mode_temperature(M_EHEATING_MODE_HIGH_TEMP);
       update_spi_flash();
       lv_clear_cur_ui();
@@ -463,7 +462,7 @@ static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
     if (!all_axes_trusted())
       queue.enqueue_one_P(PSTR("M410"));
     else
-      gcode.process_subcommands_now(PSTR("M410"));
+      gcode.process_subcommands_now_P(PSTR("M410"));
 
     lv_clear_cur_ui();
     lv_draw_return_ui();

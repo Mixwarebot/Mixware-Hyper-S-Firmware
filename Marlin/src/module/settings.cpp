@@ -152,7 +152,7 @@
 #if ENABLED(SOUND_MENU_ITEM)
   #include "../libs/buzzer.h"
 #endif
-
+#include "../lcd/extui/lib/mks_ui/draw_ui.h"
 #pragma pack(push, 1) // No padding between variables
 
 #if HAS_ETHERNET
@@ -2932,6 +2932,7 @@ void MarlinSettings::reset() {
   DEBUG_ECHOLNPGM("Hardcoded Default Settings Loaded");
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
+  TERN_(TFT_MIXWARE_LVGL_UI, gCfgItems_reset());
 }
 
 #if DISABLED(DISABLE_M503)
