@@ -81,7 +81,6 @@ lv_point_t MixwareUI::page_line_pos[8][2] = {
     {{PARA_UI_POS_X, PARA_UI_POS_Y * 8 + PARA_UI_SIZE_Y}, {TFT_WIDTH, PARA_UI_POS_Y * 8 + PARA_UI_SIZE_Y}}
 };
 
-
 void MixwareUI::translator_init()
 {
   MTR.print                           = MTRLANG(PRINT);
@@ -659,7 +658,7 @@ static void eventHandler(lv_obj_t *obj, lv_event_t event)
       if (bak_thermal_protection)
         MUI.set_thermal_protection(false);
       MUI.page_device_debug_reset_label();
-      gcode.process_subcommands_now(PSTR("M107"));
+      gcode.process_subcommands_now_P(PSTR("M107"));
       device_debug_state_next = MDEVICEDEBUGTEMP_E;
       lv_label_set_text(l_debug, MTR.debugDevWorking);
     }
@@ -682,7 +681,7 @@ static void eventHandler(lv_obj_t *obj, lv_event_t event)
     }
 
     b_motor_ok = false;
-    gcode.process_subcommands_now(PSTR("M107"));
+    gcode.process_subcommands_now_P(PSTR("M107"));
     MUI.set_thermal_protection(bak_thermal_protection);
 
     MUI.page_clear();
@@ -778,7 +777,7 @@ void MixwareUI::update_z_axis_debug() {
       if (uiCfg.leveling_first_time) {
         uiCfg.leveling_first_time = false;
         if (!all_axes_trusted())
-          gcode.process_subcommands_now(PSTR("G28"));
+          gcode.process_subcommands_now_P(PSTR("G28"));
       }
       else {
         if (!planner.has_blocks_queued()) {
@@ -1023,6 +1022,7 @@ void MixwareUI::page_device_debug_label(lv_coord_t y, const char *text) {
 }
 
 void MixwareUI::update_device_debug() {
+  char cmd[80];
   static float cur_temp;
   static bool b_bitouch;
 
@@ -1104,14 +1104,14 @@ void MixwareUI::update_device_debug() {
           break;
       #endif
       case MDEVICEDEBUGFAN:
-        gcode.process_subcommands_now(PSTR("M106 S255"));
+        gcode.process_subcommands_now_P(PSTR("M106 S255"));
         while(planner.has_blocks_queued())
           watchdog_refresh();
         lv_label_set_text(l_fan, PSTR("ON"));
         device_debug_state_next++;
         break;
       case MDEVICEDEBUGHOME_X:
-        gcode.process_subcommands_now(PSTR("G91\nG1 X10 F1200\nG90"));
+        gcode.process_subcommands_now_P(PSTR("G91\nG1 X10 F1200\nG90"));
         while(planner.has_blocks_queued())
           watchdog_refresh();
         if (READ(X_MIN_PIN) == !X_MIN_ENDSTOP_INVERTING) {
@@ -1121,7 +1121,7 @@ void MixwareUI::update_device_debug() {
           break;
         }
 
-        gcode.process_subcommands_now(PSTR("G28X"));
+        gcode.process_subcommands_now_P(PSTR("G28X"));
         while(planner.has_blocks_queued())
           watchdog_refresh();
         if (READ(X_MIN_PIN) == X_MIN_ENDSTOP_INVERTING) {
@@ -1131,7 +1131,7 @@ void MixwareUI::update_device_debug() {
           break;
         }
 
-        gcode.process_subcommands_now(PSTR("G0 X85 F1200"));
+        gcode.process_subcommands_now_P(PSTR("G0 X85 F1200"));
         while(planner.has_blocks_queued())
           watchdog_refresh();
         if (READ(X_MIN_PIN) == !X_MIN_ENDSTOP_INVERTING) {
@@ -1142,13 +1142,14 @@ void MixwareUI::update_device_debug() {
         }
 
         planner.synchronize();
-        queue.inject(PSTR("G1 X255 F3000\nG1 X285 F1000\nG1 X185 F2400\nG1 X10 F4200"));
+        sprintf_P(cmd, PSTR("G1 X255 F3000\nG1 X285 F1000\nG1 X185 F2400\nG1 X10 F4200"));
+        queue.inject(cmd);
 
         b_motor_ok = true;
         h_timer = millis() + 10000;
         break;
       case MDEVICEDEBUGHOME_Y:
-        gcode.process_subcommands_now(PSTR("G91\nG1 Y10 F1200\nG90"));
+        gcode.process_subcommands_now_P(PSTR("G91\nG1 Y10 F1200\nG90"));
         while(planner.has_blocks_queued())
           watchdog_refresh();
         if (READ(Y_MIN_PIN) == !Y_MIN_ENDSTOP_INVERTING) {
@@ -1158,7 +1159,7 @@ void MixwareUI::update_device_debug() {
           break;
         }
 
-        gcode.process_subcommands_now(PSTR("G28Y"));
+        gcode.process_subcommands_now_P(PSTR("G28Y"));
         while(planner.has_blocks_queued())
           watchdog_refresh();
         if (READ(Y_MIN_PIN) == Y_MIN_ENDSTOP_INVERTING) {
@@ -1168,7 +1169,7 @@ void MixwareUI::update_device_debug() {
           break;
         }
 
-        gcode.process_subcommands_now(PSTR("G0 Y85 F1200"));
+        gcode.process_subcommands_now_P(PSTR("G0 Y85 F1200"));
         while(planner.has_blocks_queued())
           watchdog_refresh();
         if (READ(Y_MIN_PIN) == !Y_MIN_ENDSTOP_INVERTING) {
@@ -1179,13 +1180,14 @@ void MixwareUI::update_device_debug() {
         }
 
         planner.synchronize();
-        queue.inject(PSTR("G1 Y255 F3000\nG1 Y285 F1000\nG1 Y185 F2400\nG1 Y10 F4200"));
+        sprintf_P(cmd, PSTR("G1 Y255 F3000\nG1 Y285 F1000\nG1 Y185 F2400\nG1 Y10 F4200"));
+        queue.inject(cmd);
 
         b_motor_ok = true;
         h_timer = millis() + 10000;
         break;
       case MDEVICEDEBUGHOME_Z:
-        gcode.process_subcommands_now(PSTR("G91\nG1 Z10 F1200\nG90"));
+        gcode.process_subcommands_now_P(PSTR("G91\nG1 Z10 F1200\nG90"));
         while(planner.has_blocks_queued())
           watchdog_refresh();
         if (READ(Z_MIN_PIN) == !Z_MIN_ENDSTOP_INVERTING) {
@@ -1195,7 +1197,7 @@ void MixwareUI::update_device_debug() {
           break;
         }
 
-        gcode.process_subcommands_now(PSTR("G28Z\nG1 Z0"));
+        gcode.process_subcommands_now_P(PSTR("G28Z\nG1 Z0"));
         while(planner.has_blocks_queued())
           watchdog_refresh();
         if (READ(Z_MIN_PIN) == Z_MIN_ENDSTOP_INVERTING) {
@@ -1205,7 +1207,7 @@ void MixwareUI::update_device_debug() {
           break;
         }
 
-        gcode.process_subcommands_now(PSTR("G0 Z185 F1200"));
+        gcode.process_subcommands_now_P(PSTR("G0 Z185 F1200"));
         while(planner.has_blocks_queued())
           watchdog_refresh();
         if (READ(Z_MIN_PIN) == !Z_MIN_ENDSTOP_INVERTING) {
@@ -1216,18 +1218,20 @@ void MixwareUI::update_device_debug() {
         }
 
         planner.synchronize();
-        queue.inject(PSTR("G1 Z325 F2200\nG1 Z385 F600\nG1 Z235 F2000\nG1 Z10 F1200"));
+        sprintf_P(cmd, PSTR("G1 Z325 F2200\nG1 Z385 F600\nG1 Z235 F2000\nG1 Z10 F1200"));
+        queue.inject(cmd);
 
         b_motor_ok = true;
         h_timer = millis() + 10000;
         break;
       case MDEVICEDEBUGHOME_E:
-        gcode.process_subcommands_now(PSTR("G0 X150 Y150 Z100 F2000"));
+        gcode.process_subcommands_now_P(PSTR("G0 X150 Y150 Z100 F2000"));
         while(planner.has_blocks_queued())
           watchdog_refresh();
 
         planner.synchronize();
-        queue.inject(PSTR("T0\nG91\nG1 E10 F100\nG1 E-80 F800\nG1 E40 F200\nG90"));
+        sprintf_P(cmd, PSTR("T0\nG91\nG1 E10 F100\nG1 E-80 F800\nG1 E40 F200\nG90"));
+        queue.inject(cmd);
 
         b_motor_ok = true;
         h_timer = millis() + 10000;
@@ -1254,7 +1258,7 @@ void MixwareUI::update_device_debug() {
 
         device_debug_state = device_debug_state_next = MDEVICEDEBUGNULL;
         lv_label_set_text(l_debug, MTR.debugDevConfirm);
-        gcode.process_subcommands_now(PSTR("M107\nM84"));
+        gcode.process_subcommands_now_P(PSTR("M107\nM84"));
 
         thermalManager.setTargetHotend(0, uiCfg.desireSprayerTempBak);
         thermalManager.setTargetBed(uiCfg.desireSprayerTempBak);
@@ -1413,24 +1417,19 @@ void MixwareUI::page_draw_z_axis_debug()
 //
 void MixwareUI::update_move_distance()
 {
-  if ((int)(100 * uiCfg.move_dist) == 5)
-  {
+  if ((int)(100 * uiCfg.move_dist) == 5) {
     lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_REL, MIMG.move_distance_mm_1);
     lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_PR, MIMG.move_distance_mm_1);
   }
-  else if ((int)(100 * uiCfg.move_dist) == 10)
-  {
+  else if ((int)(100 * uiCfg.move_dist) == 10) {
     lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_REL, MIMG.move_distance_mm_10);
     lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_PR, MIMG.move_distance_mm_10);
   }
-  if (gCfgItems.multiple_language != 0)
-  {
-    if ((int)(100 * uiCfg.move_dist) == 5)
-    {
+  if (gCfgItems.multiple_language != 0) {
+    if ((int)(100 * uiCfg.move_dist) == 5) {
       lv_label_set_text(labelStep, MTR.move_distance_mm_0_0_5);
     }
-    else if ((int)(100 * uiCfg.move_dist) == 10)
-    {
+    else if ((int)(100 * uiCfg.move_dist) == 10) {
       lv_label_set_text(labelStep, MTR.move_distance_mm_0_1);
     }
     lv_obj_align(labelStep, buttonStep, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET-10);

@@ -132,8 +132,8 @@
 #define MTR_EHEATMODE_HIGH_EN               "High Temp.\n    Mode"
 #define MTR_EHEATMODE_CUR_NORMAL_EN         "Current Heating Mode:\n     Normal Mode"
 #define MTR_EHEATMODE_CUR_HIGH_EN           "Current Heating Mode:\nHigh Temperature Mode"
-#define MTR_EHEATMODE_TIPS_NORMAL_EN        "  click <confirm> for switching to\n        Normal Heating Mode.\n(This mode needs to be configured\n     with normal nozzle module)"
-#define MTR_EHEATMODE_TIPS_HIGH_EN          "    click <confirm> for switching to\n         High Temperature Mode.\n  (This mode needs to be configured\nwith high temperature nozzle module)"
+#define MTR_EHEATMODE_TIPS_NORMAL_EN        "  Click <confirm> for switching to\n        Normal Heating Mode.\n(This mode needs to be configured\n     with normal nozzle module)"
+#define MTR_EHEATMODE_TIPS_HIGH_EN          "    Click <confirm> for switching to\n         High Temperature Mode.\n  (This mode needs to be configured\nwith high temperature nozzle module)"
 #define MTR_EHEATMODE_TIPS_EN               "High Temperature Mode"
 #define MTR_EHEATMODE_TIPS_ABB_EN           "HIGH Temp."
 
@@ -170,12 +170,12 @@
 #define MTR_DEBUG_ZAXIS_WORKING_EN          "Z-axis debugging..."
 
 #define MTR_PRINT_AGAIN_EN                  "Print Again"
-#define MTR_PRINT_TIPS_SAVEOFFSET_EN        "Babystep has been used, you can use\n<save and exit> to save parameters."
+#define MTR_PRINT_TIPS_SAVEOFFSET_EN        "Babystep has been used, you can use\n<Save and Exit> to save parameters."
 #define MTR_PRINT_TIPS_SAVE_EN              "Save & Exit"
 #define MTR_PRINT_PAUSE_EN                  "Pause"
 #define MTR_PRINT_RESUME_EN                 "Remuse"
 #define MTR_PRINT_STOP_EN                   "Stop"
-#define MTR_PRINT_NOFILE_TIPS_EN            "Error:no file, please check it again."
+#define MTR_PRINT_NOFILE_TIPS_EN            "Error: No file, please check it again."
 
 #define MTR_PAGE_PREV_EN                    "Previous"
 #define MTR_PAGE_NEXT_EN                    "Next"

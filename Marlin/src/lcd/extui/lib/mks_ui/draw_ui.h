@@ -30,7 +30,7 @@
 #undef LV_COLOR_BACKGROUND
 #define LV_COLOR_BACKGROUND LV_COLOR_MAKE(0x1A, 0x1A, 0x1A)
 
-#define TFT_LV_PARA_BACK_BODY_COLOR  LV_COLOR_MAKE(0x4A, 0x52, 0xFF)
+// #define TFT_LV_PARA_BACK_BODY_COLOR  LV_COLOR_MAKE(0x4A, 0x52, 0xFF)
 
 #include "tft_lvgl_configuration.h"
 #include "tft_multi_language.h"
@@ -114,52 +114,52 @@
   #define INTERVAL_H          2   // TFT_screen.gap_h // 2
   #define INTERVAL_V          2   // TFT_screen.gap_v // 2
   #define BTN_X_PIXEL       117   // TFT_screen.btn_x_pixel
-  #define BTN_Y_PIXEL       140   // TFT_screen.btn_y_pixel
+  // #define BTN_Y_PIXEL       140   // TFT_screen.btn_y_pixel
 
   #define SIMPLE_FIRST_PAGE_GRAP   30
 
-  #define BUTTON_TEXT_Y_OFFSET    -20
+  // #define BUTTON_TEXT_Y_OFFSET    -20
 
   #define TITLE_XPOS          3    // TFT_screen.title_xpos
   #define TITLE_YPOS          5    // TFT_screen.title_ypos
 
-  #define FILE_BTN_CNT        6
+  // #define FILE_BTN_CNT        6
 
   #define OTHER_BTN_XPIEL   117
   #define OTHER_BTN_YPIEL    92
 
   #define FILE_PRE_PIC_X_OFFSET 8
-  #define FILE_PRE_PIC_Y_OFFSET 0
+  // #define FILE_PRE_PIC_Y_OFFSET 0
 
   #define PREVIEW_LITTLE_PIC_SIZE  40910  // 400*100+9*101+1
   #define PREVIEW_SIZE      202720        // (PREVIEW_LITTLE_PIC_SIZE+800*200+201*9+1)
 
   // machine parameter ui
   #define PARA_UI_POS_X             10
-  #define PARA_UI_POS_Y             50
+  // #define PARA_UI_POS_Y             50
 
-  #define PARA_UI_SIZE_X            450
+  // #define PARA_UI_SIZE_X            450
   #define PARA_UI_SIZE_Y            40
 
   #define PARA_UI_ARROW_V           12
   #define PARA_UI_ITEM_TEXT_V       10
   #define PARA_UI_ITEM_TEXT_H       10
 
-  #define PARA_UI_BACL_POS_X        400
-  #define PARA_UI_BACL_POS_Y        270
+  // #define PARA_UI_BACL_POS_X        400
+  // #define PARA_UI_BACL_POS_Y        270
 
-  #define PARA_UI_TURN_PAGE_POS_X   320
-  #define PARA_UI_TURN_PAGE_POS_Y   270
+  // #define PARA_UI_TURN_PAGE_POS_X   320
+  // #define PARA_UI_TURN_PAGE_POS_Y   270
 
   #define PARA_UI_VALUE_SIZE_X      370
-  #define PARA_UI_VALUE_POS_X       400
+  // #define PARA_UI_VALUE_POS_X       400
   #define PARA_UI_VALUE_V           5
 
-  #define PARA_UI_STATE_POS_X       380
+  // #define PARA_UI_STATE_POS_X       380
   #define PARA_UI_STATE_V           2
 
   #define PARA_UI_VALUE_SIZE_X_2    200
-  #define PARA_UI_VALUE_POS_X_2     320
+  // #define PARA_UI_VALUE_POS_X_2     320
   #define PARA_UI_VALUE_V_2         5
 
   #define PARA_UI_VALUE_BTN_X_SIZE  70
@@ -168,8 +168,8 @@
   #define PARA_UI_TURN_BTN_X_SIZE   70
   #define PARA_UI_TURN_BTN_Y_SIZE   40
 
-  #define PARA_UI_BACK_BTN_X_SIZE   70
-  #define PARA_UI_BACK_BTN_Y_SIZE   40
+  // #define PARA_UI_BACK_BTN_X_SIZE   70
+  // #define PARA_UI_BACK_BTN_Y_SIZE   40
 
   #define QRCODE_X                  20
   #define QRCODE_Y                  40
@@ -486,6 +486,7 @@ extern lv_style_t style_btn_rel;
 
 extern lv_point_t line_points[4][2];
 
+extern void gCfgItems_reset();
 extern void gCfgItems_init();
 extern void ui_cfg_init();
 extern void tft_style_init();

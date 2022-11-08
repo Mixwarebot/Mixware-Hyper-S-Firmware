@@ -91,10 +91,65 @@ lv_point_t line_points[4][2] = {
   {{PARA_UI_POS_X, PARA_UI_POS_Y*3 + PARA_UI_SIZE_Y}, {TFT_WIDTH, PARA_UI_POS_Y*3 + PARA_UI_SIZE_Y}},
   {{PARA_UI_POS_X, PARA_UI_POS_Y*4 + PARA_UI_SIZE_Y}, {TFT_WIDTH, PARA_UI_POS_Y*4 + PARA_UI_SIZE_Y}}
 };
+
+void gCfgItems_reset() {
+  gCfgItems.multiple_language             = MULTI_LANGUAGE_ENABLE;
+  gCfgItems.language                      = LANG_UNSELECTED;
+  gCfgItems.leveling_mode                 = 0;
+  gCfgItems.from_flash_pic                = false;
+  gCfgItems.curFilesize                   = 0;
+  gCfgItems.finish_power_off              = false;
+  gCfgItems.pause_reprint                 = false;
+  gCfgItems.pausePosX                     = 2;
+  gCfgItems.pausePosY                     = 0;
+  gCfgItems.pausePosZ                     = 15;
+  gCfgItems.levelingPos[0][0]             = X_MIN_POS + 30;
+  gCfgItems.levelingPos[0][1]             = Y_MIN_POS + 30;
+  gCfgItems.levelingPos[1][0]             = X_MAX_POS - 30;
+  gCfgItems.levelingPos[1][1]             = Y_MIN_POS + 30;
+  gCfgItems.levelingPos[2][0]             = X_MAX_POS - 30;
+  gCfgItems.levelingPos[2][1]             = Y_MAX_POS - 30;
+  gCfgItems.levelingPos[3][0]             = X_MIN_POS + 30;
+  gCfgItems.levelingPos[3][1]             = Y_MAX_POS - 30;
+  gCfgItems.levelingPos[4][0]             = X_BED_SIZE / 2;
+  gCfgItems.levelingPos[4][1]             = Y_BED_SIZE / 2;
+  gCfgItems.cloud_enable                  = false;
+  gCfgItems.wifi_mode_sel                 = STA_MODEL;
+  gCfgItems.fileSysType                   = FILE_SYS_SD;
+  gCfgItems.wifi_type                     = ESP_WIFI;
+  gCfgItems.filamentchange_load_length    = 100;
+  gCfgItems.filamentchange_load_speed     = 240;
+  gCfgItems.filamentchange_unload_length  = 80;
+  gCfgItems.filamentchange_unload_speed   = 2100;
+  gCfgItems.filament_limit_temper         = 200;
+
+  gCfgItems.encoder_enable = true;
+
+  TERN_(TFT_MIXWARE_LVGL_UI, MUI.preference_init());
+
+  gCfgItems.spi_flash_flag = FLASH_INF_VALID_FLAG;
+  W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
+  W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
+  TERN_(TFT_MIXWARE_LVGL_UI, W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&MPRE.param, VAR_INF_ADDR+2048, sizeof(MPRE.param)));
+
+  const byte rot = (TFT_ROTATION & TFT_ROTATE_180) ? 0xEE : 0x00;
+  if (gCfgItems.disp_rotation_180 != rot) {
+    gCfgItems.disp_rotation_180 = rot;
+    update_spi_flash();
+  }
+
+  uiCfg.F[0] = 'N';
+  uiCfg.F[1] = 'A';
+  uiCfg.F[2] = 'N';
+  uiCfg.F[3] = 'O';
+  W25QXX.SPI_FLASH_BlockErase(REFLSHE_FLGA_ADD + 32 - 64*1024);
+  W25QXX.SPI_FLASH_BufferWrite(uiCfg.F,REFLSHE_FLGA_ADD,4);
+}
+
 void gCfgItems_init() {
   gCfgItems.multiple_language = MULTI_LANGUAGE_ENABLE;
   #if 1 // LCD_LANGUAGE == en
-    gCfgItems.language = LANG_ENGLISH;
+    gCfgItems.language = LANG_UNSELECTED;
   #elif LCD_LANGUAGE == zh_CN
     gCfgItems.language = LANG_SIMPLE_CHINESE;
   #elif LCD_LANGUAGE == zh_TW
@@ -1561,7 +1616,7 @@ void lv_screen_menu_item_turn_page(lv_obj_t *par, const char *text, lv_event_cb_
 }
 
 void lv_screen_menu_item_return(lv_obj_t *par, lv_event_cb_t cb, const int id) {
-  lv_obj_t* btnReturn = lv_btn_create(par, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE, cb, id);
+  lv_obj_t* btnReturn = lv_btn_create(par, PARA_UI_BACK_POS_X, PARA_UI_BACK_POS_Y, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE, cb, id);
   lv_obj_t* labelReturn = lv_label_create_empty(btnReturn);
   lv_btn_set_style_both(btnReturn, &style_para_back);
   lv_label_set_text(labelReturn, common_menu.text_back);

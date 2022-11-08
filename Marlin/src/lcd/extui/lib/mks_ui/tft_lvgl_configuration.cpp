@@ -233,26 +233,36 @@ void tft_lvgl_init() {
   TERN_(HAS_SERVOS, servo_init());
   TERN_(HAS_Z_SERVO_PROBE, probe.servo_probe_init());
   bool ready = true;
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    recovery.load();
-    if (recovery.valid()) {
+
+  #if ENABLED(TFT_MIXWARE_LVGL_UI)
+    if (gCfgItems.language == LANG_UNSELECTED) {
       ready = false;
-      if (gCfgItems.from_flash_pic)
-        flash_preview_begin = true;
-      else
-        default_preview_flg = true;
+      lv_draw_language();
+    }
+    else
+  #endif
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    {
+      recovery.load();
+      if (recovery.valid()) {
+        ready = false;
+        if (gCfgItems.from_flash_pic)
+          flash_preview_begin = true;
+        else
+          default_preview_flg = true;
 
-      uiCfg.print_state = REPRINTING;
+        uiCfg.print_state = REPRINTING;
 
-      #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
-        strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
-        card.printLongPath(public_buf_m);
-        strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[0]));
-      #else
-        strncpy(list_file.long_name[sel_id], recovery.info.sd_filename, sizeof(list_file.long_name[0]));
-      #endif
-      strncpy(list_file.file_name[sel_id], card.longFilename, sizeof(list_file.file_name[0]));
-      lv_draw_printing();
+        #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+          strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
+          card.printLongPath(public_buf_m);
+          strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[0]));
+        #else
+          strncpy(list_file.long_name[sel_id], recovery.info.sd_filename, sizeof(list_file.long_name[0]));
+        #endif
+        strncpy(list_file.file_name[sel_id], card.longFilename, sizeof(list_file.file_name[0]));
+        lv_draw_printing();
+      }
     }
   #endif
 

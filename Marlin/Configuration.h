@@ -559,6 +559,7 @@
  */
 #define PREVENT_COLD_EXTRUSION
 #define EXTRUDE_MINTEMP 170
+#define HOTBED_MINTEMP 50
 
 /**
  * Prevent a single extrusion longer than EXTRUDE_MAXLENGTH.

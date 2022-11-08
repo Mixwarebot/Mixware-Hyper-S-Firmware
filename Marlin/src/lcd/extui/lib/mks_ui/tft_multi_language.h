@@ -31,6 +31,7 @@
 
 extern void disp_language_init();
 
+#define LANG_UNSELECTED        0
 #define LANG_SIMPLE_CHINESE    1
 #define LANG_COMPLEX_CHINESE   2
 #define LANG_ENGLISH           3
