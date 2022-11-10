@@ -1696,6 +1696,10 @@ void LV_TASK_HANDLER() {
     if (gCfgItems.encoder_enable) lv_update_encoder();
   #endif
   TERN_(TFT_MIXWARE_LVGL_UI, lv_print_finished());
+
+
+  if (uiCfg.print_state == WORKING)
+    filament_check();
 }
 
 #endif // HAS_TFT_LVGL_UI
