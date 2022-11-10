@@ -81,8 +81,7 @@ lv_point_t MixwareUI::page_line_pos[8][2] = {
     {{PARA_UI_POS_X, PARA_UI_POS_Y * 8 + PARA_UI_SIZE_Y}, {TFT_WIDTH, PARA_UI_POS_Y * 8 + PARA_UI_SIZE_Y}}
 };
 
-void MixwareUI::translator_init()
-{
+void MixwareUI::translator_init() {
   MTR.print                           = MTRLANG(PRINT);
   MTR.tool                            = MTRLANG(TOOL);
   MTR.set                             = MTRLANG(SETTINGS);
@@ -229,8 +228,7 @@ void MixwareUI::translator_init()
   MTR.babystep                        = MTRLANG(BABYSTEP);
 }
 
-void MixwareUI::text_revision_init()
-{
+void MixwareUI::text_revision_init() {
   MTR.main                            = MTR_MAIN;
   MTR.tempRange1c                     = MTR_TEMPERATURE_RANGE_1C;
   MTR.tempRange5c                     = MTR_TEMPERATURE_RANGE_5C;
@@ -264,8 +262,7 @@ void MixwareUI::text_revision_init()
   translator_init();
 }
 
-void MixwareUI::image_path_init()
-{
+void MixwareUI::image_path_init() {
   MIMG.homeAll                        = MIMAGEPATH(MIMG_N_HOME_ALL);
   MIMG.homeX                          = MIMAGEPATH(MIMG_N_HOME_X);
   MIMG.homeY                          = MIMAGEPATH(MIMG_N_HOME_Y);
@@ -383,8 +380,7 @@ void MixwareUI::image_path_init()
   MIMG.disable                        = MIMAGEPATH(MIMG_N_DISABLE);
 }
 
-void MixwareUI::preference_init()
-{
+void MixwareUI::preference_init() {
   MPRE.is_z_offset_changed = false;
   MPRE.is_z_axis_debug_fast_mode = false;
   MPRE.is_filament_broken = false;
@@ -398,8 +394,7 @@ void MixwareUI::preference_init()
   p_babystep.init();
 }
 
-void MixwareUI::style_init()
-{
+void MixwareUI::style_init() {
   lv_style_copy(&page_label_style, &tft_style_label_rel);
   page_label_style.text.color          = TFT_LV_PARA_BACK_BODY_COLOR;
   page_label_style.text.sel_color      = TFT_LV_PARA_BACK_BODY_COLOR;
@@ -432,8 +427,7 @@ void MixwareUI::style_init()
 //
 //  page button
 //
-void MixwareUI::page_button_add_tips(lv_obj_t *button)
-{
+void MixwareUI::page_button_add_tips(lv_obj_t *button) {
   lv_obj_t *tips = lv_label_create(button, MTR.clickTips);
   lv_obj_align(tips, button, LV_ALIGN_IN_BOTTOM_MID, 0, 2);
 }
@@ -441,8 +435,7 @@ void MixwareUI::page_button_add_tips(lv_obj_t *button)
 //
 // page placeholder, Effectively prevent image duplication bugs (lvgl 6.1)
 //
-void MixwareUI::page_placeholder(lv_obj_t *par, lv_coord_t x, lv_coord_t y)
-{
+void MixwareUI::page_placeholder(lv_obj_t *par, lv_coord_t x, lv_coord_t y) {
   lv_obj_t *_placeholder = lv_img_create(par, nullptr); // Empty picture.
   lv_img_set_src(_placeholder, MIMG.placeholder);
   lv_obj_set_pos(_placeholder, x, y);
@@ -465,8 +458,7 @@ void MixwareUI::page_tips_main(lv_obj_t *par) {
   }
 }
 
-lv_obj_t *MixwareUI::page_label(lv_obj_t *par, const char *text)
-{
+lv_obj_t *MixwareUI::page_label(lv_obj_t *par, const char *text) {
   lv_obj_t *label = lv_label_create_empty(par);
   if (text)
     lv_label_set_text(label, text);
@@ -475,8 +467,7 @@ lv_obj_t *MixwareUI::page_label(lv_obj_t *par, const char *text)
   return label;
 }
 
-void MixwareUI::page_bottom_button(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id)
-{
+void MixwareUI::page_bottom_button(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id) {
   lv_obj_t *button = lv_btn_create(par, x, y, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE, cb, id);
   lv_obj_t *label = lv_label_create_empty(button);
   lv_btn_set_style_both(button, &style_para_back);
@@ -484,28 +475,23 @@ void MixwareUI::page_bottom_button(lv_obj_t *par, const char *text, lv_coord_t x
   lv_obj_align(label, button, LV_ALIGN_CENTER, 0, 0);
 }
 
-void MixwareUI::screen_bottom_button_left(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id)
-{
+void MixwareUI::screen_bottom_button_left(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id) {
   page_bottom_button(par, text, BOTTOMBTN_P_LX, BOTTOMBTN_P_Y, cb, id);
 }
 
-void MixwareUI::page_bottom_button_middle(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id)
-{
+void MixwareUI::page_bottom_button_middle(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id) {
   page_bottom_button(par, text, BOTTOMBTN_P_MX, BOTTOMBTN_P_Y, cb, id);
 }
 
-void MixwareUI::page_bottom_button_right(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id)
-{
+void MixwareUI::page_bottom_button_right(lv_obj_t *par, const char *text, lv_event_cb_t cb, const int id) {
   page_bottom_button(par, text, BOTTOMBTN_P_RX, BOTTOMBTN_P_Y, cb, id);
 }
 
-void MixwareUI::page_button_return(lv_obj_t *par, lv_event_cb_t cb, const int id)
-{
+void MixwareUI::page_button_return(lv_obj_t *par, lv_event_cb_t cb, const int id) {
   page_bottom_button_right(par, MTR.back, cb, id);
 }
 
-lv_obj_t *MixwareUI::page_push_button(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id)
-{
+lv_obj_t *MixwareUI::page_push_button(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id) {
   lv_obj_t *btn = lv_btn_create(par, x, y, TOOLBTN_WIDTH, TOOLBTN_HEIGHT, cb, id);
   lv_obj_t *label = lv_label_create_empty(btn);
   lv_btn_set_style_both(btn, &page_button_style);
@@ -515,25 +501,21 @@ lv_obj_t *MixwareUI::page_push_button(lv_obj_t *par, const char *text, lv_coord_
   return btn;
 }
 
-lv_obj_t* MixwareUI::page_button_enabled(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const bool curValue)
-{
+lv_obj_t* MixwareUI::page_button_enabled(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const bool curValue) {
   lv_screen_menu_item(par, text, x, y, cb, -1, index, false);
   lv_obj_t *btnValue = lv_imgbtn_create(par, curValue ? MIMG.enable : MIMG.disable, PARA_UI_BACK_POS_X + 25, y + PARA_UI_STATE_V, cb, id);
   return btnValue;
 }
 
-void MixwareUI::update_button_enabled(lv_obj_t *btn, const bool curValue)
-{
+void MixwareUI::update_button_enabled(lv_obj_t *btn, const bool curValue) {
   lv_imgbtn_set_src_both(btn, curValue ? MIMG.enable : MIMG.disable);
 }
 
-static void eventHandler(lv_obj_t *obj, lv_event_t event)
-{
+static void eventHandler(lv_obj_t *obj, lv_event_t event) {
   char str_1[16];
   if (event != LV_EVENT_RELEASED)
     return;
-  switch (obj->mks_obj_id)
-  {
+  switch (obj->mks_obj_id) {
   case ID_LEVEL:
     break;
   case ID_LEVEL_SELECT:
@@ -556,13 +538,11 @@ static void eventHandler(lv_obj_t *obj, lv_event_t event)
     break;
   case ID_LEVEL_REBACK:
     MUI.page_clear();
-    if (uiCfg.para_ui_page)
-    {
+    if (uiCfg.para_ui_page) {
       uiCfg.para_ui_page = 0;
       MUI.page_draw_leveling();
     }
-    else
-    {
+    else {
       disp_state_stack._disp_index = 2;
       lv_draw_tool();
     }
@@ -574,17 +554,14 @@ static void eventHandler(lv_obj_t *obj, lv_event_t event)
     lv_draw_dialog(DIALOG_ADJUST_Z_HEIGHT_WAIT_START);
     break;
   case ID_ZOFFSET_ADD:
-    if (queue.length <= (BUFSIZE - 3))
-    {
-      if (uiCfg.leveling_first_time)
-      {
+    if (queue.length <= (BUFSIZE - 3)) {
+      if (uiCfg.leveling_first_time) {
         if (!all_axes_trusted())
           queue.enqueue_now_P(PSTR("G28"));
         queue.enqueue_now_P(PSTR("G1 X150 Y150\nG1 Z0"));
         uiCfg.leveling_first_time = false;
       }
-      else
-      {
+      else {
         ZERO(public_buf_l);
         queue.enqueue_now_P(PSTR("G91"));
         sprintf_P(public_buf_l, PSTR("G1 Z%s F300"), dtostrf(uiCfg.move_dist, 1, 2, str_1));
@@ -596,17 +573,14 @@ static void eventHandler(lv_obj_t *obj, lv_event_t event)
     }
     break;
   case ID_ZOFFSET_DEC:
-    if (queue.length <= (BUFSIZE - 3))
-    {
-      if (uiCfg.leveling_first_time)
-      {
+    if (queue.length <= (BUFSIZE - 3)) {
+      if (uiCfg.leveling_first_time) {
         if (!all_axes_trusted())
           queue.enqueue_now_P(PSTR("G28"));
         queue.enqueue_now_P(PSTR("G1 X150 Y150\nG1 Z0"));
         uiCfg.leveling_first_time = false;
       }
-      else
-      {
+      else {
         ZERO(public_buf_l);
         queue.enqueue_now_P(PSTR("G91"));
         sprintf_P(public_buf_l, PSTR("G1 Z-%s F300"), dtostrf(uiCfg.move_dist, 1, 2, str_1));
@@ -721,29 +695,24 @@ static void eventHandler(lv_obj_t *obj, lv_event_t event)
     MUI.set_heating_mode_temperature(t);
 
     MUI.page_clear();
-    if (uiCfg.print_state == IDLE)
-    {
+    if (uiCfg.print_state == IDLE) {
       uiCfg.leveling_first_time = true;
       lv_draw_dialog(DIALOG_TYPE_FILAMENT_WAIT_START);
     }
-    else if (uiCfg.print_state == WORKING)
-    {
-#if ENABLED(SDSUPPORT)
-      card.pauseSDPrint();
-      stop_print_time();
-      uiCfg.print_state = PAUSING;
-#endif
+    else if (uiCfg.print_state == WORKING) {
+      #if ENABLED(SDSUPPORT)
+        card.pauseSDPrint();
+        stop_print_time();
+        uiCfg.print_state = PAUSING;
+      #endif
 
       lv_draw_dialog(DIALOG_TYPE_FILAMENT_PAUSING);
     }
-    else
-    {
-      if (uiCfg.filament_load_heat_flg)
-      {
+    else {
+      if (uiCfg.filament_load_heat_flg) {
         lv_draw_dialog(DIALOG_TYPE_FILAMENT_LOAD_HEAT);
       }
-      else if (uiCfg.filament_unload_heat_flg)
-      {
+      else if (uiCfg.filament_unload_heat_flg) {
         lv_draw_dialog(DIALOG_TYPE_FILAMENT_UNLOAD_HEAT);
       }
     }
@@ -790,7 +759,6 @@ void MixwareUI::update_z_axis_debug() {
     }
     else if (DIALOG_IS(AXIS_Z_TEST)) {
       if (uiCfg.leveling_first_time) {
-
         if (MPRE.is_z_axis_debug_fast_mode) {
           gcode.process_subcommands_now_P("G1 X150 Y100 F2000\nG1 Z399 F1500\nG1 Z1 F1500");
         } else {
@@ -890,23 +858,19 @@ void MixwareUI::update_filament_detector() {
 //
 // level mode page
 //
-void MixwareUI::page_draw_leveling()
-{
+void MixwareUI::page_draw_leveling() {
   page_scr = lv_screen_create(AUROLEVEL_UI, MTR.leveling);
 
-  if (!uiCfg.para_ui_page)
-  {
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR) && defined(Z_MIN_PROBE_PIN)
-    if (READ(Z_MIN_PROBE_PIN) == false)
-      lv_big_button_create(page_scr, MIMG.level2, MTR.leveling, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_LEVEL_SELECT);
-    else
-#endif
-      lv_big_button_create(page_scr, MIMG.levelManual, MTR.levelingManual, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_LEVEL_MANUAL);
-
+  if (!uiCfg.para_ui_page)   {
+    #if ENABLED(AUTO_BED_LEVELING_BILINEAR) && defined(Z_MIN_PROBE_PIN)
+      if (READ(Z_MIN_PROBE_PIN) == false)
+        lv_big_button_create(page_scr, MIMG.level2, MTR.leveling, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_LEVEL_SELECT);
+      else
+    #endif
+    lv_big_button_create(page_scr, MIMG.levelManual, MTR.levelingManual, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_LEVEL_MANUAL);
     lv_big_button_create(page_scr, MIMG.zOffset, MTR.offsetZ, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), eventHandler, ID_ZOFFSET);
   }
-  else
-  {
+  else   {
     lv_big_button_create(page_scr, MIMG.levelManual, MTR.levelingManual, IMAGEBTN_P_X(2), IMAGEBTN_P_Y(2), eventHandler, ID_LEVEL_MANUAL);
     lv_big_button_create(page_scr, MIMG.levelAuto, MTR.levelingAuto, IMAGEBTN_P_X(3), IMAGEBTN_P_Y(3), eventHandler, ID_LEVEL_AUTO);
   }
@@ -917,8 +881,7 @@ void MixwareUI::page_draw_leveling()
 //
 //  Nozzle heating mode page
 //
-void MixwareUI::page_draw_heating_mode_setup()
-{
+void MixwareUI::page_draw_heating_mode_setup() {
   page_scr = lv_screen_create(EHEATINGMODE_SETTING_UI, MTR.ADVSeteHeatingMode);
 
   lv_obj_t *button = lv_big_button_create(page_scr, MIMG.placeholder,  " ",  0, 340, eventHandler, -1);
@@ -935,8 +898,7 @@ void MixwareUI::page_draw_heating_mode_setup()
 //
 // Nozzle heating temperature page
 //
-void MixwareUI::page_draw_temperature_adjust()
-{
+void MixwareUI::page_draw_temperature_adjust() {
   page_scr = lv_obj_create(nullptr, nullptr);
   lv_obj_set_style(page_scr, &tft_style_scr);
   lv_scr_load(page_scr);
@@ -948,18 +910,15 @@ void MixwareUI::page_draw_temperature_adjust()
   lv_obj_t *titleLabel = lv_label_create(page_scr, TITLE_XPOS, TITLE_YPOS, MTR.temp);
   lv_obj_set_style(titleLabel, &tft_style_label_rel);
 
-  if (!get_heating_mode())
-  {
+  if (!get_heating_mode())   {
     lv_obj_t *mode = lv_label_create(page_scr, "");
     lv_label_set_text(mode, "HIGH");
     lv_obj_align(mode, nullptr, LV_ALIGN_IN_TOP_RIGHT, 0, 0);
   }
 
   lv_refr_now(lv_refr_get_disp_refreshing());
-  if (uiCfg.para_ui_page == false)
-  {
-    for (int i = 0; i < 10; i++)
-    {
+  if (uiCfg.para_ui_page == false)   {
+    for (int i = 0; i < 10; i++)     {
       int16_t id = ID_EHEATINGTEMP_170c + i * 10;
       if (get_heating_mode_temperature() >= id)
         page_push_button(page_scr, std::to_string(id).c_str(), TOOLBTN_P_X(i), TOOLBTN_P_Y(i), eventHandler, id);
@@ -967,10 +926,8 @@ void MixwareUI::page_draw_temperature_adjust()
     if (get_heating_mode_temperature() >= ID_EHEATINGTEMP_270c)
       page_bottom_button_middle(page_scr, machine_menu.next, eventHandler, ID_EHEATINGTEMP_PAGE_SW);
   }
-  else
-  {
-    for (int i = 0; i < 9; i++)
-    {
+  else   {
+    for (int i = 0; i < 9; i++)     {
       int16_t id = ID_EHEATINGTEMP_270c + i * 10;
       if (get_heating_mode_temperature() >= id)
         page_push_button(page_scr, std::to_string(id).c_str(), TOOLBTN_P_X(i), TOOLBTN_P_Y(i), eventHandler, id);
@@ -1327,8 +1284,7 @@ void MixwareUI::update_device_debug() {
   }
 }
 
-void MixwareUI::page_draw_device_debug()
-{
+void MixwareUI::page_draw_device_debug() {
   page_scr = lv_screen_create(DEBUG_SELFC_UI, MTR.debugDevTitle);
 
   device_debug_state = device_debug_state_next = MDEVICEDEBUGNULL;
@@ -1399,8 +1355,7 @@ void MixwareUI::page_draw_device_debug()
 //
 //  z axis debug page
 //
-void MixwareUI::page_draw_z_axis_debug()
-{
+void MixwareUI::page_draw_z_axis_debug() {
   page_scr = lv_screen_create(ZAXISDEBUG_UI, MTR.debugZTitle);
 
   // Create an Image button
@@ -1415,8 +1370,7 @@ void MixwareUI::page_draw_z_axis_debug()
 //
 // Z Axis offset page
 //
-void MixwareUI::update_move_distance()
-{
+void MixwareUI::update_move_distance() {
   if ((int)(100 * uiCfg.move_dist) == 5) {
     lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_REL, MIMG.move_distance_mm_1);
     lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_PR, MIMG.move_distance_mm_1);
@@ -1436,15 +1390,13 @@ void MixwareUI::update_move_distance()
   }
 }
 
-void MixwareUI::update_offset()
-{
+void MixwareUI::update_offset() {
   char str_1[16];
   sprintf_P(public_buf_l, PSTR("%s mm"), dtostrf(probe.offset.z, 1, 2, str_1));
   lv_label_set_text(labelZOffset, public_buf_l);
 }
 
-void MixwareUI::page_draw_offset_setup()
-{
+void MixwareUI::page_draw_offset_setup() {
   page_scr = lv_screen_create(ZOFFSET_SETTING_UI, MTR.offsetZ);
   bak_zOffset = probe.offset.z;
   MPRE.is_z_offset_changed = false;
@@ -1473,13 +1425,11 @@ void MixwareUI::page_draw_offset_setup()
   page_button_add_tips(buttonStep);
 }
 
-void MixwareUI::page_clear()
-{
+void MixwareUI::page_clear() {
   lv_obj_del(page_scr);
 }
 
-void MixwareUI::update_pause_print_ui()
-{
+void MixwareUI::update_pause_print_ui() {
   // planner.synchronize();  //can not add.
   if (uiCfg.dialogType == DIALOG_RUNOUT_PAUSING) {
     uiCfg.moveSpeed_bak = feedrate_mm_s;
@@ -1516,15 +1466,6 @@ FilamentDetector detector;
 #define FILAMENT_DETECTOR_BLOCK_LENGHT 2400
 #endif
 
-#ifndef FILAMENT_DETECTOR_FILE_START_POS
-#define FILAMENT_DETECTOR_FILE_START_POS 512
-#endif
-
-#ifndef FILAMENT_DETECTOR_EFFECTIVE_LENGTH
-#define FILAMENT_DETECTOR_EFFECTIVE_LENGTH 64
-#define FILAMENT_DETECTOR_EFFECTIVE_GAP (planner.settings.axis_steps_per_mm[E_AXIS] * FILAMENT_DETECTOR_EFFECTIVE_LENGTH)
-#endif
-
 int32_t FilamentDetector::last_pos;
 int32_t FilamentDetector::cur_pos;
 int32_t FilamentDetector::alarm_gap;
@@ -1534,8 +1475,7 @@ int32_t FilamentDetector::cur_gap;
 millis_t FilamentDetector::last_time;
 millis_t FilamentDetector::update_time;
 
-void FilamentDetector::reset()
-{
+void FilamentDetector::reset() {
   WRITE(BEEPER_PIN, LOW);
   MPRE.is_filament_broken = false;
   last_pos = block_count = 0;
@@ -1544,10 +1484,10 @@ void FilamentDetector::reset()
   stop_gap = planner.settings.axis_steps_per_mm[E_AXIS] * FILAMENT_DETECTOR_STOP_GAP;
 }
 
-void FilamentDetector::update()
-{
-  if ((MUI.get_filament_detector_state() == false) || (card.getIndex() < FILAMENT_DETECTOR_FILE_START_POS) || (stepper.position(E_AXIS) < FILAMENT_DETECTOR_EFFECTIVE_GAP)) // || current_position[Z_AXIS] < 0.5
-    return;
+void FilamentDetector::update() {
+  if ((MUI.get_filament_detector_state() == false)
+  || current_position[Z_AXIS] < 0.33
+  ) return;
 
   static uint8_t last_state = 0;
   const uint8_t cur_state = (READ(MT_DET_1_PIN) ? _BV(0) : 0),
@@ -1555,11 +1495,9 @@ void FilamentDetector::update()
   last_state = cur_state;
 
   const int32_t cur_pos = stepper.position(E_AXIS);
-  if (!cur_pos)
-    last_pos = 0;
+  if (!cur_pos) last_pos = 0;
 
-  if (change || !last_pos)
-  {
+  if (change || !last_pos) {
     uint32_t gap = cur_pos - last_pos;
     const millis_t ms = millis();
     update_time = ms - last_time;
@@ -1574,12 +1512,11 @@ void FilamentDetector::update()
   }
 
   cur_gap = cur_pos - last_pos;
-  if (IS_SD_PRINTING())
-    alarm();
+
+  if (IS_SD_PRINTING()) alarm();
 }
 
-void FilamentDetector::check()
-{
+void FilamentDetector::check() {
   update();
 
   if (detector.has_break()) {
@@ -1602,50 +1539,40 @@ void FilamentDetector::check()
   }
 }
 
-void FilamentDetector::alarm()
-{
-  const bool a = (MUI.get_filament_detector_state() && stepper.axis_is_moving(E_AXIS) && last_pos && stepper.position(E_AXIS)) ? (bool)(cur_gap >= alarm_gap) : false;
+void FilamentDetector::alarm() {
+  const bool alm = (MUI.get_filament_detector_state() && stepper.axis_is_moving(E_AXIS) && last_pos && stepper.position(E_AXIS)) ? (bool)(cur_gap >= alarm_gap) : false;
 
-  if (a)
-    WRITE(BEEPER_PIN, HIGH);
-  else
-    WRITE(BEEPER_PIN, LOW);
+  if (alm) WRITE(BEEPER_PIN, HIGH);
+  else WRITE(BEEPER_PIN, LOW);
 }
 
-bool FilamentDetector::has_break()
-{
+bool FilamentDetector::has_break() {
   return (MUI.get_filament_detector_state() && stepper.axis_is_moving(E_AXIS) && last_pos && stepper.position(E_AXIS)) ? (bool)(cur_gap >= stop_gap) : false;
 }
 
-bool FilamentDetector::has_block()
-{
+bool FilamentDetector::has_block() {
   return (bool)(MUI.get_filament_detector_state() && block_count > FILAMENT_DETECTOR_BLOCK_NUMBER);
 }
 
 Printing_Babystep p_babystep;
 
-Printing_Babystep::Printing_Babystep()
-{
+Printing_Babystep::Printing_Babystep() {
   init();
 }
 
-void Printing_Babystep::init()
-{
+void Printing_Babystep::init() {
   save_probe = start_probe = end_probe = probe.offset.z;
 }
 
-void Printing_Babystep::reset()
-{
+void Printing_Babystep::reset() {
   start_probe = end_probe = probe.offset.z;
 }
 
-void Printing_Babystep::update()
-{
+void Printing_Babystep::update() {
   end_probe = probe.offset.z;
 }
 
-bool Printing_Babystep::is_changed()
-{
+bool Printing_Babystep::is_changed() {
   return (bool)(!(start_probe == end_probe && save_probe == end_probe));
 }
 // }

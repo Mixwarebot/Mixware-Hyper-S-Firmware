@@ -159,9 +159,6 @@ void printer_state_polling() {
       update_spi_flash();
     }
   #endif
-
-  if (uiCfg.print_state == WORKING)
-    filament_check();
 }
 
 void filament_pin_setup() {

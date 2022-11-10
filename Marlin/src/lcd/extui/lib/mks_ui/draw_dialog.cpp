@@ -215,6 +215,7 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
   }
   else if (DIALOG_IS(REVERT_EEPROM_TIPS)) {
     TERN_(EEPROM_SETTINGS, (void)settings.reset());
+    TERN_(TFT_MIXWARE_LVGL_UI, gCfgItems_reset());
     lv_clear_cur_ui();
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
       const bool do_draw_cal = touch_calibration.need_calibration();
