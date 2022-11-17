@@ -399,6 +399,11 @@ void MixwareUI::style_init() {
   page_label_style.text.color          = TFT_LV_PARA_BACK_BODY_COLOR;
   page_label_style.text.sel_color      = TFT_LV_PARA_BACK_BODY_COLOR;
 
+  lv_style_copy(&page_label_green_style, &tft_style_label_rel);
+  page_label_green_style.text.color    = LV_COLOR_MAKE(0x50, 0xEE, 0x75);
+  page_label_green_style.text.sel_color = LV_COLOR_MAKE(0x50, 0xEE, 0x75);
+
+
   lv_style_copy(&page_button_style, &lv_style_plain);
   page_button_style.body.border.color = LV_COLOR_BACKGROUND;
   page_button_style.body.border.width = 1;
@@ -692,7 +697,7 @@ static void eventHandler(lv_obj_t *obj, lv_event_t event) {
   case ID_EHEATINGTEMP_170c ... ID_EHEATINGTEMP_350c:
     int16_t t = obj->mks_obj_id;
     thermalManager.setTargetHotend(t, uiCfg.curSprayerChoose);
-    MUI.set_heating_mode_temperature(t);
+    gCfgItems.filament_limit_temper = t;
 
     MUI.page_clear();
     if (uiCfg.print_state == IDLE) {
@@ -991,6 +996,7 @@ void MixwareUI::update_device_debug() {
       case MDEVICEDEBUGTEMP_E:
         if (thermalManager.temp_hotend[0].celsius > -10) {
           lv_label_set_text(l_temp_nozzle, PSTR("OK"));
+          lv_obj_set_style(l_temp_nozzle, &page_label_green_style);
         }
         else {
           lv_label_set_text(l_temp_nozzle, PSTR("NG"));
@@ -1030,8 +1036,9 @@ void MixwareUI::update_device_debug() {
         break;
       #if HAS_HEATED_BED
         case MDEVICEDEBUGTEMP_B:
-          if (thermalManager.temp_bed.celsius > -10) {
+          if (thermalManager.temp_bed.celsius > 0) {
             lv_label_set_text(l_temp_bed, PSTR("OK"));
+            lv_obj_set_style(l_temp_bed, &page_label_green_style);
           }
           else {
             lv_label_set_text(l_temp_bed, PSTR("NG"));
@@ -1065,6 +1072,7 @@ void MixwareUI::update_device_debug() {
         while(planner.has_blocks_queued())
           watchdog_refresh();
         lv_label_set_text(l_fan, PSTR("ON"));
+          lv_obj_set_style(l_fan, &tft_style_label_rel);
         device_debug_state_next++;
         break;
       case MDEVICEDEBUGHOME_X:
@@ -1198,6 +1206,7 @@ void MixwareUI::update_device_debug() {
         bltouch.init();
         if (!bltouch.deploy()) {
           lv_label_set_text(l_servo, PSTR("OK"));
+          lv_obj_set_style(l_servo, &page_label_green_style);
           b_bitouch = true;
         }
         else {
@@ -1207,6 +1216,7 @@ void MixwareUI::update_device_debug() {
 
         if (!bltouch.stow() && b_bitouch) {
           lv_label_set_text(l_servo, PSTR("OK"));
+          lv_obj_set_style(l_servo, &page_label_green_style);
         }
         else {
           lv_label_set_text(l_servo, PSTR("NG"));
@@ -1239,6 +1249,7 @@ void MixwareUI::update_device_debug() {
 
         if (abs(thermalManager.temp_hotend[0].celsius - cur_temp) >= 5) {
           lv_label_set_text(l_heat_nozzle, PSTR("OK"));
+          lv_obj_set_style(l_heat_nozzle, &page_label_green_style);
         }
         else {
           lv_label_set_text(l_heat_nozzle, PSTR("NG"));
@@ -1256,6 +1267,7 @@ void MixwareUI::update_device_debug() {
 
           if ((thermalManager.temp_bed.celsius - cur_temp) >= 2) {
             lv_label_set_text(l_heat_bed, PSTR("OK"));
+            lv_obj_set_style(l_heat_bed, &page_label_green_style);
           }
           else {
             lv_label_set_text(l_heat_bed, PSTR("NG"));
@@ -1272,10 +1284,31 @@ void MixwareUI::update_device_debug() {
         if (!planner.has_blocks_queued()) {
           if (b_motor_ok) {
             b_motor_ok = false;
-            if (device_debug_state == MDEVICEDEBUGHOME_X) lv_label_set_text(l_axis_x_motor, PSTR("OK"));
-            if (device_debug_state == MDEVICEDEBUGHOME_Y) lv_label_set_text(l_axis_y_motor, PSTR("OK"));
-            if (device_debug_state == MDEVICEDEBUGHOME_Z) lv_label_set_text(l_axis_z_motor, PSTR("OK"));
-            if (device_debug_state == MDEVICEDEBUGHOME_E) lv_label_set_text(l_axis_e_motor, PSTR("OK"));
+            switch (device_debug_state)
+            {
+            case MDEVICEDEBUGHOME_X:
+              lv_label_set_text(l_axis_x_motor, PSTR("OK"));
+              lv_obj_set_style(l_axis_x_motor, &page_label_green_style);
+              break;
+            case MDEVICEDEBUGHOME_Y:
+              lv_label_set_text(l_axis_y_motor, PSTR("OK"));
+              lv_obj_set_style(l_axis_y_motor, &page_label_green_style);
+              /* code */
+              break;
+            case MDEVICEDEBUGHOME_Z:
+              lv_label_set_text(l_axis_z_motor, PSTR("OK"));
+              lv_obj_set_style(l_axis_z_motor, &page_label_green_style);
+              /* code */
+              break;
+            case MDEVICEDEBUGHOME_E:
+              lv_label_set_text(l_axis_e_motor, PSTR("ON"));
+              lv_obj_set_style(l_axis_e_motor, &tft_style_label_rel);
+              /* code */
+              break;
+
+            default:
+              break;
+            }
             device_debug_state_next++;
           }
         }

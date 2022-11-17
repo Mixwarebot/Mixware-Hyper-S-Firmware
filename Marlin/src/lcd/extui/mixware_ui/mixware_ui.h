@@ -440,6 +440,7 @@ public:
   lv_style_t page_label_style;
   lv_style_t page_button_style;
   lv_style_t page_tips_style;
+  lv_style_t page_label_green_style;
 
   static char HEATINGMODE_NORMAL_CMD[], HEATINGMODE_HIGH_CMD[];
 

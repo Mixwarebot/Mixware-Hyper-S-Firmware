@@ -260,9 +260,9 @@ void filament_check() {
     static bool file_check = true;
     static millis_t file_check_time = 0;
 
-    if (print_time.minutes * 60 + print_time.minutes < 300
-      && thermalManager.degTargetHotend(0) == 170 && thermalManager.degTargetHotend(0) <= thermalManager.degHotend(0)
-      && thermalManager.degTargetBed() == 50 && thermalManager.degTargetBed() <= thermalManager.degBed())
+    if (print_time.minutes * 60 + print_time.minutes > 30 && print_time.minutes * 60 + print_time.minutes < 300
+      && thermalManager.degTargetHotend(0) == 170 && thermalManager.degTargetBed() == 50
+      )
       file_check = true;
     else
       file_check = false;
@@ -273,12 +273,9 @@ void filament_check() {
           file_check_time = print_time.minutes * 60 + print_time.minutes;
         else {
           if (print_time.minutes * 60 + print_time.minutes - file_check_time > 10) {
-            // SERIAL_ECHOLNPGM("\r\nRe Print. ");
-
             card.endFilePrint();
             card.openFileRead(list_file.file_name[sel_id]);
             if (card.isFileOpen()) {
-              // SERIAL_ECHOLNPGM(" file open.");
               gCfgItems.curFilesize = card.getFileSize();
               update_spi_flash();
               feedrate_percentage = 100;
