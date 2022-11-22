@@ -380,8 +380,13 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Interpret the saved Z according to flags
-  const float z_print = info.current_position.z,
-              z_raised = z_print + info.zraise;
+  float z_print = info.current_position.z,
+        z_raised = z_print + info.zraise;
+
+  if (info.flag.raised) {
+    z_print = info.current_position.z - info.zraise;
+    z_raised = info.current_position.z;
+  }
 
   //
   // Home the axes that can safely be homed, and
