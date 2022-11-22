@@ -158,8 +158,8 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
             return;
           }
 
-          gcode.process_subcommands_now_P(PSTR("M140 S50"));//TEST
-          gcode.process_subcommands_now_P(PSTR("M104 S170"));//TEST
+          thermalManager.setTargetBed(HOTBED_MINTEMP);
+          thermalManager.setTargetHotend(EXTRUDE_MINTEMP, 0);
 
           reset_print_time();
           start_print_time();
@@ -255,8 +255,8 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
       lv_draw_dialog(DIALOG_RUNOUT_LOAD);
     }
     else if (DIALOG_IS(TYPE_FILAMENT_LOAD_SELECT)) {
-      thermalManager.setTargetHotend(PREHEAT_1_TEMP_HOTEND, uiCfg.curSprayerChoose);
-      gCfgItems.filament_limit_temper = PREHEAT_1_TEMP_HOTEND;
+      gCfgItems.filament_limit_temper = IF(MUI.get_heating_mode(), PREHEAT_1_TEMP_HOTEND, PREHEAT_3_TEMP_HOTEND);
+      thermalManager.setTargetHotend(gCfgItems.filament_limit_temper, uiCfg.curSprayerChoose);
 
       if (uiCfg.print_state == IDLE) {
         uiCfg.leveling_first_time = 1;
@@ -279,8 +279,8 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
       }
     }
     else if (DIALOG_IS(TYPE_FILAMENT_UNLOAD_SELECT)) {
-      thermalManager.setTargetHotend(PREHEAT_1_TEMP_HOTEND, uiCfg.curSprayerChoose);
-      gCfgItems.filament_limit_temper = PREHEAT_1_TEMP_HOTEND;
+      gCfgItems.filament_limit_temper = IF(MUI.get_heating_mode(), PREHEAT_1_TEMP_HOTEND, PREHEAT_3_TEMP_HOTEND);
+      thermalManager.setTargetHotend(gCfgItems.filament_limit_temper, uiCfg.curSprayerChoose);
 
       if (uiCfg.print_state == IDLE) {
         uiCfg.leveling_first_time = 1;
@@ -389,8 +389,8 @@ static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
     uiCfg.print_state = RESUMING;
   }
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_SELECT)) {
-    thermalManager.setTargetHotend(PREHEAT_2_TEMP_HOTEND, uiCfg.curSprayerChoose);
-    gCfgItems.filament_limit_temper = PREHEAT_2_TEMP_HOTEND;
+    gCfgItems.filament_limit_temper = IF(MUI.get_heating_mode(), PREHEAT_2_TEMP_HOTEND, PREHEAT_4_TEMP_HOTEND);
+    thermalManager.setTargetHotend(gCfgItems.filament_limit_temper, uiCfg.curSprayerChoose);
 
     if (uiCfg.print_state == IDLE) {
       uiCfg.leveling_first_time = 1;
@@ -413,8 +413,8 @@ static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
     }
   }
   else if (DIALOG_IS(TYPE_FILAMENT_UNLOAD_SELECT)) {
-    thermalManager.setTargetHotend(PREHEAT_2_TEMP_HOTEND, uiCfg.curSprayerChoose);
-    gCfgItems.filament_limit_temper = PREHEAT_2_TEMP_HOTEND;
+    gCfgItems.filament_limit_temper = IF(MUI.get_heating_mode(), PREHEAT_2_TEMP_HOTEND, PREHEAT_4_TEMP_HOTEND);
+    thermalManager.setTargetHotend(gCfgItems.filament_limit_temper, uiCfg.curSprayerChoose);
 
     if (uiCfg.print_state == IDLE) {
       uiCfg.leveling_first_time = 1;

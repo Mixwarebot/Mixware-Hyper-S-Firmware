@@ -1697,6 +1697,7 @@ void LV_TASK_HANDLER() {
   #endif
   TERN_(TFT_MIXWARE_LVGL_UI, lv_print_finished());
 
+
   if (uiCfg.print_state == WORKING)
     filament_check();
 }

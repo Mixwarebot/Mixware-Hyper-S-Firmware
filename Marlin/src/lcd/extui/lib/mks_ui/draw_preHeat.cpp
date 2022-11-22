@@ -87,8 +87,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         thermalManager.temp_hotend[uiCfg.curSprayerChoose].target += uiCfg.stepHeat;
 #ifdef WATCH_TEMP_INCREASE
         if (uiCfg.curSprayerChoose == 0){
-            max_target = TERN(TFT_MIXWARE_LVGL_UI, MUI.get_heating_mode_temperature(), HEATER_0_MAXTEMP) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1);
-
+            max_target = TERN(TFT_MIXWARE_LVGL_UI, MUI.get_heating_mode_temperature(), HEATER_0_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1));
         }
         else {
           #if HAS_MULTI_HOTEND
@@ -99,7 +98,6 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         if (thermalManager.degTargetHotend(uiCfg.curSprayerChoose) > max_target)
           thermalManager.setTargetHotend(max_target, uiCfg.curSprayerChoose);
         thermalManager.start_watching_hotend(uiCfg.curSprayerChoose);
-
       }
       else {
         #if HAS_HEATED_BED
@@ -112,7 +110,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           #endif
         #endif
       }
-      disp_desire_temp();
+      // disp_desire_temp();
     } break;
 
     case ID_P_DEC:
@@ -133,7 +131,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           thermalManager.start_watching_bed();
         #endif
       }
-      disp_desire_temp();
+      // disp_desire_temp();
       break;
     case ID_P_TYPE:
       if (uiCfg.curTempType == 0) {
@@ -188,7 +186,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         thermalManager.temp_bed.target = 0;
         thermalManager.start_watching_bed();
       #endif
-      disp_desire_temp();
+      // disp_desire_temp();
       break;
     case ID_P_RETURN:
       lv_clear_cur_ui();

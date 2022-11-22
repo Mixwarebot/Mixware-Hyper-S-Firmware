@@ -20,7 +20,7 @@
  *
  */
 
-#define MIXWARE_UI_VERSION "V1.2.005T"
+#define MIXWARE_UI_VERSION "V1.2.007T"
 
 // image name define
 #define MIMG_N_HOME_ALL "img_home_all.bin"
