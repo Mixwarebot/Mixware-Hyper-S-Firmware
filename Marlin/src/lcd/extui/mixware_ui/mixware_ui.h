@@ -481,8 +481,6 @@ public:
   //
   void page_button_add_tips(lv_obj_t *button);
 
-  void page_placeholder(lv_obj_t *par, lv_coord_t x, lv_coord_t y);
-
   void page_logo_main(lv_obj_t *par);
   void page_tips_main(lv_obj_t *par);
 

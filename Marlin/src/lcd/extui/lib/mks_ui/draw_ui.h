@@ -76,8 +76,6 @@
 #include "draw_baby_stepping.h"
 #include "draw_keyboard.h"
 #include "draw_encoder_settings.h"
-#include "draw_touchmi_settings.h"
-#include "draw_bltouch_settings.h"
 
 #include "../../../../inc/MarlinConfigPre.h"
 
@@ -191,7 +189,7 @@
 #endif
 
 extern char public_buf_m[100];
-extern char public_buf_l[50];
+extern char public_buf_l[30];
 
 typedef struct {
   uint32_t spi_flash_flag;
@@ -282,8 +280,6 @@ typedef enum {
   TEMP_UI,
   SET_UI,
   ZERO_UI,
-  BLTOUCH_UI,
-  TOUCHMI_UI,
   SPRAYER_UI,
   MACHINE_UI,
   LANGUAGE_UI,
@@ -343,9 +339,7 @@ typedef enum {
   WIFI_SETTINGS_UI,
   HOMING_SENSITIVITY_UI,
   ENCODER_SETTINGS_UI,
-  TOUCH_CALIBRATION_UI,
-  GCODE_UI,
-  MEDIA_SELECT_UI,
+  TOUCH_CALIBRATION_UI
   #if ENABLED(DUAL_X_CARRIAGE)
     ,
     DUAL_X_CARRIAGE_MODE_UI,
@@ -353,12 +347,13 @@ typedef enum {
   #endif
 
   #if ENABLED(TFT_MIXWARE_LVGL_UI)
+    ,
     AUROLEVEL_UI,
     ZOFFSET_SETTING_UI,
     EHEATINGMODE_SETTING_UI,
     EHEATINGTEMP_SETTING_UI,
     ZAXISDEBUG_UI,
-    DEBUG_SELFC_UI,
+    DEBUG_SELFC_UI
   #endif
 } DISP_STATE;
 

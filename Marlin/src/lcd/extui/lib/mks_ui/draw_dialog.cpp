@@ -575,7 +575,11 @@ void lv_draw_dialog(uint8_t type) {
 
   lv_obj_t *labelDialog = lv_label_create(scr, "");
 
-  TERN_(TFT_LVGL_MIXWARE_UI, MUI.page_placeholder(scr, 0, TFT_HEIGHT - 50));
+  #if ENABLED(TFT_MIXWARE_LVGL_UI)
+    lv_obj_t *imgNullptr = lv_img_create(scr, nullptr);// Empty picture.
+    lv_img_set_src(imgNullptr, MIMG.placeholder);
+    lv_obj_set_pos(imgNullptr,  0, TFT_HEIGHT - 50);
+  #endif
 
   if (DIALOG_IS(TYPE_FINISH_PRINT)) {
     btnOk = lv_button_btn_create(scr, BTN_LEFT_X, BTN_POS_Y, BTN_SIZE_WIDTH, BTN_SIZE_HEIGHT, btn_ok_event_cb);

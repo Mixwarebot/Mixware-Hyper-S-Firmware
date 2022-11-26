@@ -90,68 +90,58 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-lv_obj_t *limit_info, *det_info;
-lv_obj_t *tmc_state_info;
-lv_style_t limit_style, det_style, tmc_state_style;
+// lv_obj_t *limit_info, *det_info;
+// lv_obj_t *tmc_state_info;
+// lv_style_t limit_style, det_style, tmc_state_style;
 void disp_Limit_ok() {
-  limit_style.text.color.full = 0xFFFF;
-  lv_obj_set_style(limit_info, &limit_style);
-  lv_label_set_text(limit_info, "Limit:ok");
+//   limit_style.text.color.full = 0xFFFF;
+//   lv_obj_set_style(limit_info, &limit_style);
+//   lv_label_set_text(limit_info, "Limit:ok");
 }
 void disp_Limit_error() {
-  limit_style.text.color.full = 0xF800;
-  lv_obj_set_style(limit_info, &limit_style);
-  lv_label_set_text(limit_info, "Limit:error");
+//   limit_style.text.color.full = 0xF800;
+//   lv_obj_set_style(limit_info, &limit_style);
+//   lv_label_set_text(limit_info, "Limit:error");
 }
 
 void disp_det_ok() {
-  det_style.text.color.full = 0xFFFF;
-  lv_obj_set_style(det_info, &det_style);
-  lv_label_set_text(det_info, "det:ok");
+//   det_style.text.color.full = 0xFFFF;
+//   lv_obj_set_style(det_info, &det_style);
+//   lv_label_set_text(det_info, "det:ok");
 }
 void disp_det_error() {
-  det_style.text.color.full = 0xF800;
-  lv_obj_set_style(det_info, &det_style);
-  lv_label_set_text(det_info, "det:error");
+//   det_style.text.color.full = 0xF800;
+//   lv_obj_set_style(det_info, &det_style);
+//   lv_label_set_text(det_info, "det:error");
 }
 
 void disp_tmc_ok() {
-  tmc_state_style.text.color.full = 0xFFFF;
-  lv_obj_set_style(tmc_state_info, &tmc_state_style);
-  lv_label_set_text(tmc_state_info, "TMC CONNECTION OK");
+//   tmc_state_style.text.color.full = 0xFFFF;
+//   lv_obj_set_style(tmc_state_info, &tmc_state_style);
+//   lv_label_set_text(tmc_state_info, "TMC CONNECTION OK");
 }
 void disp_tmc_error() {
-  tmc_state_style.text.color.full = 0xF800;
-  lv_obj_set_style(tmc_state_info, &tmc_state_style);
-  lv_label_set_text(tmc_state_info, "TMC CONNECTION ERROR");
+//   tmc_state_style.text.color.full = 0xF800;
+//   lv_obj_set_style(tmc_state_info, &tmc_state_style);
+//   lv_label_set_text(tmc_state_info, "TMC CONNECTION ERROR");
 }
 
-lv_obj_t *e1, *e2, *e3, *bed;
+// lv_obj_t *e1, *e2, *e3, *bed;
 void mks_disp_test() {
-  #if HAS_HOTEND
-    char buf[30] = {0};
-    sprintf_P(buf, PSTR("e1:%d"), (int)thermalManager.temp_hotend[0].celsius);
-    lv_label_set_text(e1, buf);
-  #endif
-  #if HAS_MULTI_HOTEND
-    sprintf_P(buf, PSTR("e2:%d"), (int)thermalManager.temp_hotend[1].celsius);
-    lv_label_set_text(e2, buf);
-  #endif
-  #if HAS_HEATED_BED
-    sprintf_P(buf, PSTR("bed:%d"), (int)thermalManager.temp_bed.celsius);
-    lv_label_set_text(bed, buf);
-  #endif
+  // char buf[30] = {0};
+  // sprintf_P(buf, PSTR("e1:%d"), (int)thermalManager.temp_hotend[0].celsius);
+  // lv_label_set_text(e1, buf);
+  // #if HAS_MULTI_HOTEND
+  //   sprintf_P(buf, PSTR("e2:%d"), (int)thermalManager.temp_hotend[1].celsius);
+  //   lv_label_set_text(e2, buf);
+  // #endif
+  // #if HAS_HEATED_BED
+  //   sprintf_P(buf, PSTR("bed:%d"), (int)thermalManager.temp_bed.celsius);
+  //   lv_label_set_text(bed, buf);
+  // #endif
 }
 
 void lv_draw_ready_print(void) {
-
-  #if DISABLED(TFT_MIXWARE_LVGL_UI)
-    #if HAS_HOTEND
-      char buf[30] = {0};
-    #endif
-    lv_obj_t *buttonTool;
-  #endif
-
   disp_state_stack._disp_index = 0;
   ZERO(disp_state_stack._disp_state);
 

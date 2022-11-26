@@ -437,15 +437,6 @@ void MixwareUI::page_button_add_tips(lv_obj_t *button) {
   lv_obj_align(tips, button, LV_ALIGN_IN_BOTTOM_MID, 0, 2);
 }
 
-//
-// page placeholder, Effectively prevent image duplication bugs (lvgl 6.1)
-//
-void MixwareUI::page_placeholder(lv_obj_t *par, lv_coord_t x, lv_coord_t y) {
-  lv_obj_t *_placeholder = lv_img_create(par, nullptr); // Empty picture.
-  lv_img_set_src(_placeholder, MIMG.placeholder);
-  lv_obj_set_pos(_placeholder, x, y);
-}
-
 void MixwareUI::page_logo_main(lv_obj_t *par) {
   lv_obj_t *img = lv_img_create(par, nullptr);
   lv_obj_set_pos(img, 2, 6);

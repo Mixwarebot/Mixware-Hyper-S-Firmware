@@ -259,7 +259,9 @@ void disp_gcode_icon(uint8_t file_num) {
     buttonPageDown = lv_imgbtn_create(scr, "F:/bmp_pageDown.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + OTHER_BTN_YPIEL + INTERVAL_H, event_handler, ID_P_DOWN);
     buttonBack     = lv_imgbtn_create(scr, "F:/bmp_back.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + OTHER_BTN_YPIEL * 2 + INTERVAL_H * 2, event_handler, ID_P_RETURN);
   #else
-    MUI.page_placeholder(scr, 0, 0);
+      lv_obj_t *imgNull = lv_img_create(scr, nullptr);// Empty picture.
+      lv_img_set_src(imgNull, MIMG.placeholder);
+      lv_obj_set_pos(imgNull, 0, 0);
 
       if (dir_offset[curDirLever].curPage > 0 && dir_offset[curDirLever].cur_page_last_offset > 0 && card.get_num_Files() > (dir_offset[curDirLever].curPage+1) * FILE_NUM) {
         MUI.screen_bottom_button_left(scr, MTR.previous, event_handler, ID_P_UP);

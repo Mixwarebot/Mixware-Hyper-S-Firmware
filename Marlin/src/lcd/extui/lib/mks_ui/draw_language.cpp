@@ -258,7 +258,9 @@ void lv_draw_language(void) {
     lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_L_RETURN);
     disp_language(gCfgItems.language, SELECTED);
   #else
-    MUI.page_placeholder(scr, 0, TFT_HEIGHT - 50);
+    lv_obj_t *imgLangNull = lv_img_create(scr, nullptr);// Empty picture.
+    lv_img_set_src(imgLangNull, MIMG.placeholder);
+    lv_obj_set_pos(imgLangNull,  0, TFT_HEIGHT - 50);
     // Create image buttons
     buttonCN   = lv_big_button_create(scr, MIMG.languageSCN, language_menu.chinese_s, IMAGEBTN_P_X(0), IMAGEBTN_P_Y(0), event_handler, ID_CN);
     buttonT_CN = lv_big_button_create(scr, MIMG.languageTCN, language_menu.chinese_t, IMAGEBTN_P_X(1), IMAGEBTN_P_Y(1), event_handler, ID_T_CN);

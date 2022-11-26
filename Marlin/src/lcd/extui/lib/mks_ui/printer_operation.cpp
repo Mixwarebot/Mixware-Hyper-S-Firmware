@@ -255,43 +255,6 @@ void filament_check() {
     }
   #else
     detector.check();
-
-    //file check test
-    static bool file_check = true;
-    static millis_t file_check_time = 0;
-
-    if (print_time.minutes * 60 + print_time.minutes > 30 && print_time.minutes * 60 + print_time.minutes < 300
-      && thermalManager.degTargetHotend(0) == 170 && thermalManager.degTargetBed() == 50
-      )
-      file_check = true;
-    else
-      file_check = false;
-
-    if (file_check){
-      if (queue.length == 0) {
-        if (file_check_time == 0)
-          file_check_time = print_time.minutes * 60 + print_time.minutes;
-        else {
-          if (print_time.minutes * 60 + print_time.minutes - file_check_time > 10) {
-            card.endFilePrint();
-            card.openFileRead(list_file.file_name[sel_id]);
-            if (card.isFileOpen()) {
-              gCfgItems.curFilesize = card.getFileSize();
-              update_spi_flash();
-              feedrate_percentage = 100;
-              planner.flow_percentage[0] = 100;
-              planner.e_factor[0] = planner.flow_percentage[0] * 0.01f;
-              card.startFileprint();
-              TERN_(POWER_LOSS_RECOVERY,  if (recovery.enabled) recovery.prepare());
-              detector.reset();
-              p_babystep.reset();
-            }
-
-            file_check_time = 0;
-          }
-        }
-      }
-    }
   #endif
 }
 

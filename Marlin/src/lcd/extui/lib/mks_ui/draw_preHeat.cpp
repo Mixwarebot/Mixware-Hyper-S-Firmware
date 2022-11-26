@@ -110,7 +110,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           #endif
         #endif
       }
-      // disp_desire_temp();
+      disp_desire_temp();
     } break;
 
     case ID_P_DEC:
@@ -131,7 +131,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           thermalManager.start_watching_bed();
         #endif
       }
-      // disp_desire_temp();
+      disp_desire_temp();
       break;
     case ID_P_TYPE:
       if (uiCfg.curTempType == 0) {
@@ -186,7 +186,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         thermalManager.temp_bed.target = 0;
         thermalManager.start_watching_bed();
       #endif
-      // disp_desire_temp();
+      disp_desire_temp();
       break;
     case ID_P_RETURN:
       lv_clear_cur_ui();

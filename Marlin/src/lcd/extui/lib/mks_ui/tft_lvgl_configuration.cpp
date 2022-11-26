@@ -167,7 +167,7 @@ void tft_lvgl_init() {
 
   lv_init();
 
-  lv_disp_buf_init(&disp_buf, bmp_public_buf, nullptr, LV_HOR_RES_MAX * 14); /*Initialize the display buffer*/
+  lv_disp_buf_init(&disp_buf, bmp_public_buf, nullptr, LV_HOR_RES_MAX * 16); /*Initialize the display buffer*/
 
   lv_disp_drv_t disp_drv;     /*Descriptor of a display driver*/
   lv_disp_drv_init(&disp_drv);    /*Basic initialization*/
@@ -280,8 +280,6 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
 
   SPI_TFT.setWindow((uint16_t)area->x1, (uint16_t)area->y1, width, height);
 
-  // for (uint16_t i = 0; i < height; i++)
-  //   SPI_TFT.tftio.WriteSequence((uint16_t*)(color_p + width * i), width);
   SPI_TFT.tftio.WriteSequence((uint16_t*)color_p, width * height);
 
   lv_disp_flush_ready(disp);       /* Indicate you are ready with the flushing*/

@@ -78,7 +78,7 @@ extern uint8_t public_buf[513];
 extern void LCD_IO_WriteData(uint16_t RegValue);
 
 static const char custom_gcode_command[][100] = {
-  "G28\nG29\nM500",
+  "G28\nG29",
   "G28",
   "G28",
   "G28",
@@ -505,8 +505,8 @@ void tft_style_init() {
 #define MAX_TITLE_LEN 28
 
 char public_buf_m[100] = {0};
-char public_buf_l[50];
-char public_buf_t[40];
+char public_buf_l[30];
+
 void titleText_cat(char *str, int strSize, char *addPart) {
   if (str == 0 || addPart == 0) return;
   if ((int)(strlen(str) + strlen(addPart)) >= strSize) return;
@@ -842,8 +842,8 @@ char *creat_title_text() {
     #endif
     #if HAS_GCODE_DEFAULT_VIEW_IN_FLASH
       if (default_preview_flg) {
-        draw_default_preview(xpos_pixel, ypos_pixel, 0);
         default_preview_flg = false;
+        draw_default_preview(xpos_pixel, ypos_pixel, 0);
       }
     #endif
   }
@@ -863,62 +863,6 @@ void print_time_run() {
   if (disp_state == PRINTING_UI) {
     if (lastSec != print_time.seconds) disp_print_time();
     lastSec = print_time.seconds;
-  }
-}
-
-// uint16_t print_disp_mode = 0;
-
-typedef enum{
-  MODE_DISP_EXT_TEMP = 0,
-  MODE_DISP_BED_TEMP    = 1,
-  MODE_DISP_FAN_TEMP    = 2,
-  MODE_DISP_PRINT_TEMP  = 3,
-  MODE_DISP_FANZ_ZPOS   = 4,
-}disp_mode_t;
-
-disp_mode_t print_disp_mode = MODE_DISP_EXT_TEMP; // defalut MODE_DISP_EXT_TEMP
-
-
-void print_dis_status() {
-
-  if (temps_update_flag) {
-        temps_update_flag = false;
-        // disp_ext_temp();
-        // disp_bed_temp();
-        // disp_fan_speed();
-        // disp_print_time();
-        // disp_fan_Zpos();
-      switch(print_disp_mode) {
-
-        case MODE_DISP_EXT_TEMP:
-          disp_ext_temp();
-          // print_disp_mode = MODE_DISP_BED_TEMP;
-          disp_bed_temp();
-          print_disp_mode = MODE_DISP_FAN_TEMP;
-        break;
-
-        case MODE_DISP_BED_TEMP:
-          // disp_bed_temp();
-          // print_disp_mode = MODE_DISP_FAN_TEMP;
-        break;
-
-        case MODE_DISP_FAN_TEMP:
-          disp_fan_speed();
-          // print_disp_mode = MODE_DISP_PRINT_TEMP;
-          disp_print_time();
-          print_disp_mode = MODE_DISP_FANZ_ZPOS;
-        break;
-
-        case MODE_DISP_PRINT_TEMP:
-          // disp_print_time();
-          // print_disp_mode = MODE_DISP_FANZ_ZPOS;
-        break;
-
-        case MODE_DISP_FANZ_ZPOS:
-          disp_fan_Zpos();
-          print_disp_mode = MODE_DISP_EXT_TEMP;
-        break;
-      }
   }
 }
 
@@ -951,7 +895,15 @@ void GUI_RefreshPage() {
     case PRINT_FILE_UI: break;
 
     case PRINTING_UI:
-      print_dis_status();
+      if (temps_update_flag) {
+        temps_update_flag = false;
+
+        disp_ext_temp();
+        disp_bed_temp();
+        disp_fan_speed();
+        disp_print_time();
+        disp_fan_Zpos();
+      }
 
       if (printing_rate_update_flag || marlin_state == MF_SD_COMPLETE) {
         printing_rate_update_flag = false;
@@ -1069,14 +1021,6 @@ void GUI_RefreshPage() {
       }
       break;
 
-    // #if ANY(BLTOUCH, FIX_MOUNTED_PROBE)
-    //   case BLTOUCH_UI:
-    //     if (temps_update_flag) {
-    //       temps_update_flag = false;
-    //       disp_bltouch_z_offset_value();
-    //     }
-    //     break;
-    // #endif
     #if ENABLED(TFT_MIXWARE_LVGL_UI)
       case DEBUG_SELFC_UI:
         if (temps_update_flag) {
@@ -1175,12 +1119,6 @@ void lv_clear_cur_ui() {
     case ENABLE_INVERT_UI:            break;
     case NUMBER_KEY_UI:               lv_clear_number_key(); break;
     case BABY_STEP_UI:                lv_clear_baby_stepping(); break;
-    #if ENABLED(BLTOUCH)
-      case BLTOUCH_UI:                lv_clear_bltouch_settings(); break;
-    #endif
-    #if ENABLED(TOUCH_MI_PROBE)
-      case TOUCHMI_UI:                lv_clear_touchmi_settings(); break;
-    #endif
     case PAUSE_POS_UI:                lv_clear_pause_position(); break;
       #if HAS_TRINAMIC_CONFIG
         case TMC_CURRENT_UI:          lv_clear_tmc_current_settings(); break;
@@ -1200,13 +1138,6 @@ void lv_clear_cur_ui() {
     #endif
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
       case TOUCH_CALIBRATION_UI:      lv_clear_touch_calibration_screen(); break;
-    #endif
-    #if ENABLED(MULTI_VOLUME)
-      case MEDIA_SELECT_UI:           lv_clear_media_select(); break;
-    #endif
-	#if ENABLED(DUAL_X_CARRIAGE)
-      case DUAL_X_CARRIAGE_MODE_UI:   lv_clear_dual_x_carriage_mode(); break;
-      case HOTEND_OFFSET_UI:          lv_clear_hotend_offset_settings(); break;
     #endif
     #if ENABLED(TFT_MIXWARE_LVGL_UI)
       case AUROLEVEL_UI:
@@ -1319,11 +1250,6 @@ void lv_draw_return_ui() {
       #endif
       #if HAS_ROTARY_ENCODER
         case ENCODER_SETTINGS_UI:       lv_draw_encoder_settings(); break;
-      #endif
-      case TOUCHMI_UI:                  lv_draw_touchmi_settings(); break;
-      #if ENABLED(DUAL_X_CARRIAGE)
-        case DUAL_X_CARRIAGE_MODE_UI:   lv_draw_dual_x_carriage_mode(); break;
-        case HOTEND_OFFSET_UI:          lv_draw_hotend_offset_settings(); break;
       #endif
       #if ENABLED(TFT_MIXWARE_LVGL_UI)
         case AUROLEVEL_UI:              MUI.page_draw_leveling(); break;
@@ -1564,12 +1490,6 @@ lv_obj_t*  lv_screen_menu_item_onoff(lv_obj_t *par, const char *text, lv_coord_t
 }
 
 lv_obj_t* lv_screen_menu_item_1_edit(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const char *editValue) {
-  // lv_obj_t *btn = lv_screen_menu_item(par, text, x, y, cb, -1, index, false);
-  // lv_obj_t *btnValue = lv_btn_create(par, PARA_UI_VALUE_POS_X, y + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, cb, id);
-  // lv_obj_t *labelValue = lv_label_create_empty(btnValue);
-  // lv_label_set_text(labelValue, editValue);
-  // lv_obj_align(labelValue, btnValue, LV_ALIGN_CENTER, 0, 0);
-
   lv_label_create(par, x + PARA_UI_ITEM_TEXT_H, y + PARA_UI_ITEM_TEXT_V, text);
 
   lv_obj_t* btnValue = lv_btn_create(par, PARA_UI_VALUE_POS_X, y + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, cb, id);
