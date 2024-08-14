@@ -21,15 +21,9 @@
  */
 #pragma once
 
-#if NOT_TARGET(STM32F4, STM32F4xx)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "Mixware Hyper S V1.0 supports up to 1 hotends / E-steppers."
-#elif HAS_FSMC_TFT
-  #error "Mixware Hyper S V1.0 doesn't support FSMC-based TFT displays."
-#endif
-
-// Mixware Hyper S V1.0
+//
+// Mixware Hyper S pinmap
+//
 #define BOARD_INFO_NAME "Mixware Hyper S V2.2"
 
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
@@ -40,8 +34,6 @@
 // Use Flash-based EEPROM emulation
 #define FLASH_EEPROM_EMULATION
 #define FLASH_EEPROM_LEVELING
-// #define FLASH_ADDRESS_START                 0x08070000
-// #define MARLIN_EEPROM_SIZE                  0x1000  // 4K
 
 //
 // Servos
@@ -60,6 +52,9 @@
 #define Y_STOP_PIN                    Y_DIAG_PIN
 #define Z_MIN_PIN                     Z_DIAG_PIN
 // #define Z_MAX_PIN                    E0_DIAG_PIN
+
+#define MT_DET_1_PIN                      E0_DIAG_PIN   // MT_DET
+#define MT_DET_PIN_STATE                  LOW
 
 //
 // Steppers
@@ -91,10 +86,10 @@
   #define Y_SERIAL_TX_PIN                   PD8
   #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
-  #define Z_SERIAL_TX_PIN                   PD13
+  #define Z_SERIAL_TX_PIN                   PD14
   #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
-  #define E0_SERIAL_TX_PIN                  PD14
+  #define E0_SERIAL_TX_PIN                  PD15
   #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
@@ -113,18 +108,10 @@
 #define HEATER_0_PIN                        PB9   // HEATER1
 #define HEATER_BED_PIN                      PD12   // HOT BED
 
-#define FAN_PIN                              PA3   // FAN
+#define FAN0_PIN                              PA3   // FAN
 #define FAN1_PIN                             PB6   // FAN1(LED)
 #define FAN2_PIN                             PB7   // FAN2(LED)
 #define FAN3_PIN                             PB10  // FAN3(LED)
-
-//
-// Misc. Functions
-//
-#if HAS_TFT_LVGL_UI
-  #define MT_DET_1_PIN                      PE0   // MT_DET
-  #define MT_DET_PIN_STATE                  LOW
-#endif
 
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN                    PE0
@@ -207,18 +194,6 @@
 #define EXP2_10_PIN                         PA6
 
 //
-// SPI SD Card
-//
-#if SD_CONNECTION_IS(LCD)
-  #define ENABLE_SPI1
-  #define SDSS                       EXP2_07_PIN
-  #define SD_SCK_PIN                 EXP2_09_PIN
-  #define SD_MISO_PIN                EXP2_10_PIN
-  #define SD_MOSI_PIN                EXP2_05_PIN
-  #define SD_DETECT_PIN              EXP2_04_PIN
-#endif
-
-//
 // LCD / Controller
 //
 #if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
@@ -236,20 +211,6 @@
 
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          1
-
-  #ifndef TFT_WIDTH
-    #define TFT_WIDTH  320
-  #else
-    #undef TFT_WIDTH
-    #define TFT_WIDTH  320
-  #endif
-
-  #ifndef TFT_HEIGHT
-    #define TFT_HEIGHT  480
-  #else
-    #undef TFT_HEIGHT
-    #define TFT_HEIGHT  480
-  #endif
 
   #define TOUCH_CS_PIN               EXP1_06_PIN  // SPI1_NSS
   #define TOUCH_SCK_PIN              EXP2_09_PIN  // SPI1_SCK
@@ -286,11 +247,6 @@
 
 #if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI, HAS_WIRED_LCD)
   #define BEEPER_PIN                 EXP1_10_PIN
-  #if DISABLED(USE_SPI_DMA_TC)
-    // #define BTN_EN1                  EXP2_08_PIN
-    // #define BTN_EN2                  EXP2_06_PIN
-    // #define BTN_ENC                  EXP1_09_PIN
-  #endif
 #endif
 
 
@@ -306,10 +262,10 @@
   #define Y_CS_PIN                          PD8
 #endif
 #ifndef Z_CS_PIN
-  #define Z_CS_PIN                          PD13
+  #define Z_CS_PIN                          PD14
 #endif
 #ifndef E0_CS_PIN
-  #define E0_CS_PIN                         PD14
+  #define E0_CS_PIN                         PD15
 #endif
 
 //
@@ -321,12 +277,12 @@
 #endif
 #if ENABLED(TMC_USE_SW_SPI)
   #if !defined(TMC_SW_MOSI) || TMC_SW_MOSI == -1
-    #define TMC_SW_MOSI                     PD14
+    #define TMC_SPI_MOSI                     PD14
   #endif
   #if !defined(TMC_SW_MISO) || TMC_SW_MISO == -1
-    #define TMC_SW_MISO                     PD1
+    #define TMC_SPI_MISO                     PD1
   #endif
   #if !defined(TMC_SW_SCK) || TMC_SW_SCK == -1
-    #define TMC_SW_SCK                      PD0
+    #define TMC_SPI_SCK                      PD0
   #endif
 #endif

@@ -22,13 +22,13 @@
 #pragma once
 
 /**
- * MKS Robin mini (STM32F130VET6) board pin assignments
+ * MKS Robin mini (STM32F103VET6) board pin assignments
  */
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "MKS Robin mini only supports one hotend / E-stepper. Comment out this line to continue."
+#include "env_validate.h"
+
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
+  #error "MKS Robin mini only supports 1 hotend / E stepper."
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin Mini"
@@ -45,9 +45,9 @@
 //
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE              (0x800U)  // 2KB
+  #define EEPROM_PAGE_SIZE              (0x800U)  // 2K
   #define EEPROM_START_ADDRESS      (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
 
 #define SPI_DEVICE                             2
@@ -111,7 +111,7 @@
 #define HEATER_0_PIN                        PC3
 #define HEATER_BED_PIN                      PA0
 
-#define FAN_PIN                             PB1   // FAN
+#define FAN0_PIN                            PB1   // FAN
 
 //
 // Misc. Functions
@@ -119,8 +119,10 @@
 #define POWER_LOSS_PIN                      PA2   // PW_DET
 #define PS_ON_PIN                           PA3   // PW_OFF
 
-#define MT_DET_1_PIN                        PA4
-#define MT_DET_PIN_INVERTING               false
+#if HAS_TFT_LVGL_UI
+  #define MT_DET_1_PIN                      PA4   // MT_DET
+  #define MT_DET_PIN_STATE                  LOW
+#endif
 
 #define WIFI_IO0_PIN                        PC13
 
@@ -131,7 +133,7 @@
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
-#define SDIO_SUPPORT
+#define ONBOARD_SDIO
 #define SDIO_CLOCK                       4500000  // 4.5 MHz
 #define SD_DETECT_PIN                       PD12
 #define ONBOARD_SPI_DEVICE                     1  // SPI1
@@ -147,23 +149,25 @@
  * If the screen stays white, disable 'LCD_RESET_PIN'
  * to let the bootloader init the screen.
  */
-#if EITHER(HAS_FSMC_GRAPHICAL_TFT, TFT_320x240)
-  #define FSMC_CS_PIN                       PD7   // NE4
-  #define FSMC_RS_PIN                       PD11  // A0
+#if HAS_FSMC_TFT
 
-  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
-
+  #define TFT_CS_PIN                        PD7   // NE4
+  #define TFT_RS_PIN                        PD11  // A0
   #define LCD_RESET_PIN                     PC6   // FSMC_RST
   #define LCD_BACKLIGHT_PIN                 PD13
-#endif
 
-#if BOTH(NEED_TOUCH_PINS, HAS_FSMC_GRAPHICAL_TFT) || ENABLED(TFT_320x240)
-  #define TOUCH_CS_PIN                      PC2   // SPI2_NSS
-  #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
-  #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
-  #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
+  #define FSMC_CS_PIN                 TFT_CS_PIN  // NE4
+  #define FSMC_RS_PIN                 TFT_RS_PIN  // A0
+
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+
+  #if NEED_TOUCH_PINS
+    #define TOUCH_CS_PIN                    PC2   // SPI2_NSS
+    #define TOUCH_SCK_PIN                   PB13  // SPI2_SCK
+    #define TOUCH_MISO_PIN                  PB14  // SPI2_MISO
+    #define TOUCH_MOSI_PIN                  PB15  // SPI2_MOSI
+  #endif
+
 #endif
 
 #if ENABLED(TFT_320x240)                          // TFT32/28
@@ -191,11 +195,11 @@
   #endif
 #endif
 
-#define HAS_SPI_FLASH                          1
-#if HAS_SPI_FLASH
+#define SPI_FLASH
+#if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
-  #define W25QXX_CS_PIN                     PB12  // Flash chip-select
-  #define W25QXX_MOSI_PIN                   PB15
-  #define W25QXX_MISO_PIN                   PB14
-  #define W25QXX_SCK_PIN                    PB13
+  #define SPI_FLASH_CS_PIN                  PB12  // Flash chip-select
+  #define SPI_FLASH_MOSI_PIN                PB15
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_SCK_PIN                 PB13
 #endif

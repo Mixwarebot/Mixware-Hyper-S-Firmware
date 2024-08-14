@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -74,7 +77,7 @@ void HAL_analog_pin_state(char buffer[], int8_t pin) {
  * Print a pin's PWM status.
  * Return true if it's currently a PWM pin.
  */
-bool HAL_pwm_status(int8_t pin) {
+bool HAL_pwm_status(const int8_t pin) {
   char buffer[20];   // for the sprintf statements
   switch (pin) {
     FTM_CASE(0,0);

@@ -23,6 +23,8 @@
 
 /**
  * Gen6 pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Gen6/GEN6_Mendel_Circuit.pdf
+ * Origin: https://reprap.org/mediawiki/images/0/0f/GEN6_Mendel_Circuit.pdf
  */
 
  /**
@@ -50,9 +52,8 @@
  * Once installed select the Sanguino board and then select the CPU.
  */
 
-#if NOT_TARGET(__AVR_ATmega644P__, __AVR_ATmega1284P__)
-  #error "Oops! Select 'Sanguino' in 'Tools > Boards' and 'ATmega644P' or 'ATmega1284P' in 'Tools > Processor.'"
-#endif
+#define ALLOW_MEGA644P
+#include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "Gen6"

@@ -23,12 +23,16 @@
 
 /**
  * RUMBA pin assignments
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/RUMBA/RRD-RUMBA_SCHEMATICS.png
+ * Origin: https://reprap.org/wiki/File:RRD-RUMBA_SCHEMATICS.png
+ * ATmega2560
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#elif HOTENDS > 3 || E_STEPPERS > 3
-  #error "RUMBA supports up to 3 hotends / E-steppers. Comment out this line to continue."
+#define REQUIRE_MEGA2560
+#include "env_validate.h"
+
+#if HOTENDS > 3 || E_STEPPERS > 3
+  #error "RUMBA supports up to 3 hotends / E steppers."
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -46,12 +50,24 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             37
-#define X_MAX_PIN                             36
-#define Y_MIN_PIN                             35
-#define Y_MAX_PIN                             34
-#define Z_MIN_PIN                             33
-#define Z_MAX_PIN                             32
+#ifndef X_MIN_PIN
+  #define X_MIN_PIN                           37
+#endif
+#ifndef X_MAX_PIN
+  #define X_MAX_PIN                           36
+#endif
+#ifndef Y_MIN_PIN
+  #define Y_MIN_PIN                           35
+#endif
+#ifndef Y_MAX_PIN
+  #define Y_MAX_PIN                           34
+#endif
+#ifndef Z_MIN_PIN
+  #define Z_MIN_PIN                           33
+#endif
+#ifndef Z_MAX_PIN
+  #define Z_MAX_PIN                           32
+#endif
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -140,8 +156,8 @@
 #define HEATER_3_PIN                           8
 #define HEATER_BED_PIN                         9
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              7
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             7
 #endif
 #ifndef FAN1_PIN
   #define FAN1_PIN                             8
@@ -204,12 +220,12 @@
       #define RGB_LED_B_PIN                   40
     #endif
   #elif ENABLED(FYSETC_MINI_12864_2_1)
-    #define NEOPIXEL_PIN                      25
+    #define NEOPIXEL_PIN                      38
   #endif
 
 #else
   #define LCD_PINS_RS                         19
-  #define LCD_PINS_ENABLE                     42
+  #define LCD_PINS_EN                         42
   #define LCD_PINS_D4                         18
   #define LCD_PINS_D5                         38
   #define LCD_PINS_D6                         41
@@ -222,7 +238,7 @@
 //
 #define BEEPER_PIN                            44
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define SDSS                                53
   #define SD_DETECT_PIN                       49
 #endif

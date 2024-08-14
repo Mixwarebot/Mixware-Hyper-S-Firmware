@@ -60,7 +60,7 @@ static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb
   }
   else if (srflags & USART_SR_ORE) {
     // overrun and empty data, just do a dummy read to clear ORE
-    // and prevent a raise condition where a continous interrupt stream (due to ORE set) occurs
+    // and prevent a raise condition where a continuous interrupt stream (due to ORE set) occurs
     // (see chapter "Overrun error" ) in STM32 reference manual
     regs->DR;
   }
@@ -77,7 +77,7 @@ static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb
 // Not every MarlinSerial port should handle emergency parsing.
 // It would not make sense to parse GCode from TMC responses, for example.
 constexpr bool serial_handles_emergency(int port) {
-  return false
+  return (false
     #ifdef SERIAL_PORT
       || (SERIAL_PORT) == port
     #endif
@@ -87,7 +87,7 @@ constexpr bool serial_handles_emergency(int port) {
     #ifdef LCD_SERIAL_PORT
       || (LCD_SERIAL_PORT) == port
     #endif
-  ;
+  );
 }
 
 #define DEFINE_HWSERIAL_MARLIN(name, n)     \
@@ -134,11 +134,11 @@ constexpr bool IsSerialClassAllowed(const HardwareSerial&) { return false; }
 // If you encounter this error, replace SerialX with MSerialX, for example MSerial3.
 
 // Non-TMC ports were already validated in HAL.h, so do not require verbose error messages.
-#ifdef MYSERIAL0
-  CHECK_CFG_SERIAL(MYSERIAL0);
-#endif
 #ifdef MYSERIAL1
   CHECK_CFG_SERIAL(MYSERIAL1);
+#endif
+#ifdef MYSERIAL2
+  CHECK_CFG_SERIAL(MYSERIAL2);
 #endif
 #ifdef LCD_SERIAL
   CHECK_CFG_SERIAL(LCD_SERIAL);
@@ -166,6 +166,15 @@ constexpr bool IsSerialClassAllowed(const HardwareSerial&) { return false; }
 #endif
 #if AXIS_HAS_HW_SERIAL(Z4)
   CHECK_AXIS_SERIAL(Z4);
+#endif
+#if AXIS_HAS_HW_SERIAL(I)
+  CHECK_AXIS_SERIAL(I);
+#endif
+#if AXIS_HAS_HW_SERIAL(J)
+  CHECK_AXIS_SERIAL(J);
+#endif
+#if AXIS_HAS_HW_SERIAL(K)
+  CHECK_AXIS_SERIAL(K);
 #endif
 #if AXIS_HAS_HW_SERIAL(E0)
   CHECK_AXIS_SERIAL(E0);

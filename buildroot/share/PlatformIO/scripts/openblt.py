@@ -1,15 +1,19 @@
 #
 # Convert the ELF to an SREC file suitable for some bootloaders
 #
-import os,sys
-from os.path import join
+import pioutil
+if pioutil.is_pio_build():
+    from os.path import join
 
-Import("env")
+    Import("env")
 
-env.AddPostAction(
-    "$BUILD_DIR/${PROGNAME}.elf",
-    env.VerboseAction(" ".join([
-        "$OBJCOPY", "-O", "srec",
-        "\"$BUILD_DIR/${PROGNAME}.elf\"", "\"$BUILD_DIR/${PROGNAME}.srec\""
-    ]), "Building " + join("$BUILD_DIR", "${PROGNAME}.srec"))
-)
+    board = env.BoardConfig()
+    board_keys = board.get("build").keys()
+    if 'encode' in board_keys:
+        env.AddPostAction(
+            join("$BUILD_DIR", "${PROGNAME}.bin"),
+            env.VerboseAction(" ".join([
+                "$OBJCOPY", "-O", "srec",
+                "\"$BUILD_DIR/${PROGNAME}.elf\"", "\"" + join("$BUILD_DIR", board.get("build.encode")) + "\""
+            ]), "Building " + board.get("build.encode"))
+        )

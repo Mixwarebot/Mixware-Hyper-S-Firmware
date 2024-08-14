@@ -21,9 +21,7 @@
  */
 #pragma once
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 /**
  * 21017 Victor Perez Marlin for stm32f1 test
@@ -103,7 +101,7 @@
     #error "REPRAPWORLD_GRAPHICAL_LCD is not supported."
   #else
     #define LCD_PINS_RS                     PB8
-    #define LCD_PINS_ENABLE                 PD2
+    #define LCD_PINS_EN                     PD2
     #define LCD_PINS_D4                     PB12
     #define LCD_PINS_D5                     PB13
     #define LCD_PINS_D6                     PB14
@@ -122,7 +120,7 @@
       #error "LCD_I2C_PANELOLU2 is not supported."
     #elif ENABLED(LCD_I2C_VIKI)
       #error "LCD_I2C_VIKI is not supported."
-    #elif ANY(VIKI2, miniVIKI)
+    #elif EITHER(VIKI2, miniVIKI)
       #error "VIKI2 / miniVIKI is not supported."
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
       #error "ELB_FULL_GRAPHIC_CONTROLLER is not supported."

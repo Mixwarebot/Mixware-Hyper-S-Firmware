@@ -93,9 +93,7 @@ static void PCA9632_WriteRegister(const byte addr, const byte regadd, const byte
 }
 
 static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const byte vr, const byte vg, const byte vb
-  #if ENABLED(PCA9632_RGBW)
-    , const byte vw
-  #endif
+  OPTARG(PCA9632_RGBW, const byte vw)
 ) {
   #if DISABLED(PCA9632_NO_AUTO_INC)
     uint8_t data[4];
@@ -143,16 +141,14 @@ void PCA9632_set_led_color(const LEDColor &color) {
                     ;
 
   PCA9632_WriteAllRegisters(PCA9632_ADDRESS,PCA9632_PWM0, color.r, color.g, color.b
-    #if ENABLED(PCA9632_RGBW)
-      , color.w
-    #endif
+    OPTARG(PCA9632_RGBW, color.w)
   );
   PCA9632_WriteRegister(PCA9632_ADDRESS,PCA9632_LEDOUT, LEDOUT);
 }
 
 #if ENABLED(PCA9632_BUZZER)
 
-  void PCA9632_buzz(const long, const uint16_t) {
+  void PCA9632_buzz(const long, const uint16_t=0) {
     uint8_t data[] = PCA9632_BUZZER_DATA;
     Wire.beginTransmission(I2C_ADDRESS(PCA9632_ADDRESS));
     Wire.write(data, sizeof(data));

@@ -23,12 +23,14 @@
 
 /**
  *  Z-Bolt X Series board – based on Arduino Mega2560
+ *  ATmega2560
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#elif HOTENDS > 4 || E_STEPPERS > 4
-  #error "Z-Bolt X Series board supports up to 4 hotends / E-steppers."
+#define REQUIRE_MEGA2560
+#include "env_validate.h"
+
+#if HOTENDS > 4 || E_STEPPERS > 4
+  #error "Z-Bolt X Series supports up to 4 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "Z-Bolt X Series"
@@ -134,7 +136,7 @@
 #define HEATER_3_PIN                           5
 #define HEATER_BED_PIN                         8
 
-#define FAN_PIN                                9
+#define FAN0_PIN                               9
 
 //
 // Misc. Functions
@@ -181,16 +183,14 @@
 //
 // TMC software SPI
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                       66
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                       44
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                        64
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                        66
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                        44
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                         64
 #endif
 
 #if HAS_TMC_UART
@@ -211,10 +211,6 @@
   //#define E2_HARDWARE_SERIAL Serial1
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
-
-  //
-  // Software serial
-  //
 
   #ifndef X_SERIAL_TX_PIN
     #define X_SERIAL_TX_PIN                   40

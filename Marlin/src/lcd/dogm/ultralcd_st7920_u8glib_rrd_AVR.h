@@ -28,14 +28,14 @@
 #include "../../HAL/shared/Delay.h"
 
 #define ST7920_CLK_PIN  LCD_PINS_D4
-#define ST7920_DAT_PIN  LCD_PINS_ENABLE
+#define ST7920_DAT_PIN  LCD_PINS_EN
 #define ST7920_CS_PIN   LCD_PINS_RS
 
 //#define PAGE_HEIGHT 8   // 128 byte framebuffer
 #define PAGE_HEIGHT 16    // 256 byte framebuffer
 //#define PAGE_HEIGHT 32  // 512 byte framebuffer
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 
 void ST7920_SWSPI_SND_8BIT(uint8_t val);
 

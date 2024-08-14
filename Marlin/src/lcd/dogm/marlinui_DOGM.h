@@ -27,7 +27,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 #include "HAL_LCD_class_defines.h"
 
 //#define ALTERNATIVE_LCD
@@ -36,19 +36,23 @@
 
   // RepRapWorld Graphical LCD
 
-  #define U8G_CLASS U8GLIB_ST7920_128X64_4X
-  #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SD_SCK_PIN) && (LCD_PINS_ENABLE == SD_MOSI_PIN)
+  #if !HAS_MEDIA && (LCD_PINS_D4 == SD_SCK_PIN) && (LCD_PINS_EN == SD_MOSI_PIN)
+    #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL
+    #define U8G_PARAM LCD_PINS_RS
+  #elif HAS_MEDIA && __SAMD21__
+    #define U8G_CLASS U8GLIB_ST7920_128X64_4X
     #define U8G_PARAM LCD_PINS_RS
   #else
-    #define U8G_PARAM LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS
+    #define U8G_CLASS U8GLIB_ST7920_128X64_4X
+    #define U8G_PARAM LCD_PINS_D4, LCD_PINS_EN, LCD_PINS_RS
   #endif
 
-#elif ENABLED(U8GLIB_ST7920)
+#elif IS_U8GLIB_ST7920
 
   // RepRap Discount Full Graphics Smart Controller
   // and other variant LCDs using ST7920
 
-  #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SD_SCK_PIN) && (LCD_PINS_ENABLE == SD_MOSI_PIN)
+  #if !HAS_MEDIA && (LCD_PINS_D4 == SD_SCK_PIN) && (LCD_PINS_EN == SD_MOSI_PIN)
     #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL               // 2 stripes, HW SPI (Shared with SD card. Non-standard LCD adapter on AVR.)
     #define U8G_PARAM LCD_PINS_RS
   #else
@@ -57,7 +61,7 @@
     #else
       #define U8G_CLASS U8GLIB_ST7920_128X64_RRD                // Adjust stripes with PAGE_HEIGHT in ultralcd_st7920_u8glib_rrd.h
     #endif
-    #define U8G_PARAM LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS // AVR version ignores these pin settings
+    #define U8G_PARAM LCD_PINS_D4, LCD_PINS_EN, LCD_PINS_RS // AVR version ignores these pin settings
                                                                 // HAL version uses these pin settings
   #endif
 
@@ -72,7 +76,7 @@
     #define U8G_CLASS U8GLIB_DOGM128_2X                         // 4 stripes (HW-SPI)
   #endif
 
-#elif ENABLED(U8GLIB_LM6059_AF)
+#elif IS_U8GLIB_LM6059_AF
 
   // Based on the Adafruit ST7565 (https://www.adafruit.com/products/250)
 
@@ -82,13 +86,14 @@
     #define U8G_CLASS U8GLIB_LM6059_2X                          // 4 stripes (HW-SPI)
   #endif
 
-#elif ENABLED(U8GLIB_ST7565_64128N)
+#elif IS_U8GLIB_ST7565_64128N
 
   // MaKrPanel, Mini Viki, Viki 2.0, AZSMZ 12864 ST7565 controller
 
   #define SMART_RAMPS MB(RAMPS_SMART_EFB, RAMPS_SMART_EEB, RAMPS_SMART_EFF, RAMPS_SMART_EEF, RAMPS_SMART_SF)
   #define U8G_CLASS U8GLIB_64128N_2X_HAL                        // 4 stripes (HW-SPI)
-  #if SMART_RAMPS || DOGLCD_SCK != SD_SCK_PIN || DOGLCD_MOSI != SD_MOSI_PIN
+
+  #if (SMART_RAMPS && defined(__SAM3X8E__)) || DOGLCD_SCK != SD_SCK_PIN || DOGLCD_MOSI != SD_MOSI_PIN
     #define FORCE_SOFT_SPI                                      // SW-SPI
   #endif
 
@@ -122,9 +127,10 @@
     #define U8G_CLASS U8GLIB_SSD1306_128X64                     // 8 stripes
   #endif
 
-#elif ENABLED(FYSETC_242_OLED_12864)
+#elif EITHER(FYSETC_242_OLED_12864, K3D_242_OLED_CONTROLLER)
 
-  // FYSETC OLED 2.42" 128 × 64 FULL GRAPHICS CONTROLLER
+  // FYSETC OLED 2.42" 128 × 64 Full Graphics Controller
+  // or K3D OLED 2.42" 128 × 64 Full Graphics Controller
 
   #define FORCE_SOFT_SPI                                        // SW-SPI
 

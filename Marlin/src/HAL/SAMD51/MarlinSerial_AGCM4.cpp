@@ -1,8 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
+/**
+ * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
+ */
 #ifdef ADAFRUIT_GRAND_CENTRAL_M4
 
 /**
@@ -27,7 +32,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if USING_SERIAL_1
+#if USING_HW_SERIAL1
   UartT Serial2(false, &sercom4, PIN_SERIAL2_RX, PIN_SERIAL2_TX, PAD_SERIAL2_RX, PAD_SERIAL2_TX);
   void SERCOM4_0_Handler() { Serial2.IrqHandler(); }
   void SERCOM4_1_Handler() { Serial2.IrqHandler(); }
@@ -35,7 +40,7 @@
   void SERCOM4_3_Handler() { Serial2.IrqHandler(); }
 #endif
 
-#if USING_SERIAL_2
+#if USING_HW_SERIAL2
   UartT Serial3(false, &sercom1, PIN_SERIAL3_RX, PIN_SERIAL3_TX, PAD_SERIAL3_RX, PAD_SERIAL3_TX);
   void SERCOM1_0_Handler() { Serial3.IrqHandler(); }
   void SERCOM1_1_Handler() { Serial3.IrqHandler(); }
@@ -43,7 +48,7 @@
   void SERCOM1_3_Handler() { Serial3.IrqHandler(); }
 #endif
 
-#if USING_SERIAL_3
+#if USING_HW_SERIAL3
   UartT Serial4(false, &sercom5, PIN_SERIAL4_RX, PIN_SERIAL4_TX, PAD_SERIAL4_RX, PAD_SERIAL4_TX);
   void SERCOM5_0_Handler() { Serial4.IrqHandler(); }
   void SERCOM5_1_Handler() { Serial4.IrqHandler(); }

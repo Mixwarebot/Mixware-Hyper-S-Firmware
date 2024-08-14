@@ -25,11 +25,13 @@
  * Geeetech GT2560 Revision A board pin assignments, based on the work of
  * George Robles (https://georges3dprinters.com) and
  * Richard Smith <galorin@gmail.com>
+ * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Geeetech%20GT2560%20Revision%20A/GT2560_sch.pdf
+ * Origin: https://www.geeetech.com/wiki/images/9/90/GT2560_sch.pdf
+ * ATmega2560
  */
 
-#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#define ALLOW_MEGA1280
+#include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "GT2560 Rev.A"
@@ -48,10 +50,11 @@
 #if ENABLED(BLTOUCH)
   #if MB(GT2560_REV_A_PLUS)
     #define SERVO0_PIN                        11
+    #define Z_MAX_PIN                         32
   #else
     #define SERVO0_PIN                        32
+    #define Z_MAX_PIN                         -1
   #endif
-  #define Z_MAX_PIN                           -1
 #else
   #define Z_MAX_PIN                           32
 #endif
@@ -92,8 +95,8 @@
 #define HEATER_0_PIN                           2
 #define HEATER_1_PIN                           3
 #define HEATER_BED_PIN                         4
-#ifndef FAN_PIN
-  #define FAN_PIN                              7
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             7
 #endif
 
 //
@@ -127,12 +130,12 @@
 
       #define LCD_RESET_PIN                   16
 
-      #define DEFAULT_LCD_CONTRAST           220
+      #define LCD_CONTRAST_INIT              220
 
       #define LCD_BACKLIGHT_PIN               -1
     #else
       #define LCD_PINS_RS                     20
-      #define LCD_PINS_ENABLE                 17
+      #define LCD_PINS_EN                     17
       #define LCD_PINS_D4                     16
       #define LCD_PINS_D5                     21
       #define LCD_PINS_D6                      5
@@ -152,7 +155,7 @@
     #define SHIFT_EN_PIN                      17
 
     #define LCD_PINS_RS                       16
-    #define LCD_PINS_ENABLE                    5
+    #define LCD_PINS_EN                        5
     #define LCD_PINS_D4                        6
     #define LCD_PINS_D5                       21
     #define LCD_PINS_D6                       20

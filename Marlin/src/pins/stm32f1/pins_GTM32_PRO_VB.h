@@ -22,15 +22,17 @@
 #pragma once
 
 /**
- * 24 May 2018 - @chepo for STM32F103VET6
- * Schematic: https://github.com/chepo92/Smartto/blob/master/circuit_diagram/Rostock301/Hardware_GTM32_PRO_VB.pdf
+ * Geeetech GTM32 Pro VB board pin assignments
+ * https://www.geeetech.com/wiki/index.php/File:Hardware_GTM32_PRO_VB.pdf
+ *
+ * Also applies to GTM32 Pro VD
  */
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
-#define BOARD_INFO_NAME      "GTM32 Pro VB"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME    "GTM32 Pro VB"
+#endif
 #define DEFAULT_MACHINE_NAME "STM32F103VET6"
 
 #define BOARD_NO_NATIVE_USB
@@ -56,7 +58,7 @@
 // Enable EEPROM Emulation for this board as it doesn't have EEPROM
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
 
 //
@@ -113,7 +115,7 @@
 //
 // These are FAN PWM pins on EXT0..EXT2 connectors.
 //
-//#define FAN_PIN                           PB9   // EXT0 port
+//#define FAN0_PIN                          PB9   // EXT0 port
 #define FAN1_PIN                            PB8   // EXT1 port
 #define FAN2_PIN                            PB7   // EXT2 port
 
@@ -146,7 +148,7 @@
     // RepRapDiscount Smart Controller, but adds an FFC40 connector
     //
     #define LCD_PINS_RS                     PE6   // CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE                 PE14  // SID (MOSI)
+    #define LCD_PINS_EN                     PE14  // SID (MOSI)
     #define LCD_PINS_D4                     PD8   // SCK (CLK) clock
     #define LCD_PINS_D5                     PD9
     #define LCD_PINS_D6                     PD10
@@ -160,16 +162,11 @@
     //#define LCD_UART_RX                   PD9
   #endif
 
-  #if HAS_MARLINUI_U8GLIB
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(715)
-    #endif
+  // Alter timing for graphical display
+  #if IS_U8GLIB_ST7920
+    #define BOARD_ST7920_DELAY_1              96
+    #define BOARD_ST7920_DELAY_2              48
+    #define BOARD_ST7920_DELAY_3             715
   #endif
 
 #endif // HAS_WIRED_LCD
@@ -234,10 +231,11 @@
 
 #define SDSS                           SD_SS_PIN
 
-//
-// ESP WiFi can be soldered to J9 connector which is wired to USART2.
-// Must define WIFISUPPORT in Configuration.h for the printer.
-//
-#define ESP_WIFI_MODULE_COM                    2
-#define ESP_WIFI_MODULE_BAUDRATE          115200
-#define ESP_WIFI_MODULE_RESET_PIN           -1
+#if ENABLED(WIFISUPPORT)
+  //
+  // ESP WiFi can be soldered to J9 connector which is wired to USART2.
+  //
+  #define ESP_WIFI_MODULE_COM                  2
+  #define ESP_WIFI_MODULE_BAUDRATE        115200
+  #define ESP_WIFI_MODULE_RESET_PIN         -1
+#endif

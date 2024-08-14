@@ -30,6 +30,7 @@
 #include <WString.h>
 
 #include "../../inc/MarlinConfigPre.h"
+#include "../../core/types.h"
 #include "../../core/serial_hook.h"
 
 // Define constants and variables for buffering incoming serial data.  We're
@@ -52,10 +53,6 @@
 //  #error "TX_BUFFER_SIZE must be 0, a power of 2 greater than 1, and no greater than 256."
 //#endif
 
-// Templated type selector
-template<bool b, typename T, typename F> struct TypeSelector { typedef T type;} ;
-template<typename T, typename F> struct TypeSelector<false, T, F> { typedef F type; };
-
 // Templated structure wrapper
 template<typename S, unsigned int addr> struct StructWrapper {
   constexpr StructWrapper(int) {}
@@ -76,7 +73,7 @@ protected:
   static constexpr int HWUART_IRQ_ID = IRQ_IDS[Cfg::PORT];
 
   // Base size of type on buffer size
-  typedef typename TypeSelector<(Cfg::RX_SIZE>256), uint16_t, uint8_t>::type ring_buffer_pos_t;
+  typedef uvalue_t(Cfg::RX_SIZE - 1) ring_buffer_pos_t;
 
   struct ring_buffer_r {
     volatile ring_buffer_pos_t head, tail;
@@ -118,7 +115,7 @@ public:
   static size_t write(const uint8_t c);
   static void flushTX();
 
-  static inline bool emergency_parser_enabled() { return Cfg::EMERGENCYPARSER; }
+  static bool emergency_parser_enabled() { return Cfg::EMERGENCYPARSER; }
 
   FORCE_INLINE static uint8_t dropped() { return Cfg::DROPPED_RX ? rx_dropped_bytes : 0; }
   FORCE_INLINE static uint8_t buffer_overruns() { return Cfg::RX_OVERRUNS ? rx_buffer_overruns : 0; }
@@ -140,12 +137,17 @@ struct MarlinSerialCfg {
   static constexpr bool MAX_RX_QUEUED     = ENABLED(SERIAL_STATS_MAX_RX_QUEUED);
 };
 
-#if SERIAL_PORT >= 0
-  typedef Serial0Type< MarlinSerial< MarlinSerialCfg<SERIAL_PORT> > > MSerialT;
-  extern MSerialT customizedSerial1;
+#if defined(SERIAL_PORT) && SERIAL_PORT >= 0
+  typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT> > > MSerialT1;
+  extern MSerialT1 customizedSerial1;
 #endif
 
 #if defined(SERIAL_PORT_2) && SERIAL_PORT_2 >= 0
-  typedef Serial0Type< MarlinSerial< MarlinSerialCfg<SERIAL_PORT_2> > > MSerialT2;
+  typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT_2> > > MSerialT2;
   extern MSerialT2 customizedSerial2;
+#endif
+
+#if defined(SERIAL_PORT_3) && SERIAL_PORT_3 >= 0
+  typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT_3> > > MSerialT3;
+  extern MSerialT3 customizedSerial3;
 #endif

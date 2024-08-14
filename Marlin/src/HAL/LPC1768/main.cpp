@@ -46,7 +46,9 @@ extern "C" {
 
 void SysTick_Callback() { disk_timerproc(); }
 
-void HAL_init() {
+TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
+
+void MarlinHAL::init() {
 
   // Init LEDs
   #if PIN_EXISTS(LED)
@@ -115,32 +117,32 @@ void HAL_init() {
     PinCfg.Pinmode = 2;    // no pull-up/pull-down
     PINSEL_ConfigPin(&PinCfg);
     // now set CLKOUT_EN bit
-    LPC_SC->CLKOUTCFG |= (1<<8);
+    SBI(LPC_SC->CLKOUTCFG, 8);
   #endif
 
   USB_Init();                               // USB Initialization
-  USB_Connect(FALSE);                       // USB clear connection
+  USB_Connect(false);                       // USB clear connection
   delay(1000);                              // Give OS time to notice
-  USB_Connect(TRUE);
+  USB_Connect(true);
 
-  #if HAS_SD_HOST_DRIVE
-    MSC_SD_Init(0);                         // Enable USB SD card access
-  #endif
+  TERN_(HAS_SD_HOST_DRIVE, MSC_SD_Init(0)); // Enable USB SD card access
 
   const millis_t usb_timeout = millis() + 2000;
   while (!USB_Configuration && PENDING(millis(), usb_timeout)) {
     delay(50);
-    HAL_idletask();
+    idletask();
     #if PIN_EXISTS(LED)
       TOGGLE(LED_PIN);     // Flash quickly during USB initialization
     #endif
   }
 
   HAL_timer_init();
+
+  TERN_(POSTMORTEM_DEBUGGING, install_min_serial()); // Install the min serial handler
 }
 
 // HAL idle task
-void HAL_idletask() {
+void MarlinHAL::idletask() {
   #if HAS_SHARED_MEDIA
     // If Marlin is using the SD card we need to lock it to prevent access from
     // a PC via USB.

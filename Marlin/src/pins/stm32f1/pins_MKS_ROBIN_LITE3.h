@@ -25,10 +25,10 @@
  * MKS Robin Lite 3 (STM32F103RCT6) board pin assignments
  */
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS Robin Lite3 supports up to 2 hotends / E-steppers. Comment out this line to continue."
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "MKS Robin Lite3 supports up to 2 hotends / E steppers."
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -82,7 +82,7 @@
 //
 #define HEATER_0_PIN                        PC9
 #define HEATER_1_PIN                        PC7
-#define FAN_PIN                             PA8
+#define FAN0_PIN                            PA8
 #define HEATER_BED_PIN                      PC8
 
 //
@@ -101,7 +101,7 @@
 
   #define BEEPER_PIN                        PC1
   #define BTN_ENC                           PC3
-  #define LCD_PINS_ENABLE                   PA4
+  #define LCD_PINS_EN                       PA4
   #define LCD_PINS_RS                       PA5
   #define BTN_EN1                           PB11
   #define BTN_EN2                           PB0
@@ -138,9 +138,9 @@
 
   #endif // !MKS_MINI_12864
 
-  #define BOARD_ST7920_DELAY_1     DELAY_NS(125)
-  #define BOARD_ST7920_DELAY_2     DELAY_NS(125)
-  #define BOARD_ST7920_DELAY_3     DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_1               125
+  #define BOARD_ST7920_DELAY_2               125
+  #define BOARD_ST7920_DELAY_3               125
 
 #endif // HAS_WIRED_LCD
 
